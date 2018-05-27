@@ -1,0 +1,47 @@
+version: '1.0'
+steps:
+
+  date_export:
+    title: export date
+    image: alpine
+    commands:
+      - cf_export DATE=$(date +%Y%m%d_%H%M%S)
+
+  backupMongo:
+    title: Backup Mongo DB
+    image: mongo
+    commands:
+      - mkdir -p backup/$DATE/mongo
+      - echo "Starting Mongo backup"
+      - mongodump --out backup/$DATE/mongo/ --host cf-mongodb:27017 -u root -p ${{MONGO_PWD}} || echo "Mongo backup has failed for date $DATE"
+      - echo "Mongo backup completed successfully"
+
+  backupConsul:
+    title: Backup Consul
+    image: consul
+    commands:
+      - mkdir -p backup/$DATE/consul
+      - echo "Starting Consul backup"
+      - curl http://cf-consul:8500/v1/snapshot > backup/$DATE/consul/consul.bkp || echo "Consul backup has failed for date $DATE"
+      - echo "Consul backup completed successfully"
+
+  backupRedis:
+    title: Backup Redis
+    image: redis
+    commands:
+      - mkdir -p backup/$DATE/redis
+      - echo "Starting Redis backup"
+      - redis-cli -u redis://cf-redis:6379 -a hoC9szf7NtrU --rdb backup/$DATE/redis/redis.bkp || echo "Redis backups has failed for date $DATE"
+      - echo "Redis backup completed successfully"
+
+  uploadAzure:
+    title: Upload backup to Azure
+    image: microsoft/azure-cli:0.10.14
+    commands:
+      - tar -zcvf cf-backup-$DATE.tar.gz backup/$DATE/
+      - azure login -u ${{AZ_USER}} -p ${{AZ_PWD}}
+      - azure storage blob upload cf-backup-$DATE.tar.gz ${{AZ_CONTAINER}} codefresh-backup-$DATE.tar.gz
+      - rm cf-backup-$DATE.tar.gz
+    environment:
+      - AZURE_STORAGE_ACCOUNT=${{AZ_STORAGE_ACCOUNT}}
+      - AZURE_STORAGE_ACCESS_KEY=${{AZ_STORAGE_ACCESS_KEY}}
