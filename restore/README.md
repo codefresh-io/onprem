@@ -1,4 +1,4 @@
-# Backup Codefresh Onprem Using Pipeline
+# Restore Codefresh Onprem Using Pipeline
 
 Codefresh on-prem restore can be done using Codefresh pipeline that will fetch the archived restore artifact and restore each data layer.
 
