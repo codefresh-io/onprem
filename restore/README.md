@@ -1,8 +1,8 @@
 # Backup Codefresh Onprem Using Pipeline
 
-Codefresh on-prem backup can be done using Codefresh pipeline and the archive can be uploaded to a storage of your choice.
+Codefresh on-prem restore can be done using Codefresh pipeline that will fetch the archived restore artifact and restore each data layer.
 
-## Environment Variables - Backup and upload archive to Azure BLOB
+## Environment Variables - Restore from Azure BLOB archive
 
 | Variable| Value| Description|
 | --- | --- | --- |
@@ -14,3 +14,5 @@ Codefresh on-prem backup can be done using Codefresh pipeline and the archive ca
 | AZ_STORAGE_ACCOUNT |  | Azure BLOB storage account name |
 | AZ_STORAGE_ACCESS_KEY |  | Azure BLOB storage account key |
 | AZ_CONTAINER |  | Azure BLOB storage container name |
+| AZ_BLOB |  | Azure BLOB archive you want to restore from |
+

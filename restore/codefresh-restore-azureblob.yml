@@ -1,0 +1,45 @@
+version: '1.0'
+steps:
+
+  downloadBackupAzure:
+    title: Download backup from Azure
+    image: microsoft/azure-cli:0.10.14
+    commands:
+      - rm ${{AZ_BLOB}} || true
+      - rm -rf backup || true
+      - azure login -u ${{AZ_USER}} -p ${{AZ_PWD}}
+      - azure storage blob download ${{AZ_CONTAINER}} ${{AZ_BLOB}}
+      - tar -xzvf ${{AZ_BLOB}}
+    environment:
+      - AZURE_STORAGE_ACCOUNT=${{AZ_STORAGE_ACCOUNT}}
+      - AZURE_STORAGE_ACCESS_KEY=${{AZ_STORAGE_ACCESS_KEY}}
+
+  restoreConsul:
+    title: Restore Consul
+    image: consul
+    working_directory: backup
+    commands:
+      - cd * && cd consul
+      - echo "Starting Consul restore"
+      - curl -v -T consul.bkp http://cf-consul:8500/v1/snapshot
+      - echo "Consul restore completed successfully"
+
+  restoreRedis:
+    title: Restore Redis
+    image: redis
+    working_directory: backup
+    commands:
+      - cd * && cd redis
+      - echo "Starting Redis restore"
+      - rdb --c protocol ./redis.bkp | redis-cli -u redis://cf-redis:6379 -a ${{REDIS_PWD}} --pipe
+      - echo "Redis restore completed successfully"
+
+  restoreMongo:
+    title: Restore Mongo DB
+    image: mongo
+    working_directory: backup
+    commands:
+      - cd *
+      - echo "Starting Mongo restore"
+      - mongorestore mongo --host cf-mongodb:27017 -u root -p ${{MONGO_PWD}} --drop
+      - echo "Mongo restore completed successfully"
