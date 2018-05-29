@@ -31,7 +31,7 @@ steps:
     commands:
       - mkdir -p backup/$DATE/redis
       - echo "Starting Redis backup"
-      - redis-cli -u redis://cf-redis:6379 -a hoC9szf7NtrU --rdb backup/$DATE/redis/redis.bkp || echo "Redis backups has failed for date $DATE"
+      - redis-cli -u redis://cf-redis:6379 -a ${{REDIS_PWD}} --rdb backup/$DATE/redis/redis.bkp || echo "Redis backups has failed for date $DATE"
       - echo "Redis backup completed successfully"
 
   uploadAzure:
