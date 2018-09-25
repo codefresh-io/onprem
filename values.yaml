@@ -1,0 +1,12 @@
+ingress:
+  domain: onprem-poc-2.codefresh.io
+
+global:
+  appProtocol: https
+  appUrl: onprem-poc-2.codefresh.io
+
+cfapi:
+  gitlab:
+    apiHost: gitlab-internal.codefresh.io
+    loginHost: gitlab-internal.codefresh.io
+    protocol: https

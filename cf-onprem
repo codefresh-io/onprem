@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+#
+
+#set -x
+
+msg() { echo -e "\e[32mINFO [$(date +%F\ %T)] ---> $1\e[0m"; }
+warning() { echo -e "\e[33mWARNING [$(date +%F\ %T)] ---> $1\e[0m"; }
+err() { echo -e "\e[31mERR [$(date +%F\ %T)] ---> $1\e[0m" ; exit 1; }
+
+readonly HELM_VERSION=2.10.0
+readonly CHANNEL="${CF_HELM_CHANNEL:-dev}"
+readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
+
+export KUBECONFIG=./.kube/config
+
+readonly WORKING_DIR="$(dirname "$0")"
+readonly SERVICE_ACCOUNT="${WORKING_DIR}/sa-dec.json"
+readonly VALUES_FILE="${WORKING_DIR}/values.yaml"
+readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yaml"
+readonly SECRET_VALUES_FILE="${WORKING_DIR}/values-dec.yaml"
+readonly MTU_VALUE="--set global.mtu=1450"
+
+usage() {
+	echo "$0 [-h] namespace-name project-name cluster-name [zone]"
+	exit 0
+}
+
+check() { command -v $1 >/dev/null 2>&1 || err "$1 binary is required!"; }
+
+exists() {
+	if command -v $1 >/dev/null 2>&1; then
+		msg "$1 binary installed"
+	else
+		warning "Please install $1 to proceed"
+		exit 1
+	fi
+}
+
+run_as_root() {
+	if [[ $EUID > 0 ]]; then
+		err "Please run as root/sudo"
+		exit 1
+	fi
+}
+
+approveContext() {
+	msg "Your kubectl is configured with the following context: "
+	kubectl config current-context
+	read -r -p "Are you sure you want to continue? [y/N] " response
+
+	if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+	then
+			msg "No problem, continuing with the script..."
+	else
+			msg "Exiting..."
+			exit 0
+	fi
+}
+
+checkHelmInstalled() {
+  if command -v $1 >/dev/null 2>&1; then
+    msg "helm already installed"
+  else
+    warning "helm is not installed"
+    read -p "Do you want to install helm ? [y/n] " yn
+    case ${yn} in
+      y|Y)  
+        helmInstall
+    ;;
+      *)
+        err "Need helm to deploy Codefresh app ! Exiting..."
+        #exit 1
+    ;;
+    esac  
+  fi
+}
+
+helmInstall() {
+  msg "Downloading and installing helm..."
+  case "$(uname -s)" in
+    Linux)
+      os=linux
+    ;;
+    Darwin)
+      os=darwin
+    ;;
+    *)
+    ;;
+  esac
+  wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-${os}-amd64.tar.gz -P /tmp/
+  tar xvf /tmp/helm-v${HELM_VERSION}-${os}-amd64.tar.gz -C /tmp/
+  chmod +x /tmp/${os}-amd64/helm
+  sudo mv /tmp/${os}-amd64/helm /usr/local/bin/
+  rm -rf /tmp/helm-v${HELM_VERSION}-${os}-amd64 /tmp/helm-v${HELM_VERSION}-${os}-amd64.tar.gz
+}
+
+checkTillerInstalled() {
+  status=$(kubectl -nkube-system  get po -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
+  if [ "$status" == "Running" ]; then
+    msg "Tiller is installed and running"
+    helm init -c
+  else
+    warning "Unable to determine tiller at its default location."
+    read -p  " Do you want to deploy tiller ? [y/n] " yn
+    case ${yn} in
+      y|Y)  
+        helm init --wait
+    ;;
+      *)
+        err "Need to deploy tiller ! Exiting..."
+        exit 1
+    ;;
+    esac
+  fi
+
+}
+
+checkTillerStatus() {
+	while true; do
+      status=$(kubectl -nkube-system  get po -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
+
+	  msg "Tiller status = $status"
+	  [ "$status" == "Running" ] && break
+
+	  msg "Sleeping 3 seconds ..."
+	  sleep 3
+
+	done
+}
+
+[ "$1" == "-h" ] && usage
+
+run_as_root
+
+msg "Starting on-prem Codefresh deployment"
+
+approveContext
+
+msg "Checking helm binary on your system"
+checkHelmInstalled "helm"
+
+msg "Checking if tiller is installed on kubernetes cluster"
+checkTillerInstalled
+
+msg "Checking tiller status..."
+checkTillerStatus
+
+msg "Adding Helm repo..."
+#addHelmCodefreshRepo
+helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}"
+
+DOCKER_CFG_JSON=$(cat ${SERVICE_ACCOUNT})
+DOCKER_CFG_VAR=$(echo -n "_json_key:${DOCKER_CFG_JSON}" | base64 -w0)
+
+
+
+cat <<EOF >${DOCKER_CFG_YAML}
+---
+dockerconfigjson:
+  auths:
+    gcr.io:
+      auth: ${DOCKER_CFG_VAR}
+
+cfui:
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
+
+runtime-environment-manager:
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
+
+onboarding-status:
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
+EOF
+
+#MTU_VALUE="--set global.mtu=$(cat /sys/class/net/cni0/mtu)"
+#TIMESTAMP=$(date +%F_%H-%M-%S)
+msg "Installing/Updating Codefresh..."
+helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
+  --install \
+  --namespace codefresh \
+  --values "${VALUES_FILE}" \
+  --values "${DOCKER_CFG_YAML}" \
+  --values "${SECRET_VALUES_FILE}" \
+  --no-hooks \
+  --set cfapi.redeploy=true \
+  ${MTU_VALUE}

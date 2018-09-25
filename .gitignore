@@ -1,3 +1,25 @@
 **/certs
 .idea
 assets
+.kube
+# decrypted files
+**/*-dec.*
+
+# backup files
+**/bak/*
+
+.env
+.vscode/
+
+# secret files
+service-account.json
+dockercfg.yaml
+
+# junk files
+QUESTIONS.md
+out/
+darwin-amd64/
+index.yaml
+**/.DS_Store
+*.orig
+.idea/
