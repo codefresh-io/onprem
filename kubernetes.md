@@ -1,4 +1,4 @@
-## How to deploy Azure Kubernetes Service (AKS) cluster
+## How to deploy Codefresh application on Azure Kubernetes Service (AKS) cluster
 
 ### Pre-requisites
 
@@ -29,7 +29,7 @@ az aks get-credentials --resource-group onprem-aks-rg --name onprem-aks --admin
 kubectl config current-context
 ```
 
-### Register CF app in a git provider
+### Register Codefresh app in a git provider
 
 1. Define your CF app URL: example `https://onprem-aks.codefresh.io`
 
