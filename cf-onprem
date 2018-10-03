@@ -189,7 +189,7 @@ helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
   --namespace codefresh \
   --values "${VALUES_FILE}" \
   --values "${DOCKER_CFG_YAML}" \
-  --values "${SECRET_VALUES_FILE}" \
+# --values "${SECRET_VALUES_FILE}" \
   --no-hooks \
   --set cfapi.redeploy=true \
   ${MTU_VALUE}
