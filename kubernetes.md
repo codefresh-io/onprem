@@ -46,11 +46,9 @@ To be able to encrypt `*-dec.*` files and decrypt `*-enc.*` files `aws cli` shou
 git clone git@github.com:codefresh-io/onprem.git
 cd onprem
 ```
-2. Decrypt `sa-enc.json` and `values-enc.yaml` files
-```
-./sops.sh -d
-```
-3. Make configuration changes in `sa-dec.json`, `values.yaml`, `values-dec.yaml` files 
+2. Download values.yaml and sa-dec.json files from [1Password](https://codefresh.1password.com/) into current `./onprem` directory. When logged in search for `onprem` in `devops-shared` vault.
+
+3. Make configuration changes in `sa-dec.json`, `values.yaml` files. 
 
 * `sa-dec.json` contains GCP service account that enables a customer to pull codefresh images (created in GCP [codefres-enterprise project](https://console.cloud.google.com/iam-admin/serviceaccounts?organizationId=304925537542&orgonly=true&project=codefresh-enterprise) )
 * `values.yaml` set CF application domain name, git provider domain name
