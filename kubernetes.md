@@ -10,7 +10,7 @@
 1. Make `az login` if needed
 2. Create a resource group
 ```
-az aks get-versions --location centralus -otable
+az group create --name onprem-aks-rg --location centralus
 ```
 3. Get available Kubernetes versions
 ```
@@ -39,8 +39,6 @@ kubectl config current-context
 
 ### Deploy Codefresh app
 
-To be able to encrypt `*-dec.*` files and decrypt `*-enc.*` files `aws cli` should be configured with permissions to use AWS KMS service and [sops](https://github.com/mozilla/sops/releases) binary installed on your system.
-
 1. Clone [onprem](https://github.com/codefresh-io/onprem) repository
 ```
 git clone git@github.com:codefresh-io/onprem.git
@@ -50,9 +48,8 @@ cd onprem
 
 3. Make configuration changes in `sa-dec.json`, `values.yaml` files. 
 
-* `sa-dec.json` contains GCP service account that enables a customer to pull codefresh images (created in GCP [codefres-enterprise project](https://console.cloud.google.com/iam-admin/serviceaccounts?organizationId=304925537542&orgonly=true&project=codefresh-enterprise) )
-* `values.yaml` set CF application domain name, git provider domain name
-* `values-dec.yaml` set secrets such as `githubClientID`, `githubClientSecret`, or `gitlabClientID`, `gitlabClientSecret` etc.
+* `sa.json` contains GCP service account that enables a customer to pull codefresh images (created in GCP [codefres-enterprise project](https://console.cloud.google.com/iam-admin/serviceaccounts?organizationId=304925537542&orgonly=true&project=codefresh-enterprise) )
+* `values.yaml` set CF application domain name, git provider domain name, secrets such as `githubClientID`, `githubClientSecret`, or `gitlabClientID`, `gitlabClientSecret` etc.
 
 4. Give a node `local-volume` label
 ```

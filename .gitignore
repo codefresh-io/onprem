@@ -14,6 +14,8 @@ assets
 # secret files
 service-account.json
 dockercfg.yaml
+sa.json
+values.yaml
 
 # junk files
 QUESTIONS.md
