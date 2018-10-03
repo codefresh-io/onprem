@@ -1,9 +1,12 @@
+rbacEnable:
+  enabled: true
 ingress:
-  domain: onprem-poc-2.codefresh.io
+  domain: onprem-aks.codefresh.io
+  rbacEnable: true
 
 global:
   appProtocol: https
-  appUrl: onprem-poc-2.codefresh.io
+  appUrl: onprem-aks.codefresh.io
 
 cfapi:
   gitlab:

@@ -11,7 +11,7 @@ readonly HELM_VERSION=2.10.0
 readonly CHANNEL="${CF_HELM_CHANNEL:-dev}"
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
 
-export KUBECONFIG=./.kube/config
+#export KUBECONFIG=./.kube/config
 
 readonly WORKING_DIR="$(dirname "$0")"
 readonly SERVICE_ACCOUNT="${WORKING_DIR}/sa-dec.json"
@@ -95,7 +95,7 @@ helmInstall() {
 }
 
 checkTillerInstalled() {
-  status=$(kubectl -nkube-system  get po -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
+  status=$(kubectl -nkube-system get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
   if [ "$status" == "Running" ]; then
     msg "Tiller is installed and running"
     helm init -c
@@ -103,8 +103,9 @@ checkTillerInstalled() {
     warning "Unable to determine tiller at its default location."
     read -p  " Do you want to deploy tiller ? [y/n] " yn
     case ${yn} in
-      y|Y)  
-        helm init --wait
+      y|Y)
+        kubectl create -f ./tiller-rbac-config.yaml  
+        helm init --service-account tiller --wait
     ;;
       *)
         err "Need to deploy tiller ! Exiting..."
@@ -117,7 +118,7 @@ checkTillerInstalled() {
 
 checkTillerStatus() {
 	while true; do
-      status=$(kubectl -nkube-system  get po -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
+    status=$(kubectl -nkube-system get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
 
 	  msg "Tiller status = $status"
 	  [ "$status" == "Running" ] && break
