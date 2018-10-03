@@ -5,7 +5,7 @@
 * The Azure CLI version 2.0.46 or later. `az --version` to check installed version.
 * The `kubectl` binary version 1.10+ . `kubectl version` to check installed version.
 
-### Deployment 
+### AKS cluster deployment 
 
 1. Make `az login` if needed
 2. Create a resource group
