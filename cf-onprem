@@ -166,7 +166,14 @@ msg "Adding Helm repo..."
 helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}"
 
 DOCKER_CFG_JSON=$(cat ${SERVICE_ACCOUNT})
-DOCKER_CFG_VAR=$(echo -n "_json_key:${DOCKER_CFG_JSON}" | base64 -w0)
+
+if [ $os == "linux" ]; then
+  BASE64="base64 -w0"
+else
+  BASE64="base64"
+fi
+
+DOCKER_CFG_VAR=$(echo -n "_json_key:${DOCKER_CFG_JSON}" | $BASE64)
 
 
 
