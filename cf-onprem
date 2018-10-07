@@ -159,8 +159,8 @@ checkTillerStatus() {
 	  msg "Tiller status = $status"
 	  [ "$status" == "Running" ] && break
 
-	  msg "Sleeping 3 seconds ..."
-	  sleep 3
+	  msg "Sleeping 5 seconds ..."
+	  sleep 5
 
 	done
 }
