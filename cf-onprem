@@ -59,7 +59,8 @@ approveContext() {
 
 checkHelmInstalled() {
   if command -v $1 >/dev/null 2>&1; then
-    msg "helm already installed"
+    helm_version=$(kubectl version --client --short | sed 's/.*\: v//')
+    msg "helm is already installed and has version $helm_version"
   else
     warning "helm is not installed"
     read -p "Do you want to install helm ? [y/n] " yn
@@ -135,6 +136,17 @@ checkTillerStatus() {
 
 run_as_root
 
+while [[ $1 =~ ^(-(y)|--(yes) ]]
+do
+  key=$1
+  case $key in
+    -y|--yes)
+        YES="true"
+      ;;
+  esac
+  shift # past argument or value
+done
+
 os=
 
 case "$(uname -s)" in
@@ -150,7 +162,12 @@ esac
 
 msg "Starting on-prem Codefresh deployment"
 
-approveContext
+if [[ ! "$YES" == 'true' ]]; then
+  approveContext
+else
+  msg "Your kubectl is configured with the following context: "
+	kubectl config current-context
+fi
 
 msg "Checking helm binary on your system"
 checkHelmInstalled "helm"
