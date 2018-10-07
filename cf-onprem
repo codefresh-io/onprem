@@ -136,7 +136,7 @@ checkTillerStatus() {
 
 run_as_root
 
-while [[ $1 =~ ^(-(y)|--(yes) ]]
+while [[ $1 =~ ^(-(y)|--(yes)) ]]
 do
   key=$1
   case $key in
