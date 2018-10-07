@@ -7,7 +7,9 @@ msg() { echo -e "\e[32mINFO [$(date +%F\ %T)] ---> $1\e[0m"; }
 warning() { echo -e "\e[33mWARNING [$(date +%F\ %T)] ---> $1\e[0m"; }
 err() { echo -e "\e[31mERR [$(date +%F\ %T)] ---> $1\e[0m" ; exit 1; }
 
-readonly HELM_VERSION=2.10.0
+. ./env-vars
+
+readonly HELM_VERSION="${CF_HELM_VERSION:-2.10.0}"
 readonly CHANNEL="${CF_HELM_CHANNEL:-dev}"
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
 
@@ -26,6 +28,8 @@ usage() {
 }
 
 check() { command -v $1 >/dev/null 2>&1 || err "$1 binary is required!"; }
+
+ver() { printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' ' '); }
 
 exists() {
 	if command -v $1 >/dev/null 2>&1; then
@@ -59,20 +63,26 @@ approveContext() {
 
 checkHelmInstalled() {
   if command -v $1 >/dev/null 2>&1; then
-    helm_version=$(kubectl version --client --short | sed 's/.*\: v//')
-    msg "helm is already installed and has version $helm_version"
+    helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//')
+    msg "helm is already installed and has version v$helm_version"
+    [ $(ver $helm_version) -lt $(ver $HELM_VERSION) ] && \
+    err "You have older helm version than required. Please upgrade to v$HELM_VERSION or newer !"
   else
     warning "helm is not installed"
+    if [[ ! "$YES" == 'true' ]]; then
     read -p "Do you want to install helm ? [y/n] " yn
-    case ${yn} in
-      y|Y)  
-        helmInstall
-    ;;
-      *)
-        err "Need helm to deploy Codefresh app ! Exiting..."
-        #exit 1
-    ;;
-    esac  
+      case ${yn} in
+        y|Y)  
+          helmInstall
+      ;;
+        *)
+          err "Need helm to deploy Codefresh app ! Exiting..."
+          #exit 1
+      ;;
+      esac
+    else
+      helmInstall
+    fi  
   fi
 }
 
@@ -102,19 +112,42 @@ checkTillerInstalled() {
   if [ "$status" == "Running" ]; then
     msg "Tiller is installed and running"
     helm init -c
+    helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//')
+    tiller_version=$(helm version --server --short | sed 's/.*\: v//' | sed 's/+.*//')
+    if [[ ! "$YES" == 'true' ]]; then
+      [ $(ver $tiller_version) -lt $(ver $helm_version) ] && \
+      warning "You're running helm v2.10.0 but tiller has v2.9.1."
+      read -p  " Do you want to upgrade tiller to v$helm_version ? [y/n] " yn
+      case ${yn} in
+        y|Y)
+          kubectl create -f ./tiller-rbac-config.yaml > /dev/null 2>&1 
+          helm init --upgrade --service-account tiller --wait
+      ;;
+        *)
+          err "You're running helm v$helm_version but tiller has v$tiller_version. You need to upgrade tiller ! Exiting..."
+      ;;
+      esac
+    else
+      err "You're running helm v$helm_version but tiller has v$tiller_version . You need to upgrade tiller ! Exiting..."
+    fi
   else
     warning "Unable to determine tiller at its default location."
-    read -p  " Do you want to deploy tiller ? [y/n] " yn
-    case ${yn} in
-      y|Y)
-        kubectl create -f ./tiller-rbac-config.yaml  
-        helm init --service-account tiller --wait
-    ;;
-      *)
-        err "Need to deploy tiller ! Exiting..."
-        exit 1
-    ;;
-    esac
+    if [[ ! "$YES" == 'true' ]]; then
+      read -p  " Do you want to deploy tiller ? [y/n] " yn
+      case ${yn} in
+        y|Y)
+          kubectl create -f ./tiller-rbac-config.yaml  
+          helm init --service-account tiller --wait
+      ;;
+        *)
+          err "Need to deploy tiller ! Exiting..."
+          exit 1
+      ;;
+      esac
+    else
+      kubectl create -f ./tiller-rbac-config.yaml  
+      helm init --service-account tiller --wait
+    fi
   fi
 
 }
