@@ -137,15 +137,16 @@ run_as_root
 
 os=
 
-  case "$(uname -s)" in
-    Linux)
-      os=linux
-    ;;
-    Darwin)
-      os=darwin
-    ;;
-    *)
-    ;;
+case "$(uname -s)" in
+  Linux)
+    os=linux
+  ;;
+  Darwin)
+    os=darwin
+  ;;
+  *)
+  ;;
+esac
 
 msg "Starting on-prem Codefresh deployment"
 
