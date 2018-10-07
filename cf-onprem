@@ -23,7 +23,7 @@ readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yaml"
 readonly MTU_VALUE="--set global.mtu=1450"
 
 usage() {
-	echo "$0 [-h] namespace-name project-name cluster-name [zone]"
+	echo "sudo $0 [-h] [-y|--yes]"
 	exit 0
 }
 
