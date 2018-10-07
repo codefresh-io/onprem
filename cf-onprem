@@ -77,6 +77,7 @@ checkHelmInstalled() {
 
 helmInstall() {
   msg "Downloading and installing helm..."
+<< ////  
   case "$(uname -s)" in
     Linux)
       os=linux
@@ -87,6 +88,7 @@ helmInstall() {
     *)
     ;;
   esac
+////
   wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-${os}-amd64.tar.gz -P /tmp/
   tar xvf /tmp/helm-v${HELM_VERSION}-${os}-amd64.tar.gz -C /tmp/
   chmod +x /tmp/${os}-amd64/helm
@@ -132,6 +134,18 @@ checkTillerStatus() {
 [ "$1" == "-h" ] && usage
 
 run_as_root
+
+os=
+
+  case "$(uname -s)" in
+    Linux)
+      os=linux
+    ;;
+    Darwin)
+      os=darwin
+    ;;
+    *)
+    ;;
 
 msg "Starting on-prem Codefresh deployment"
 
@@ -189,6 +203,7 @@ msg "Installing/Updating Codefresh..."
 helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
   --install \
   --namespace codefresh \
+  --version 0.6.44 \
   --values "${VALUES_FILE}" \
   --values "${DOCKER_CFG_YAML}" \
   --no-hooks \

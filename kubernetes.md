@@ -44,7 +44,7 @@ kubectl config current-context
 git clone git@github.com:codefresh-io/onprem.git
 cd onprem
 ```
-2. Download values.yaml and sa-dec.json files from [1Password](https://codefresh.1password.com/) into current `./onprem` directory. When logged in search for `onprem` in `devops-shared` vault.
+2. Download values.yaml and sa.json files from [1Password](https://codefresh.1password.com/) into current `./onprem` directory. When logged in search for `onprem` in `devops-shared` vault.
 
 3. Make configuration changes in `sa-dec.json`, `values.yaml` files. 
 
