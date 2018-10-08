@@ -62,6 +62,10 @@ kubectl label nodes <NODENAME> provisioner=local-volume
 ```
 sudo ./cf-onprem
 ```
+To run the script in non-interactive mode use `-y|--yes` argument:
+```
+sudo ./cf-onprem -y
+```
 6. Wait for CF App to be deployed
 ```
 watch kubectl -ncodefresh get pods

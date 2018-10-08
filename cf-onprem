@@ -7,7 +7,9 @@ msg() { echo -e "\e[32mINFO [$(date +%F\ %T)] ---> $1\e[0m"; }
 warning() { echo -e "\e[33mWARNING [$(date +%F\ %T)] ---> $1\e[0m"; }
 err() { echo -e "\e[31mERR [$(date +%F\ %T)] ---> $1\e[0m" ; exit 1; }
 
+if [ -f "./env-vars" ]; then
 . ./env-vars
+fi
 
 readonly HELM_VERSION="${CF_HELM_VERSION:-2.10.0}"
 readonly CHANNEL="${CF_HELM_CHANNEL:-dev}"
