@@ -258,12 +258,12 @@ EOF
 #MTU_VALUE="--set global.mtu=$(cat /sys/class/net/cni0/mtu)"
 #TIMESTAMP=$(date +%F_%H-%M-%S)
 # --values "${SECRET_VALUES_FILE}" \
+#  --version 0.6.44 \
 
 msg "Installing/Updating Codefresh..."
 helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
   --install \
   --namespace codefresh \
-  --version 0.6.44 \
   --values "${VALUES_FILE}" \
   --values "${DOCKER_CFG_YAML}" \
   --no-hooks \
