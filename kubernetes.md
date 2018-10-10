@@ -90,3 +90,12 @@ kubectl -ncodefresh delete pod <cfapi-pod-name>
 16. Sign in with your git provider.
 17. Add Repository.
 18.Click `BUILD`
+
+### How to deploy CF application with custom certificate
+
+1. Uncomment webTLS keys in values.yaml.
+2. Define custom TLS certificate and private key location and put them there.
+3. Run `cf-onprem` script with parameters:
+```
+sudo ./cf-onprem --web-tls-key <path-to-private-key-file> --web-tls-cert <path-to-full-certificate-chain-file>
+```
