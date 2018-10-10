@@ -16,6 +16,9 @@ service-account.json
 dockercfg.yaml
 sa.json
 values.yaml
+certchain.pem
+privkey.pem
+webtls.yaml
 
 # junk files
 QUESTIONS.md
