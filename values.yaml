@@ -45,3 +45,57 @@ cfapi:
 ### Define kubernetes secret name for customer certificate and private key
 webTLS:
   secretName: star.codefresh.io
+
+
+consul:
+### If needed to use storage class that different from default
+  StorageClass: managed-premium
+### Use NodeSelector to assing pod to a node
+  nodeSelector:
+    services: consul-postgresql
+
+postgresql:
+  persistence:
+    storageClass: managed-premium
+  nodeSelector:
+    services: consul-postgresql
+
+mongodb:
+  persistence:
+    storageClass: managed-premium
+  nodeSelector:
+    provisioner: local-volume
+
+redis:
+  persistence:
+    storageClass: managed-premium
+  nodeSelector:
+    provisioner: local-volume
+
+rabbitmq:
+  persistence:
+    storageClass: managed-premium
+  nodeSelector:
+    services: rabbitmq-registry
+
+registry:
+  storageClass: managed-premium
+  nodeSelector:
+    services: rabbitmq-registry
+
+hermes:
+  nodeSelector:
+    services: rabbitmq-registry
+  redis:
+    nodeSelector:
+      services: rabbitmq-registry
+    persistence:
+      storageClass: managed-premium
+
+cronus:
+  storageClass: managed-premium
+  nodeSelector:
+    services: rabbitmq-registry
+
+      
+    
