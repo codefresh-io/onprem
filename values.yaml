@@ -7,12 +7,12 @@ global:
 #  bitbucketClientID: 
 #  bitbucketClientSecret:
 ### for Github git provider
-  githubClientID: 
-  githubClientSecret: 
+  githubClientID:
+  githubClientSecret:
 #  githubInternalToken:
   appProtocol: https
 ### Codefresh App domain name
-  appUrl: cf-cd.com
+  appUrl: your-codefresh-domain.com
 
 ### Firebase secret
 firebaseSecret: 
@@ -22,7 +22,7 @@ rbacEnable: true
 
 ingress:
 ### Codefresh App domain name    
-  domain: cf-cd.com
+  domain: your-codefresh-domain.com
 ### Uncomment if kubernetes cluster is RBAC enabled
   rbacEnable: true
 ### The name of kebernetes secret with customer certificate and private key
@@ -49,53 +49,53 @@ webTLS:
 
 consul:
 ### If needed to use storage class that different from default
-  StorageClass: managed-premium
+  StorageClass: {}
 ### Use NodeSelector to assing pod to a node
-  nodeSelector:
-    services: consul-postgresql
+  nodeSelector: {}
+#    services: consul-postgresql
 
 postgresql:
   persistence:
-    storageClass: managed-premium
-  nodeSelector:
-    services: consul-postgresql
+    storageClass: {}
+  nodeSelector: {}
+#    services: consul-postgresql
 
 mongodb:
   persistence:
-    storageClass: managed-premium
-  nodeSelector:
-    provisioner: local-volume
+    storageClass: {}
+  nodeSelector: {}
+#    provisioner: local-volume
 
 redis:
   persistence:
-    storageClass: managed-premium
-  nodeSelector:
-    provisioner: local-volume
+    storageClass: {}
+  nodeSelector: {}
+#    provisioner: local-volume
 
 rabbitmq:
   persistence:
-    storageClass: managed-premium
-  nodeSelector:
-    services: rabbitmq-registry
+    storageClass: {}
+  nodeSelector: {}
+#    services: rabbitmq-registry
 
 registry:
-  storageClass: managed-premium
-  nodeSelector:
-    services: rabbitmq-registry
+  storageClass: {}
+  nodeSelector: {}
+#    services: rabbitmq-registry
 
 hermes:
-  nodeSelector:
-    services: rabbitmq-registry
+  nodeSelector: {}
+#    services: rabbitmq-registry
   redis:
-    nodeSelector:
-      services: rabbitmq-registry
+    nodeSelector: {}
+#      services: rabbitmq-registry
     persistence:
-      storageClass: managed-premium
+      storageClass: {}
 
 cronus:
-  storageClass: managed-premium
-  nodeSelector:
-    services: rabbitmq-registry
+  storageClass: {}
+  nodeSelector: {}
+#    services: rabbitmq-registry
 
       
     
