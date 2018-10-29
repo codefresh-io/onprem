@@ -7,12 +7,12 @@ global:
 #  bitbucketClientID: 
 #  bitbucketClientSecret:
 ### for Github git provider
-  githubClientID:
-  githubClientSecret:
+#  githubClientID: 
+#  githubClientSecret: 
 #  githubInternalToken:
   appProtocol: https
 ### Codefresh App domain name
-  appUrl: your-codefresh-domain.com
+  appUrl: your-domain.com
 
 ### Firebase secret
 firebaseSecret: 
@@ -22,7 +22,7 @@ rbacEnable: true
 
 ingress:
 ### Codefresh App domain name    
-  domain: your-codefresh-domain.com
+  domain: your-domain.com
 ### Uncomment if kubernetes cluster is RBAC enabled
   rbacEnable: true
 ### The name of kebernetes secret with customer certificate and private key
@@ -50,36 +50,65 @@ webTLS:
 consul:
 ### If needed to use storage class that different from default
   StorageClass: {}
+### Use existing volume claim name
+  pvcName: cf-consul
 ### Use NodeSelector to assing pod to a node
   nodeSelector: {}
 #    services: consul-postgresql
 
 postgresql:
   persistence:
+    existingClaim: cf-postgresql
     storageClass: {}
   nodeSelector: {}
 #    services: consul-postgresql
 
 mongodb:
+## Enable persistence using Persistent Volume Claims
+## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+##
+##  IMPORTANT !
+##  It is not possible the combination when pvcName is defined and persistence:enabled = true
+##  Only one of two:
+##  pvcName is defined AND persistence:enabled = false
+##  OR
+##  pvcName is not defined (commented out) AND persistence:enabled = true
+##  
+## Use existing volume claim name
+  pvcName: cf-mongodb
+## Provision new volume claim
   persistence:
+    enabled: false
+    ## If defined, volume.beta.kubernetes.io/storage-class: <storageClass>
+    ## Default: volume.alpha.kubernetes.io/storage-class: default
+    ##
     storageClass: {}
+    accessMode: ReadWriteOnce
+    size: 8Gi
+
   nodeSelector: {}
 #    provisioner: local-volume
 
 redis:
   persistence:
+## Use existing volume claim name    
+    existingClaim: cf-redis
     storageClass: {}
   nodeSelector: {}
 #    provisioner: local-volume
 
 rabbitmq:
   persistence:
+## Use existing volume claim name
+    existingClaim: cf-rabbitmq  
     storageClass: {}
   nodeSelector: {}
 #    services: rabbitmq-registry
 
 registry:
   storageClass: {}
+  ## Use existing volume claim name
+  pvcName: cf-registry
   nodeSelector: {}
 #    services: rabbitmq-registry
 
@@ -90,12 +119,31 @@ hermes:
     nodeSelector: {}
 #      services: rabbitmq-registry
     persistence:
+## Use existing volume claim name
+      existingClaim: cf-store
       storageClass: {}
 
 cronus:
   storageClass: {}
+## Use existing volume claim name
+  pvcName: cf-cronus
   nodeSelector: {}
 #    services: rabbitmq-registry
 
-      
+builder:
+## Use existing volume claim name
+  pvcName: cf-builder
+# dockerCleanerCron: 0 0 * * *
+
+runner:
+## Use existing volume claim name  
+  pvcName: cf-runner
+# dockerCleanerCron: 0 0 * * *
+ 
+global:
+  env:
+    HTTP_PROXY: <proxy>
+    HTTPS_PROXY: <proxy>
+    HTTP_NO_PROXY: <proxy>
+    HTTPS_NO_PROXY: <proxy>
     

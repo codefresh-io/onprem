@@ -23,7 +23,7 @@ readonly VALUES_FILE="${WORKING_DIR}/values.yaml"
 readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yaml"
 #readonly SECRET_VALUES_FILE="${WORKING_DIR}/values-dec.yaml"
 readonly WEBTLS_VALUES_FILE="${WORKING_DIR}/webtls.yaml"
-readonly MTU_VALUE="--set global.mtu=1450"
+readonly MTU_VALUE="--set global.mtu=1500"
 
 usage() {
 	echo "sudo $0 [-h] [-y|--yes]"
@@ -75,7 +75,7 @@ checkHelmInstalled() {
     if [[ ! "$YES" == 'true' ]]; then
     read -p "Do you want to install helm ? [y/n] " yn
       case ${yn} in
-        y|Y)  
+        y|Y)
           helmInstall
       ;;
         *)
@@ -85,13 +85,13 @@ checkHelmInstalled() {
       esac
     else
       helmInstall
-    fi  
+    fi
   fi
 }
 
 helmInstall() {
   msg "Downloading and installing helm..."
-<< ////  
+<< ////
   case "$(uname -s)" in
     Linux)
       os=linux
@@ -122,14 +122,14 @@ checkTillerInstalled() {
       read -p  " Do you want to upgrade tiller to v$helm_version ? [y/n] " yn
       case ${yn} in
         y|Y)
-          kubectl create -f ./tiller-rbac-config.yaml > /dev/null 2>&1 
+          kubectl create -f ./tiller-rbac-config.yaml > /dev/null 2>&1
           helm init --upgrade --service-account tiller --wait
       ;;
         *)
           err "You need to upgrade tiller ! Exiting..."
       ;;
       esac
-    fi  
+    fi
     if [[ "$YES" == 'true' ]] && [ $(ver $tiller_version) -lt $(ver $helm_version) ]; then
       err "You're running helm v$helm_version but tiller has v$tiller_version . You need to upgrade tiller ! Exiting..."
     fi
@@ -139,7 +139,7 @@ checkTillerInstalled() {
       read -p  " Do you want to deploy tiller ? [y/n] " yn
       case ${yn} in
         y|Y)
-          kubectl create -f ./tiller-rbac-config.yaml  
+          kubectl create -f ./tiller-rbac-config.yaml
           helm init --service-account tiller --wait
       ;;
         *)
@@ -148,7 +148,7 @@ checkTillerInstalled() {
       ;;
       esac
     else
-      kubectl create -f ./tiller-rbac-config.yaml  
+      kubectl create -f ./tiller-rbac-config.yaml
       helm init --service-account tiller --wait
     fi
   fi
@@ -189,7 +189,7 @@ cfui:
     key: |
 ${WEBTLSKEY_CFUI}
     cert: |
-${WEBTLSCERT_CFUI} 
+${WEBTLSCERT_CFUI}
 EOF
 #  echo "Success!"
 #  exit 0
@@ -301,7 +301,8 @@ EOF
 #MTU_VALUE="--set global.mtu=$(cat /sys/class/net/cni0/mtu)"
 #TIMESTAMP=$(date +%F_%H-%M-%S)
 # --values "${SECRET_VALUES_FILE}" \
-#  --version 0.6.44 \
+#  --version 0.6.62 \
+#  --force \
 
 [ -n "${WebTlsKey}" ] && [ -f "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ] && [ -f "${WebTlsCert}" ] && [ -f "${WEBTLS_VALUES_FILE}" ] && WEBTLS_VALUES="--values ${WEBTLS_VALUES_FILE}"
 
