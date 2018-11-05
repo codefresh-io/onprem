@@ -314,4 +314,4 @@ helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
   ${WEBTLS_VALUES} \
   --no-hooks \
   --set cfapi.redeploy=true \
-  ${MTU_VALUE}
+#  ${MTU_VALUE}
