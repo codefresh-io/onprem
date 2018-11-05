@@ -23,7 +23,6 @@ readonly VALUES_FILE="${WORKING_DIR}/values.yaml"
 readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yaml"
 #readonly SECRET_VALUES_FILE="${WORKING_DIR}/values-dec.yaml"
 readonly WEBTLS_VALUES_FILE="${WORKING_DIR}/webtls.yaml"
-readonly MTU_VALUE="--set global.mtu=1500"
 
 usage() {
 	echo "sudo $0 [-h] [-y|--yes]"
@@ -197,7 +196,7 @@ EOF
 
 [ "$1" == "-h" ] && usage
 
-run_as_root
+# run_as_root
 
 while [[ $1 =~ ^(-(y)|--(yes|web-tls-key|web-tls-cert)) ]]
 do

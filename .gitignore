@@ -2,6 +2,10 @@
 .idea
 assets
 .kube
+
+# values.yaml
+values.yaml
+
 # decrypted files
 **/*-dec.*
 

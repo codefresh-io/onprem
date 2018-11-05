@@ -14,6 +14,19 @@ global:
 ### Codefresh App domain name
   appUrl: your-domain.com
 
+### MTU Value for dockerd in builder and runner
+#  mtu: 1400
+
+### Environment variables applied to all pods
+#  env:
+#    HTTP_PROXY: "http://myproxy.domain.com:8080"
+#    http_proxy: "http://myproxy.domain.com:8080"
+#    HTTPS_PROXY: "http://myproxy.domain.com:8080"
+#    https_proxy: "http://myproxy.domain.com:8080"
+#    NO_PROXY: "10.0.0.0/8"
+#    no_proxy: "10.0.0.0/8"
+
+
 ### Firebase secret
 firebaseSecret: 
 
@@ -140,10 +153,5 @@ runner:
   pvcName: cf-runner
 # dockerCleanerCron: 0 0 * * *
  
-global:
-  env:
-    HTTP_PROXY: <proxy>
-    HTTPS_PROXY: <proxy>
-    HTTP_NO_PROXY: <proxy>
-    HTTPS_NO_PROXY: <proxy>
+
     
