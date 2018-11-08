@@ -23,8 +23,8 @@ global:
 #    http_proxy: "http://myproxy.domain.com:8080"
 #    HTTPS_PROXY: "http://myproxy.domain.com:8080"
 #    https_proxy: "http://myproxy.domain.com:8080"
-#    NO_PROXY: "10.0.0.0/8"
-#    no_proxy: "10.0.0.0/8"
+#    NO_PROXY: "127.0.0.1,localhost,kubernetes.default.svc,.codefresh.svc,100.64.0.1,169.254.169.254,cf-builder,cf-cfapi,cf-cfui,cf-chartmuseum,cf-charts-manager,cf-cluster-providers,cf-consul,cf-consul-ui,cf-context-manager,cf-cronus,cf-helm-repo-manager,cf-hermes,cf-ingress-controller,cf-ingress-http-backend,cf-kube-integration,cf-mongodb,cf-nats,cf-nomios,cf-pipeline-manager,cf-postgresql,cf-rabbitmq,cf-redis,cf-registry,cf-runner,cf-runtime-environment-manager,cf-store"
+#    no_proxy: "127.0.0.1,localhost,kubernetes.default.svc,.codefresh.svc,100.64.0.1,169.254.169.254,cf-builder,cf-cfapi,cf-cfui,cf-chartmuseum,cf-charts-manager,cf-cluster-providers,cf-consul,cf-consul-ui,cf-context-manager,cf-cronus,cf-helm-repo-manager,cf-hermes,cf-ingress-controller,cf-ingress-http-backend,cf-kube-integration,cf-mongodb,cf-nats,cf-nomios,cf-pipeline-manager,cf-postgresql,cf-rabbitmq,cf-redis,cf-registry,cf-runner,cf-runtime-environment-manager,cf-store"
 
 
 ### Firebase secret
@@ -43,6 +43,7 @@ ingress:
 
 ### For github provider (the apiHost and loginHost are different)
 cfapi:
+  rbacEnable: true
   github:
     apiHost: api.github.com
     loginHost: github.com
@@ -120,15 +121,43 @@ rabbitmq:
 
 registry:
   storageClass: {}
+## Override default (4Gi) initial registry PV size  
+  #storageSize: {}
   ## Use existing volume claim name
   pvcName: cf-registry
   nodeSelector: {}
 #    services: rabbitmq-registry
+## Uncomment if needed to apply custom configuration to registry
+  #registryConfig:
+## Insert custom registry configuration (https://docs.docker.com/registry/configuration/)
+    #version: 0.1
+    #log:
+      #level: debug
+      #fields:
+        #service: registry
+    #storage:
+      #cache:
+        #blobdescriptor: inmemory
+      #azure:
+        #accountname: 
+        #accountkey: 
+        #container: 
+    #http:
+      #addr: :5000
+      #headers:
+        #X-Content-Type-Options: [nosniff]
+    #health:
+      #storagedriver:
+        #enabled: true
+        #interval: 10s
+        #threshold: 3
 
 hermes:
   nodeSelector: {}
 #    services: rabbitmq-registry
   redis:
+## Set hermes store password. It is mandatory
+    redisPassword: verysecurepassword
     nodeSelector: {}
 #      services: rabbitmq-registry
     persistence:
@@ -145,13 +174,19 @@ cronus:
 
 builder:
 ## Use existing volume claim name
-  pvcName: cf-builder
-# dockerCleanerCron: 0 0 * * *
+  #pvcName: cf-builder
+## Set time to run docker cleaner  
+  dockerCleanerCron: 0 0 * * *
+## Override builder PV initial size
+  varLibDockerVolume:
+    storageSize: 100Gi
 
 runner:
 ## Use existing volume claim name  
   pvcName: cf-runner
-# dockerCleanerCron: 0 0 * * *
- 
-
+## Set time to run docker cleaner  
+  dockerCleanerCron: 0 0 * * *
+## Override runner PV initial size
+  varLibDockerVolume:
+    storageSize: 100Gi
     

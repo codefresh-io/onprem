@@ -22,6 +22,7 @@ sa.json
 certchain.pem
 privkey.pem
 webtls.yaml
+cert-secret.yaml
 
 # junk files
 QUESTIONS.md
@@ -31,3 +32,4 @@ index.yaml
 **/.DS_Store
 *.orig
 .idea/
+
