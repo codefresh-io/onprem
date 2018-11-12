@@ -25,7 +25,7 @@ readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yaml"
 readonly WEBTLS_VALUES_FILE="${WORKING_DIR}/webtls.yaml"
 
 usage() {
-	echo "sudo $0 [-h] [-y|--yes]"
+	echo "$0 [-h] [-y|--yes|--web-tls-key|--web-tls-cert]"
 	exit 0
 }
 
@@ -291,6 +291,12 @@ runtime-environment-manager:
         auth: ${DOCKER_CFG_VAR}
 
 onboarding-status:
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
+
+cfanalytic:
   dockerconfigjson:
     auths:
       gcr.io:
