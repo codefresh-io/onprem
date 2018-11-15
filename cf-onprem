@@ -311,6 +311,10 @@ EOF
 
 [ -n "${WebTlsKey}" ] && [ -f "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ] && [ -f "${WebTlsCert}" ] && [ -f "${WEBTLS_VALUES_FILE}" ] && WEBTLS_VALUES="--values ${WEBTLS_VALUES_FILE}"
 
+cf_status=$(helm ls -q cf)
+
+[ -z "${cf_status}" ] && SEEDJOBS="--set global.seedJobs=true" && CERTJOBS="--set global.certsJobs=true"
+
 msg "Installing/Updating Codefresh..."
 helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
   --install \
@@ -320,4 +324,6 @@ helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
   ${WEBTLS_VALUES} \
   --no-hooks \
   --set cfapi.redeploy=true \
+  ${SEEDJOBS} \
+  ${CERTJOBS}
 #  ${MTU_VALUE}
