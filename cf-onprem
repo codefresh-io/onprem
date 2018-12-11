@@ -214,6 +214,10 @@ do
         WebTlsCert="$value"
         shift
       ;;
+    --set)
+        SET_VALUES="$SET_VALUES --set $value"
+        shift
+      ;;
   esac
   shift # past argument or value
 done
@@ -325,5 +329,6 @@ helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
   --no-hooks \
   --set cfapi.redeploy=true \
   ${SEEDJOBS} \
-  ${CERTJOBS}
+  ${CERTJOBS} \
+  ${SET_VALUES}
 #  ${MTU_VALUE}
