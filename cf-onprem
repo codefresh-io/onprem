@@ -198,7 +198,7 @@ EOF
 
 # run_as_root
 
-while [[ $1 =~ ^(-(y)|--(yes|web-tls-key|web-tls-cert)) ]]
+while [[ $1 =~ ^(-(y)|--(yes|web-tls-key|web-tls-cert|set)) ]]
 do
   key=$1
   value=$2
