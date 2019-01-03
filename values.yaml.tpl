@@ -147,10 +147,11 @@ registry:
     #storage:
       #cache:
         #blobdescriptor: inmemory
-      #azure:
-        #accountname: 
-        #accountkey: 
-        #container: 
+      #s3:
+         #region: YOUR_REGION
+         #bucket: YOUR_BUCKET_NAME
+         #accesskey: AWS_ACCESS_KEY
+         #secretkey: AWS_SECRET_KEY
     #http:
       #addr: :5000
       #headers:
