@@ -57,5 +57,5 @@ RUN apk add --update \
     curl-dev
 
 RUN pip install --upgrade pip && \
-    pip install rdbtools python-lzf
+    pip install rdbtools==0.1.12 python-lzf==0.2.4
 
