@@ -34,14 +34,17 @@ steps:
       - redis-cli -u redis://cf-redis:6379 -a ${{REDIS_PWD}} --rdb backup/$DATE/redis/redis.bkp || echo "Redis backups has failed for date $DATE"
       - echo "Redis backup completed successfully"
 
-  uploadAzure:
-    title: Upload backup to Azure
-    image: microsoft/azure-cli:0.10.14
+  uploadS3:
+    title: Upload backup to AWS S3
+    image: mikesir87/aws-cli:latest
     commands:
       - tar -zcvf cf-backup-$DATE.tar.gz backup/$DATE/
-      - azure login -u ${{AZ_USER}} -p ${{AZ_PWD}}
       - azure storage blob upload cf-backup-$DATE.tar.gz ${{AZ_CONTAINER}} codefresh-backup-$DATE.tar.gz
+      - echo "Uploading to S3"
+      - aws s3 cp cf-backup-$DATE.tar.gz $S3_URL/cf-backup-$DATE.tar.gz
       - rm cf-backup-$DATE.tar.gz
+      - rm -r backup/$DATE
     environment:
-      - AZURE_STORAGE_ACCOUNT=${{AZ_STORAGE_ACCOUNT}}
-      - AZURE_STORAGE_ACCESS_KEY=${{AZ_STORAGE_ACCESS_KEY}}
+      - AWS_ACCESS_KEY_ID=${{AWS_ACCESS_KEY}}
+      - AWS_SECRET_ACCESS_KEY=${{AWS_SECRET_KEY}}
+      - S3_URL=${{$S3_BUCKET_URL}}
