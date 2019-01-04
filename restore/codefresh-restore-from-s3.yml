@@ -1,0 +1,47 @@
+version: '1.0'
+steps:
+
+  downloadBackupAzure:
+    title: Download backup file from AWS S3
+    image: mikesir87/aws-cli:latest
+    commands:
+      - rm -rf backup || true
+      - echo "Downloading from S3"
+      - aws s3 cp $S3_URL/$BACKUP_TO_RESTORE $BACKUP_TO_RESTORE
+      - tar -xzvf $BACKUP_TO_RESTORE
+      - rm $BACKUP_TO_RESTORE
+    environment:
+      - AWS_ACCESS_KEY_ID=${{AWS_ACCESS_KEY}}
+      - AWS_SECRET_ACCESS_KEY=${{AWS_SECRET_KEY}}
+      - S3_URL=${{S3_BUCKET_URL}}
+      - BACKUP_TO_RESTORE=${{BACKUP_FILE_TO_RESTORE}}
+
+  restoreConsul:
+    title: Restore Consul
+    image: consul
+    working_directory: backup
+    commands:
+      - cd * && cd consul
+      - echo "Starting Consul restore"
+      - curl -v -T consul.bkp http://cf-consul:8500/v1/snapshot
+      - echo "Consul restore completed successfully"
+
+  restoreRedis:
+    title: Restore Redis
+    image: redis
+    working_directory: backup
+    commands:
+      - cd * && cd redis
+      - echo "Starting Redis restore"
+      - rdb --c protocol ./redis.bkp | redis-cli -u redis://cf-redis:6379 -a ${{REDIS_PWD}} --pipe
+      - echo "Redis restore completed successfully"
+
+  restoreMongo:
+    title: Restore Mongo DB
+    image: mongo
+    working_directory: backup
+    commands:
+      - cd *
+      - echo "Starting Mongo restore"
+      - mongorestore mongo --host cf-mongodb:27017 -u root -p ${{MONGO_PWD}} --drop
+      - echo "Mongo restore completed successfully"
