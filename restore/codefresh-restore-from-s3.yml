@@ -28,7 +28,7 @@ steps:
 
   restoreRedis:
     title: Restore Redis
-    image: rdbtools/rdbtools
+    image: codefresh/rdbtools:master
     working_directory: backup
     commands:
       - cd * && cd redis
