@@ -199,4 +199,10 @@ runner:
 ## Override runner PV initial size
   varLibDockerVolume:
     storageSize: 100Gi
+
+backups:
+  #enabled: true
+  awsAccessKey: 
+  awsSecretAccessKey: 
+  s3Url: s3://<some-bucket>
     
