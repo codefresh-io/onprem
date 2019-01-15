@@ -48,7 +48,7 @@ ingress:
 ### Uncomment if kubernetes cluster is RBAC enabled
   rbacEnable: true
 ### The name of kebernetes secret with customer certificate and private key
-  webTlsSecretName: "star.codefresh.io"  
+  #webTlsSecretName: "star.codefresh.io"  
 
 ### For github provider (the apiHost and loginHost are different)
 cfapi:
@@ -66,22 +66,22 @@ cfapi:
 #    protocol: https
 
 ### Define kubernetes secret name for customer certificate and private key
-webTLS:
-  secretName: star.codefresh.io
+#webTLS:
+  #secretName: star.codefresh.io
 
 
 consul:
 ### If needed to use storage class that different from default
   StorageClass: {}
 ### Use existing volume claim name
-  pvcName: cf-consul
+  #pvcName: cf-consul
 ### Use NodeSelector to assing pod to a node
   nodeSelector: {}
 #    services: consul-postgresql
 
 postgresql:
   persistence:
-    existingClaim: cf-postgresql
+    #existingClaim: cf-postgresql
     storageClass: {}
   nodeSelector: {}
 #    services: consul-postgresql
@@ -98,10 +98,10 @@ mongodb:
 ##  pvcName is not defined (commented out) AND persistence:enabled = true
 ##  
 ## Use existing volume claim name
-  pvcName: cf-mongodb
+  #pvcName: cf-mongodb
 ## Provision new volume claim
   persistence:
-    enabled: false
+    enabled: true
     ## If defined, volume.beta.kubernetes.io/storage-class: <storageClass>
     ## Default: volume.alpha.kubernetes.io/storage-class: default
     ##
@@ -115,7 +115,7 @@ mongodb:
 redis:
   persistence:
 ## Use existing volume claim name    
-    existingClaim: cf-redis
+    #existingClaim: cf-redis
     storageClass: {}
   nodeSelector: {}
 #    provisioner: local-volume
@@ -123,7 +123,7 @@ redis:
 rabbitmq:
   persistence:
 ## Use existing volume claim name
-    existingClaim: cf-rabbitmq  
+    #existingClaim: cf-rabbitmq  
     storageClass: {}
   nodeSelector: {}
 #    services: rabbitmq-registry
@@ -133,7 +133,7 @@ registry:
 ## Override default (4Gi) initial registry PV size  
   #storageSize: {}
   ## Use existing volume claim name
-  pvcName: cf-registry
+  #pvcName: cf-registry
   nodeSelector: {}
 #    services: rabbitmq-registry
 ## Uncomment if needed to apply custom configuration to registry
@@ -172,13 +172,13 @@ hermes:
 #      services: rabbitmq-registry
     persistence:
 ## Use existing volume claim name
-      existingClaim: cf-store
+      #existingClaim: cf-store
       storageClass: {}
 
 cronus:
   storageClass: {}
 ## Use existing volume claim name
-  pvcName: cf-cronus
+  #pvcName: cf-cronus
   nodeSelector: {}
 #    services: rabbitmq-registry
 
@@ -193,12 +193,15 @@ builder:
 
 runner:
 ## Use existing volume claim name  
-  pvcName: cf-runner
+  #pvcName: cf-runner
 ## Set time to run docker cleaner  
   dockerCleanerCron: 0 0 * * *
 ## Override runner PV initial size
   varLibDockerVolume:
     storageSize: 100Gi
+
+helm-repo-manager:
+  RepoUrlPrefix: "cm://<app_url>"
 
 backups:
   #enabled: true
