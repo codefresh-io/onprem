@@ -202,3 +202,10 @@ runner:
 
 helm-repo-manager:
   RepoUrlPrefix: "cm://<app_url>"
+
+backups:
+  #enabled: true
+  awsAccessKey: 
+  awsSecretAccessKey: 
+  s3Url: s3://<some-bucket>
+    

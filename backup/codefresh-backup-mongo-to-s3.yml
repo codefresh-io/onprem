@@ -1,0 +1,31 @@
+version: '1.0'
+steps:
+
+  date_export:
+    title: export date
+    image: alpine
+    commands:
+      - cf_export DATE=$(date +%Y%m%d_%H%M%S)
+
+  backupMongo:
+    title: Backup Mongo DB
+    image: mongo
+    commands:
+      - mkdir -p backup/$DATE/mongo
+      - echo "Starting Mongo backup"
+      - mongodump --out backup/$DATE/mongo/ --host cf-mongodb:27017 -u root -p ${{MONGO_PWD}} || echo "Mongo backup has failed for date $DATE"
+      - echo "Mongo backup completed successfully"
+
+  uploadS3:
+    title: Upload backup to AWS S3
+    image: mikesir87/aws-cli:latest
+    commands:
+      - tar -zcvf cf-backup-$DATE.tar.gz backup/$DATE/
+      - echo "Uploading to S3"
+      - aws s3 cp cf-backup-$DATE.tar.gz $S3_URL/cf-backup-$DATE.tar.gz
+      - rm cf-backup-$DATE.tar.gz
+      - rm -r backup/$DATE
+    environment:
+      - AWS_ACCESS_KEY_ID=${{AWS_ACCESS_KEY}}
+      - AWS_SECRET_ACCESS_KEY=${{AWS_SECRET_KEY}}
+      - S3_URL=${{S3_BUCKET_URL}}
