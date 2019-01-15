@@ -48,7 +48,7 @@ ingress:
 ### Uncomment if kubernetes cluster is RBAC enabled
   rbacEnable: true
 ### The name of kebernetes secret with customer certificate and private key
-  #webTlsSecretName: "star.codefresh.io"  
+  webTlsSecretName: "star.codefresh.io"  
 
 ### For github provider (the apiHost and loginHost are different)
 cfapi:
@@ -66,8 +66,8 @@ cfapi:
 #    protocol: https
 
 ### Define kubernetes secret name for customer certificate and private key
-#webTLS:
-  #secretName: star.codefresh.io
+webTLS:
+  secretName: star.codefresh.io
 
 
 consul:
