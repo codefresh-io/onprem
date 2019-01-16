@@ -189,6 +189,7 @@ builder:
   dockerCleanerCron: 0 0 * * *
 ## Override builder PV initial size
   varLibDockerVolume:
+    storageClass: {}
     storageSize: 100Gi
 
 runner:
@@ -198,6 +199,7 @@ runner:
   dockerCleanerCron: 0 0 * * *
 ## Override runner PV initial size
   varLibDockerVolume:
+    storageClass: {}
     storageSize: 100Gi
 
 helm-repo-manager:
