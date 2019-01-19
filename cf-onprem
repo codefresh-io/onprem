@@ -7,6 +7,8 @@ if [ -f "./env-vars" ]; then
 . ./env-vars
 fi
 
+source scripts/helpers.sh
+
 OS=$(uname -s)
 readonly HELM_VERSION="${CF_HELM_VERSION:-2.10.0}"
 readonly CHANNEL="${CF_HELM_CHANNEL:-dev}"
@@ -159,7 +161,8 @@ function checkTillerStatus() {
 	done
 }
 
-runPreInstallChecks() {
+function runPreInstallChecks() {
+  msg "Checking if the Codefresh SA file is present..."
   
   msg "Checking helm binary on your system"
   checkHelmInstalled
@@ -264,10 +267,90 @@ function configureDeployment() {
   helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}"
 }
 
+function validateInputValues() {
+  
+  local valuesParsed
+  local key
+  local value
+
+  set -f
+
+  mapfile -t valuesParsed < <(parse_yaml values.yaml)
+
+  for key_value in "${valuesParsed[@]}"; do
+      key=$(echo $key_value | cut -d '=' -f 1)
+      value=$(echo $key_value | cut -d '=' -f 2)
+
+    case $key in
+      global_appProtocol)
+        regexMatch $value 'http|https'
+        ;;
+      global_appUrl)
+        echo $value
+        regexMatch $value $dnsRegexp
+        ;;
+      firebaseSecret)
+        [[ $(echo $value | wc -c) == 41 ]] || err "Firebase token is invalid: must be 41 characters long"
+        ;;
+      rbacEnable)
+        regexMatch $value '^true$|^false$' "$key flag must be either true or false"
+        ;;
+      ingress_domain)
+        regexMatch $value $dnsRegexp
+        ;;
+      cfapi_rbacEnable)
+        ;;
+      webTLS_secretName)
+        ;;
+      backups_enabled)
+        regexMatch $value '^true$|^false$' "$key flag must be either true or false"
+        ;;
+      backups_awsAccessKey)
+        [[ $(echo $value | wc -c) == 21 ]] || err "AWS access key ID is invalid: must be 21 characters long"
+        ;;
+      backups_awsSecretAccessKey)
+        [[ -n $key ]] || err "AWS access key must not be empty"
+        ;;
+      backups_s3Url)
+        regexMatch $value "^s3:\/\/" || err "Backups S3 URL is invalid. Pattern should be s3://<some-bucket>"
+        ;;
+      mongodb_persistence_enabled)
+        regexMatch $value '^true$|^false$' "$key flag must be either true or false"
+        ;;
+
+        # ... further checks later
+    esac
+  done
+  
+}
+
+function validateConfiguration() {
+  local valuesParsed
+  local key
+  local value
+
+  set -f
+
+  mapfile -t valuesParsed < <(parse_yaml values.yaml)
+
+  declare -A valuesMap        
+    for key_value in "${valuesParsed[@]}"; do
+      key=$(echo $key_value | cut -d '=' -f 1)
+      value=$(echo $key_value | cut -d '=' -f 2)
+      valuesMap[$key]=$value
+    done
+
+  if [[ ${valuesMap[backups_enabled]} == true ]]; then
+    [[ -z ${valuesMap[backups_awsAccessKey]} ]] || [[ -z ${valuesMap[backups_awsSecretAccessKey]} ]] || [[ -z ${valuesMap[backups_s3Url]} ]] && err "In case if backups_enabled is true, all the related values must be provided"
+  fi
+  # ... further checks later
+}
+
 handleArgs $@
 runPreInstallChecks
 validateInputValues
 configureDeployment
+validateConfiguration
 
 msg "Starting on-prem Codefresh deployment"
 
