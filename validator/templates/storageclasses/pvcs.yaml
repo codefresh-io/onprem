@@ -1,0 +1,29 @@
+{{ $root := . }}
+{{- $scDict := dict }}
+{{- range $key, $value := .Values }}
+{{- if and (not (empty $value)) (eq (kindOf $value) "map") }}
+  {{- with index $value "persistence" }}
+  {{- if .storageClass  }}
+    {{- $_ := set $scDict .storageClass  "exists" }} 
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+
+{{- range $storageClass := keys $scDict }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "fullname" $ }}-storageclass-{{ $storageClass }}
+  labels:
+    app: {{ $.Chart.Name }}
+spec:
+  storageClassName: {{ $storageClass }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+{{- end }}
