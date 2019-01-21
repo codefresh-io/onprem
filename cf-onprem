@@ -178,6 +178,7 @@ WEBTLSCERT_CFUI=$(cat ${WebTlsCert} | sed 's/^/      /')
 cat <<-EOF >${WEBTLS_VALUES_FILE}
 ---
 webTLS:
+  secretName: star.codefresh.io
   key: |
 ${WEBTLSKEY}
   cert: |

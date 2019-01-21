@@ -4,17 +4,6 @@ global:
   #seedJobs: true
   #certsJobs: true
 
-#### Depending on git provider use matching values
-### for Gitlab git provider
-#  gitlabClientID: 
-#  gitlabClientSecret:
-### for Bitbucket git provider
-#  bitbucketClientID: 
-#  bitbucketClientSecret:
-### for Github git provider
-#  githubClientID: 
-#  githubClientSecret: 
-#  githubInternalToken:
   appProtocol: https
 ### Codefresh App domain name
   appUrl: your-domain.com
@@ -53,21 +42,9 @@ ingress:
 ### For github provider (the apiHost and loginHost are different)
 cfapi:
   rbacEnable: true
-  github:
-    apiHost: api.github.com
-    loginHost: github.com
-    protocol: https
-
-### For gitlab provider (the apiHost and loginHost are the same)
-#cfapi:
-#  gitlab:
-#    apiHost: gitlab-internal.codefresh.io
-#    loginHost: gitlab-internal.codefresh.io
-#    protocol: https
 
 ### Define kubernetes secret name for customer certificate and private key
-webTLS:
-  secretName: star.codefresh.io
+
 
 
 consul:
