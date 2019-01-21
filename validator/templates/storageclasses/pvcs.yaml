@@ -16,7 +16,7 @@ apiVersion: v1
 metadata:
   name: {{ template "fullname" $ }}-storageclass-{{ $storageClass }}
   labels:
-    app: {{ $.Chart.Name }}
+    app: {{ $.Release.Name }}
 spec:
   storageClassName: {{ $storageClass }}
   accessModes:
