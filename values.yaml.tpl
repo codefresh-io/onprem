@@ -43,9 +43,6 @@ ingress:
 cfapi:
   rbacEnable: true
 
-### Define kubernetes secret name for customer certificate and private key
-
-
 
 consul:
 ### If needed to use storage class that different from default
