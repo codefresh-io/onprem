@@ -1,4 +1,3 @@
-{{ $root := . }}
 {{- $scDict := dict }}
 {{- range $key, $value := .Values }}
 {{- if and (not (empty $value)) (eq (kindOf $value) "map") }}
