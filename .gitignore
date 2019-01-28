@@ -3,6 +3,7 @@
 assets
 .kube
 
+tmp/
 # values.yaml
 values.yaml
 

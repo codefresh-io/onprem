@@ -177,6 +177,8 @@ WEBTLSCERT_CFUI=$(cat ${WebTlsCert} | sed 's/^/      /')
 
 cat <<-EOF >${WEBTLS_VALUES_FILE}
 ---
+ingress:
+  webTlsSecretName: "star.codefresh.io"
 webTLS:
   secretName: star.codefresh.io
   key: |
@@ -199,7 +201,7 @@ EOF
 
 # run_as_root
 
-while [[ $1 =~ ^(-(y)|--(yes|web-tls-key|web-tls-cert|set)) ]]
+while [[ $1 =~ ^(-(y)|--(yes|web-tls-key|web-tls-cert|set|debug)) ]]
 do
   key=$1
   value=$2
@@ -218,6 +220,9 @@ do
     --set)
         SET_VALUES="$SET_VALUES --set $value"
         shift
+      ;;
+    --debug)
+        SET_DEBUG="--debug"
       ;;
   esac
   shift # past argument or value
@@ -331,5 +336,6 @@ helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
   --set cfapi.redeploy=true \
   ${SEEDJOBS} \
   ${CERTJOBS} \
-  ${SET_VALUES}
+  ${SET_VALUES} \
+  ${SET_DEBUG}
 #  ${MTU_VALUE}
