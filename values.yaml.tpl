@@ -113,12 +113,10 @@ hermes:
   redis:
 ## Set hermes store password. It is mandatory
     redisPassword: verysecurepassword
+    storageSize: 8Gi
+    storageClass: {}
+    existingPvc: {}
     nodeSelector: {}
-#      services: rabbitmq-registry
-    persistence:
-## Use existing volume claim name
-      #existingClaim: cf-store
-      storageClass: {}
 
 cronus:
   storageClass: {}
