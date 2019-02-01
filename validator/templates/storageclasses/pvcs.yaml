@@ -1,14 +1,40 @@
-{{- $scDict := dict }}
-{{- range $key, $value := .Values }}
-{{- if and (not (empty $value)) (eq (kindOf $value) "map") }}
-  {{- with index $value "persistence" }}
-  {{- if .storageClass  }}
-    {{- $_ := set $scDict .storageClass  "exists" }} 
-  {{- end }}
-  {{- end }}
-{{- end }}
-{{- end }}
+{{- $scDict := dict -}}
+{{- $existingPvcsDict := dict -}}
+{{- $checkSc := false -}}
+{{- $checkDefaultSc := false -}}
 
+{{/* Fill dict persistent services */}}
+{{- $persistentServices := dict -}}
+{{- $persistentServiceNames := list "mongodb" "postgresql" "consul" "redis" "rabbitmq" "registry" "cronus" -}}
+{{- range $persistentServiceNames -}}
+{{- if (index $.Values . ) -}}
+{{- $_ := set $persistentServices . (index $.Values .) -}}
+{{- end -}}
+{{- end -}}
+
+{{- if .Values.hermes -}} {{- if .Values.hermes.redis -}}
+{{- $_ := set $persistentServices "store" .Values.hermes.redis -}}
+{{- end -}}{{- end -}}
+
+{{- range $k, $v := $persistentServices -}}
+  {{- if .existingPvc }}
+    {{- $_ := set $existingPvcsDict $v.existingPvc  "exists" -}}
+  {{- else if $v.storageClass -}}
+    {{- $_ := set $scDict $v.storageClass  "exists" -}}
+    {{- $checkSc = true -}}
+  {{- else -}}
+    {{- $checkDefaultSc = true -}}
+    {{- if and (empty $.Values.global.storageClass) (empty $.Values.defaultStorageClass ) -}}
+       {{-  fail (printf "No global.storageClass or kubernetes default storage class defined, persistent service %s will not be able to start" $k) -}}
+    {{- end -}}
+
+    {{- $_ := set $scDict (coalesce $.Values.global.storageClass $.Values.defaultStorageClass )  "exists" -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if .Values.global.storageClass -}}
+{{- $_ := set $scDict .Values.global.storageClass  "exists" -}}
+{{- end -}}
 
 {{- range $storageClass := keys $scDict }}
 kind: PersistentVolumeClaim
@@ -25,4 +51,36 @@ spec:
     requests:
       storage: 1Gi
 ---
+
 {{- end }}
+
+
+{{- range $pvc := keys $existingPvcDict }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pvc-{{- -}}
+  labels:
+    app: {{ $.Release.Name }}
+spec:
+  containers:
+  - image: alpine:3.7
+    name: test-pvc-{{- -}}
+    imagePullPolicy: IfNotPresent     
+    volumeMounts:
+    - mountPath: /data
+      name: data
+    readinessProbe:
+      exec:
+        command:
+        - touch
+        - /data/tst1
+      initialDelaySeconds: 1
+      periodSeconds: 3
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: {{  }}
+---
+
+{{- end -}}

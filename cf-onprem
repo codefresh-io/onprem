@@ -321,12 +321,13 @@ EOF
 
 [ -n "${WebTlsKey}" ] && [ -f "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ] && [ -f "${WebTlsCert}" ] && [ -f "${WEBTLS_VALUES_FILE}" ] && WEBTLS_VALUES="--values ${WEBTLS_VALUES_FILE}"
 
-cf_status=$(helm ls -q cf)
+RELEASE=cf
+cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
 [ -z "${cf_status}" ] && SEEDJOBS="--set global.seedJobs=true" && CERTJOBS="--set global.certsJobs=true"
 
 msg "Installing/Updating Codefresh..."
-helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
+helm upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   --install \
   --namespace codefresh \
   --values "${VALUES_FILE}" \

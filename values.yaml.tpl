@@ -119,11 +119,10 @@ hermes:
     nodeSelector: {}
 
 cronus:
+  storageSize: 1Gi
   storageClass: {}
-## Use existing volume claim name
-  #pvcName: cf-cronus
+  existingPvc: {}
   nodeSelector: {}
-#    services: rabbitmq-registry
 
 builder:
   nodeSelector: {}
