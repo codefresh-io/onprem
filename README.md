@@ -16,13 +16,16 @@ There are three files that customize `codefresh` chart deployment:
 
 
 ### How to run
-1. Clone [onprem](https://github.com/codefresh-io/onprem) repository
+* Clone [onprem](https://github.com/codefresh-io/onprem) repository
 ```
 git clone git@github.com:codefresh-io/onprem.git
 cd onprem
 ```
-2. cp `values.yaml.tpl`  `values.yaml`
+* cp `values.yaml.tpl`  `values.yaml`
 
-3. Edit values.yaml 
+* Edit values.yaml
 
-4. run `./cf-onprem [ --web-tls-key certs/key.pem --web-tls-cert certs/cert.pem ]`
+* Validate values and cluster
+   `./run-validator.sh`
+
+* run `./cf-onprem [ --web-tls-key certs/key.pem --web-tls-cert certs/cert.pem ]`

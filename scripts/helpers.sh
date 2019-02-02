@@ -28,3 +28,17 @@ function regexMatch() {
       err "$key contains invalid value: $value"
    fi
 }
+
+approveContext() {
+	echo "Your kubectl is configured with the following context: "
+	kubectl config current-context
+	read -r -p "Are you sure you want to continue? [y/N] " response
+
+	if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+	then
+			echo ""
+	else
+			echo "Exiting..."
+			exit 0
+	fi
+}

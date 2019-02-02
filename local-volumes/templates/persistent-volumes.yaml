@@ -1,0 +1,47 @@
+{{- range $k, $v := .Values.volumes }}
+
+{{- $nodeSelector := default $.Values.defaultNodeSelector $v.nodeSelector -}}
+{{- if empty $nodeSelector -}}
+  {{- fail "Cannot find nodeSelector for local volumes. Specify values for defaultNodeSelector or volume specific nodeSelector" -}}
+{{- end }}
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ printf "%s%s" $.Values.namePrefix $k }}
+  labels:
+    app: {{ $.Release.Name }}
+    chart: "{{ $.Chart.Name }}-{{ $.Chart.Version }}"
+    release: "{{ $.Release.Name }}"
+    heritage: "{{ $.Release.Service }}"
+spec:
+  capacity:
+    storage: {{ default "40Gi" $v.storageSize}}
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{$.Values.namePrefix}}local-storage
+  local:
+    {{- $path := "" }}
+    {{- if $v.path }}
+      {{- $path = isAbs $v.path | ternary $v.path (printf "%s/%s" $.Values.basePath $v.path) }}
+    {{- else }}
+      {{- $path = printf "%s/%s%s" $.Values.basePath $.Values.namePrefix $k }}
+    {{- end }}
+    {{- if or (empty $path) (eq $path "/") }}
+    {{- fail "Cannot calculate path for local volumes. Specify values for .Values.basePath or volumes.<name>.path " }}
+    {{- end }}
+    path: {{ $path }}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+      {{- range $s, $d := $nodeSelector }}
+      {{- if empty $d }}{{- fail (printf "Empty Node Selector Value for %s or all" $k) }}{{- end }}
+        - key: {{ $s }}
+          operator: In
+          values:
+            - {{ $d }}
+      {{- end }}
+---
+{{- end }}

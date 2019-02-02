@@ -17,7 +17,7 @@
 {{- end -}}{{- end -}}
 
 {{- range $k, $v := $persistentServices -}}
-  {{- if .existingPvc }}
+  {{- if $v.existingPvc }}
     {{- $_ := set $existingPvcsDict $v.existingPvc  "exists" -}}
   {{- else if $v.storageClass -}}
     {{- $_ := set $scDict $v.storageClass  "exists" -}}
@@ -51,21 +51,21 @@ spec:
     requests:
       storage: 1Gi
 ---
-
 {{- end }}
 
 
-{{- range $pvc := keys $existingPvcDict }}
+{{- range $k, $v := $persistentServices -}}
+{{- if $v.existingPvc }}
 apiVersion: v1
 kind: Pod
 metadata:
-  name: test-pvc-{{- -}}
+  name: test-pvc-{{ $v.existingPvc }}
   labels:
     app: {{ $.Release.Name }}
 spec:
   containers:
   - image: alpine:3.7
-    name: test-pvc-{{- -}}
+    name: test-pvc-{{ $v.existingPvc }}
     imagePullPolicy: IfNotPresent     
     volumeMounts:
     - mountPath: /data
@@ -80,7 +80,11 @@ spec:
   volumes:
   - name: data
     persistentVolumeClaim:
-      claimName: {{  }}
+      claimName: {{ $v.existingPvc }}
+  {{- if $v.nodeSelector }}
+  nodeSelector:
+{{ toYaml $v.nodeSelector | indent 4 }}
+  {{- end }}
 ---
-
+{{- end -}}
 {{- end -}}

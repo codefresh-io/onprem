@@ -10,6 +10,9 @@ global:
 
 # Storage class for all persistent services 
 #  storageClass: {}
+  localStorage: true
+  localStorageNodeSelector:
+    kubernetes.io/hostname: node-01
 
 ### MTU Value for dockerd in builder and runner
 #  mtu: 1400
