@@ -16,31 +16,33 @@ There are three files that customize `codefresh` chart deployment:
 
 
 ### How to run
-* Clone [onprem](https://github.com/codefresh-io/onprem) repository
+1. Clone [onprem](https://github.com/codefresh-io/onprem) repository
 ```
 git clone git@github.com:codefresh-io/onprem.git
 cd onprem
 ```
-* cp `values.yaml.tpl`  `values.yaml`
+2. cp `values.yaml.tpl`  `values.yaml`
 
-* Edit values.yaml
+3. Edit values.yaml
 Mandatory to set `global.appUrl` and `firebaseToken` 
 
-* Running on local volumes
-Codefresh can run on local volumes - https://kubernetes.io/docs/concepts/storage/volumes/#local  
+    ##### Running on local volumes
+        Codefresh can run on local volumes - https://kubernetes.io/docs/concepts/storage/volumes/#local  
 
-To create local volumes edit `local-volumes/values.yaml`, set:
-  - defaultNodeSelector
-  - mkdirPods.nodes
+        To create local volumes edit `local-volumes/values.yaml`, set:
+        - defaultNodeSelector
+        - mkdirPods.nodes
 
-then run `local-volumes/create-local-pvcs.sh`
+        then run `local-volumes/create-local-pvcs.sh`
+        edit values.yaml and set the values for `existingPvc`s
 
-
-* Validate values and cluster
+4 Validate values and cluster
    `./run-validator.sh`
    It will validate:
    - values.yaml
-   - ability to create launch persistent services 
+   - ability to launch persistent services on specified storage classes
+   - ability to launch persistent services on specified existing pvcs
+   - To do: validating networks, dns, loadbalances, ingress
 
 * run Intaller:
  ```
