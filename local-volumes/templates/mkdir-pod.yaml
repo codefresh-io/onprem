@@ -1,4 +1,7 @@
 {{- if .Values.mkdirPods }}
+{{- if empty .Values.mkdirPods.nodes }}
+{{- fail "mkdirPod cannot run - No nodes in .Values.mkdirPods.nodes" }}
+{{- end }}
 {{- $pathes := list }}
 {{- range $k, $v := .Values.volumes }}
 

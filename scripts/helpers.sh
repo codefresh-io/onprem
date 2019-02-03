@@ -31,7 +31,8 @@ function regexMatch() {
 
 approveContext() {
 	echo "Your kubectl is configured with the following context: "
-	kubectl config current-context
+	CURRENT_CONTEXT=$(kubectl config current-context)
+    kubectl config get-contexts ${CURRENT_CONTEXT}
 	read -r -p "Are you sure you want to continue? [y/N] " response
 
 	if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]

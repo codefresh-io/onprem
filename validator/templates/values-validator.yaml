@@ -3,6 +3,9 @@
 {{-  $errors = printf "%s\n%s" $errors "global.appUrl is empty" }}
 {{- end }}
 
+{{- if empty .Values.firebaseSecret }}
+{{-  $errors = printf "%s\n%s" $errors "firebaseSecret is empty" }}
+{{- end }}
 
 {{- if not ( empty $errors ) }} 
 {{-  fail $errors }}

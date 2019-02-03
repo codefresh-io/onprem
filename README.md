@@ -24,8 +24,25 @@ cd onprem
 * cp `values.yaml.tpl`  `values.yaml`
 
 * Edit values.yaml
+Mandatory to set `global.appUrl` and `firebaseToken` 
+
+* Running on local volumes
+Codefresh can run on local volumes - https://kubernetes.io/docs/concepts/storage/volumes/#local  
+
+To create local volumes edit `local-volumes/values.yaml`, set:
+  - defaultNodeSelector
+  - mkdirPods.nodes
+
+then run `local-volumes/create-local-pvcs.sh`
+
 
 * Validate values and cluster
    `./run-validator.sh`
+   It will validate:
+   - values.yaml
+   - ability to create launch persistent services 
 
-* run `./cf-onprem [ --web-tls-key certs/key.pem --web-tls-cert certs/cert.pem ]`
+* run Intaller:
+ ```
+ ./cf-onprem [ --web-tls-key certs/key.pem --web-tls-cert certs/cert.pem ]
+ ```

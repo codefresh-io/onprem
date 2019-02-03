@@ -7,19 +7,13 @@ CHART=${DIR}/validator
 NAMESPACE=${NAMESPACE:-codefresh}
 HELM_TIMEOUT=60
 
-approveContext() {
-	echo "Your kubectl is configured with the following context: "
-	kubectl config current-context
-	read -r -p "Are you sure you want to continue? [y/N] " response
+VALUES_FILE=${DIR}/values.yaml
+if [[ ! -f "${VALUES_FILE}" ]]; then
+  echo "Error: values file ${VALUES_FILE} does not exist"
+  exit 1
+fi
 
-	if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
-	then
-			echo ""
-	else
-			echo "Exiting..."
-			exit 0
-	fi
-}
+source ${DIR}/scripts/helpers.sh
 
 approveContext
 
@@ -28,7 +22,7 @@ SC_DEFAULT_QUERY='{{ range .items }}'
 SC_DEFAULT_QUERY+='{{if .metadata.annotations }}{{if (index .metadata.annotations "storageclass.beta.kubernetes.io/is-default-class") }}'
 SC_DEFAULT_QUERY+='{{ .metadata.name }}{{"\n"}}'
 SC_DEFAULT_QUERY+='{{end}}{{end}}{{end}}'
-DEFAULT_STORAGE_CLASS=$(kubectl -ogo-template="$SC_DEFAULT" get sc)
+DEFAULT_STORAGE_CLASS=$(kubectl -ogo-template="$SC_DEFAULT_QUERY" get sc)
 if [[ -n "${DEFAULT_STORAGE_CLASS}" ]]; then
    DEFAULT_STORAGE_CLASS_PARAM="--set defaultStorageClass=${DEFAULT_STORAGE_CLASS}"
 fi
@@ -38,8 +32,6 @@ if [[ -n "${RELEASE_STATUS}" ]]; then
    echo "There is a previous run of $RELEASE with status $RELEASE_STATUS , deleting it"
    helm delete $RELEASE --purge
 fi
-
-VALUES_FILE=${DIR}/values.yaml
 
 HELM=${HELM:-helm}
 
@@ -67,9 +59,10 @@ if [[ "${HELM_EXIT_STATUS}" == 0 ]]; then
   echo "Validation Complete Successfully"
 else
   # kubectl --namespace $NAMESPACE get pods,pvc,pv,svc -l app=${RELEASE}
-  echo "Validation FAILED. There are failed or pending resources
-
-Use kubectl desribe <pending pod|pvc|pv> ${RELEASE}-* to see the cause
+  echo "
+Validation FAILED. See the messages above
+Check failed or pending resources by: 
+kubectl desribe <pending pod|pvc|pv> ${RELEASE}-* to see the cause
   "
   exit 1
 fi

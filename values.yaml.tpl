@@ -9,10 +9,11 @@ global:
   appUrl: your-domain.com
 
 # Storage class for all persistent services 
-#  storageClass: {}
-  localStorage: true
-  localStorageNodeSelector:
-    kubernetes.io/hostname: node-01
+# storageClass: my-storage-class
+
+# Default nodeSelector for storage pods. Useful in case of local volumes
+# storagePodNodeSelector:
+#   kubernetes.io/hostname: storage-host-01
 
 ### MTU Value for dockerd in builder and runner
 #  mtu: 1400
@@ -43,7 +44,7 @@ firebaseSecret:
 #   storageClass: ceph-pool-1
 #   storageSize: 8Gi
 #
-# Example 2, rabbitmq on precreated pvc for local volume on cpecific volume
+# Example 2, postgresql on precreated pvc for local volume on cpecific volume
 # 
 # postgresql:
 #   existingPvc: cf-postgress-lv
@@ -52,39 +53,62 @@ firebaseSecret:
 
 mongodb:
   storageSize: 8Gi
-  storageClass: {}
-  existingPvc: {}
-  nodeSelector: {}
+  storageClass: 
+  #existingPvc: cf-mongodb
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
 
 postgresql:
   storageSize: 8Gi
-  storageClass: {}
-  existingPvc: {}
-  nodeSelector: {}
+  storageClass:
+  #existingPvc: cf-postgesql
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
 
 consul:
   storageSize: 1Gi
-  storageClass: {}
-  existingPvc: {}
-  nodeSelector: {}
+  storageClass:
+  #existingPvc: cf-consul
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
 
 redis:
   storageSize: 8Gi
-  storageClass: {}
-  existingPvc: {}
-  nodeSelector: {}
+  storageClass:
+  #existingPvc: cf-redis
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
 
 rabbitmq:
   storageSize: 8Gi
-  storageClass: {}
-  existingPvc: {}
-  nodeSelector: {}
+  storageClass:
+  #existingPvc: cf-rabbitmq
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
+
+cronus:
+  storageSize: 1Gi
+  storageClass:
+  #existingPvc: cf-cronus
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
+
+hermes:
+  redis:
+## Set hermes store password. It is mandatory
+    redisPassword: verysecurepassword
+    storageSize: 8Gi
+    storageClass:
+    #existingPvc: cf-store
+    #nodeSelector:
+    #  kubernetes.io/hostname: storage-host-01
 
 registry:
   storageSize: 100Gi
-  storageClass: {}
-  existingPvc: {}
-  nodeSelector: {}
+  storageClass:
+  #existingPvc: cf-registry
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
 # Insert custom registry configuration (https://docs.docker.com/registry/configuration/)
 #   registryConfig:
 #     version: 0.1
@@ -110,23 +134,6 @@ registry:
 #         interval: 10s
 #         threshold: 3 
 
-hermes:
-  nodeSelector: {}
-#    services: rabbitmq-registry
-  redis:
-## Set hermes store password. It is mandatory
-    redisPassword: verysecurepassword
-    storageSize: 8Gi
-    storageClass: {}
-    existingPvc: {}
-    nodeSelector: {}
-
-cronus:
-  storageSize: 1Gi
-  storageClass: {}
-  existingPvc: {}
-  nodeSelector: {}
-
 builder:
   nodeSelector: {}
 ## Set time to run docker cleaner  
@@ -134,8 +141,8 @@ builder:
 ## Override builder PV initial size
   varLibDockerVolume:
     storageSize: 100Gi
-    existingPvc: {}
-    storageClass: {}
+    storageClass:
+    #existingPvc: cf-builder-0
 
 runner:
   nodeSelector: {}
@@ -144,8 +151,10 @@ runner:
 ## Override runner PV initial size
   varLibDockerVolume:
     storageSize: 100Gi
-    existingPvc: {}
-    storageClass: {}
+    storageClass:
+    #existingPvc: cf-runner-0
+
+
 
 # helm-repo-manager:
 #   RepoUrlPrefix: "cm://<app_url>"
