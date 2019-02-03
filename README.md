@@ -36,7 +36,7 @@ Mandatory to set `global.appUrl` and `firebaseToken`
         then run `local-volumes/create-local-pvcs.sh`
         edit values.yaml and set the values for `existingPvc`s
 
-4 Validate values and cluster
+4. Validate values and cluster
    `./run-validator.sh`
    It will validate:
    - values.yaml
@@ -44,7 +44,7 @@ Mandatory to set `global.appUrl` and `firebaseToken`
    - ability to launch persistent services on specified existing pvcs
    - To do: validating networks, dns, loadbalances, ingress
 
-* run Intaller:
+5. run Intaller:
  ```
  ./cf-onprem [ --web-tls-key certs/key.pem --web-tls-cert certs/cert.pem ]
  ```
