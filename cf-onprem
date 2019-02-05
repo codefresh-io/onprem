@@ -15,7 +15,7 @@ readonly HELM_VERSION="${CF_HELM_VERSION:-2.10.0}"
 readonly CHANNEL="${CF_HELM_CHANNEL:-dev}"
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
 
-#export KUBECONFIG=./.kube/config
+readonly RELEASE=cf
 
 readonly WORKING_DIR="$(dirname "$0")"
 readonly SERVICE_ACCOUNT="${WORKING_DIR}/sa.json"
@@ -179,6 +179,9 @@ cat <<-EOF >${WEBTLS_VALUES_FILE}
 ---
 ingress:
   webTlsSecretName: "star.codefresh.io"
+nomios:
+  ingress:
+    webTlsSecretName: "star.codefresh.io"
 webTLS:
   secretName: star.codefresh.io
   key: |
@@ -321,7 +324,6 @@ EOF
 
 [ -n "${WebTlsKey}" ] && [ -f "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ] && [ -f "${WebTlsCert}" ] && [ -f "${WEBTLS_VALUES_FILE}" ] && WEBTLS_VALUES="--values ${WEBTLS_VALUES_FILE}"
 
-RELEASE=cf
 cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
 [ -z "${cf_status}" ] && SEEDJOBS="--set global.seedJobs=true" && CERTJOBS="--set global.certsJobs=true"
