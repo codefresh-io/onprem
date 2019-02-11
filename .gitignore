@@ -5,7 +5,7 @@ assets
 
 tmp/
 # values.yaml
-values.yaml
+/values.yaml
 
 # decrypted files
 **/*-dec.*
