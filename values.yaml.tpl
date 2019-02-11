@@ -61,14 +61,14 @@ mongodb:
 postgresql:
   storageSize: 8Gi
   storageClass:
-  #existingPvc: cf-postgesql
+  #existingPvc: cf-postgresql
   #nodeSelector:
   #  kubernetes.io/hostname: storage-host-01
 
 consul:
   storageSize: 1Gi
   storageClass:
-  #existingPvc: cf-consul
+  #existingPvc: cf-consul-0
   #nodeSelector:
   #  kubernetes.io/hostname: storage-host-01
 

@@ -62,19 +62,35 @@ metadata:
   name: test-pvc-{{ $v.existingPvc }}
   labels:
     app: {{ $.Release.Name }}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
 spec:
+  restartPolicy: Never
+  terminationGracePeriodSeconds: 10
   containers:
   - image: alpine:3.7
     name: test-pvc-{{ $v.existingPvc }}
     imagePullPolicy: IfNotPresent     
     volumeMounts:
-    - mountPath: /data
+    - mountPath: /test-pvc
       name: data
+    command:
+    - sh
+    - -c
+    - |
+      mount
+      ls -l /test-pvc
+      mkdir -pv /test-pvc/test-pvc
+      sleep 300
     readinessProbe:
       exec:
         command:
-        - touch
-        - /data/tst1
+        - touch 
+        - /test-pvc/test-pvc/ready
       initialDelaySeconds: 1
       periodSeconds: 3
   volumes:
@@ -87,4 +103,13 @@ spec:
   {{- end }}
 ---
 {{- end -}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-pvc-dummy-cm
+  labels:
+    app: {{ $.Release.Name }}
+data:
+  dd: "11"
 {{- end -}}

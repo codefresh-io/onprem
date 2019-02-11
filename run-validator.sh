@@ -40,6 +40,7 @@ RELEASE_STATUS=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {
 if [[ -n "${RELEASE_STATUS}" ]]; then
    echo "There is a previous run of $RELEASE with status $RELEASE_STATUS , deleting it"
    helm delete $RELEASE --purge
+   sleep 10
 fi
 
 HELM=${HELM:-helm}
