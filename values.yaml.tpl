@@ -1,8 +1,8 @@
 global:
 
 ### expose codefresh internal registry from ingress
-  registryPort: 443
-  exposeRegistry: true
+  #registryPort: 443
+  #exposeRegistry: true
 
 ### Instantiate databases with seed data. Usually used in dynamic and on-prem environments.
   #seedJobs: true
