@@ -5,7 +5,7 @@
 
 {{/* Fill dict persistent services */}}
 {{- $persistentServices := dict -}}
-{{- $persistentServiceNames := list "mongodb" "postgresql" "consul" "redis" "rabbitmq" "registry" "cronus" -}}
+{{- $persistentServiceNames := list "mongodb" "postgresql" "consul" "redis" "rabbitmq" "registry" "cronus" "runner" "builder" -}}
 {{- range $persistentServiceNames -}}
 {{- if (index $.Values . ) -}}
 {{- $_ := set $persistentServices . (index $.Values .) -}}
@@ -104,6 +104,9 @@ spec:
 ---
 {{- end -}}
 
+{{- end -}}
+
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -112,4 +115,3 @@ metadata:
     app: {{ $.Release.Name }}
 data:
   dd: "11"
-{{- end -}}

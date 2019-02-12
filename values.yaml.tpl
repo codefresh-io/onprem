@@ -139,9 +139,8 @@ builder:
 ## Set time to run docker cleaner  
   dockerCleanerCron: 0 0 * * *
 ## Override builder PV initial size
-  varLibDockerVolume:
-    storageSize: 100Gi
-    storageClass:
+  storageSize: 100Gi
+  storageClass:
     #existingPvc: cf-builder-0
 
 runner:
@@ -149,9 +148,8 @@ runner:
 ## Set time to run docker cleaner  
   dockerCleanerCron: 0 0 * * *
 ## Override runner PV initial size
-  varLibDockerVolume:
-    storageSize: 100Gi
-    storageClass:
+  storageSize: 100Gi
+  storageClass:
     #existingPvc: cf-runner-0
 
 

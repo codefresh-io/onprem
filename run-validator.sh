@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-
+echo "Starting validator"
 DIR=$(dirname $0)
 RELEASE=cf-validator
 CHART=${DIR}/validator
@@ -15,16 +15,18 @@ fi
 
 source ${DIR}/scripts/helpers.sh
 
-approveContext
+if [[ -z "${IN_INSTALLER}" ]]; then
+  approveContext
 
-msg "Checking helm binary on your system"
-checkHelmInstalled "helm"
+  msg "Checking helm binary on your system"
+  checkHelmInstalled "helm"
 
-msg "Checking if tiller is installed on kubernetes cluster"
-checkTillerInstalled
+  msg "Checking if tiller is installed on kubernetes cluster"
+  checkTillerInstalled
 
-msg "Checking tiller status..."
-checkTillerStatus
+  msg "Checking tiller status..."
+  checkTillerStatus
+fi
 
 ## Get default storage class
 SC_DEFAULT_QUERY='{{ range .items }}'

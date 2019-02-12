@@ -185,7 +185,16 @@ EOF
 
 cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
-[ -z "${cf_status}" ] && SEEDJOBS="--set global.seedJobs=true" && CERTJOBS="--set global.certsJobs=true"
+if [[ -z "${cf_status}" ]]; then
+  SEEDJOBS="--set global.seedJobs=true"
+  CERTJOBS="--set global.certsJobs=true"
+  IN_INSTALLER="true" ${DIR}/run-validator.sh
+  if [[ $? != 0 ]]; then
+    echo "Validation failed"
+    exit 1
+  fi
+fi
+
 
 msg "Installing/Updating Codefresh..."
 helm upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
