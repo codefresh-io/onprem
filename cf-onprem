@@ -63,7 +63,7 @@ EOF
 
 # run_as_root
 
-while [[ $1 =~ ^(-(y)|--(yes|web-tls-key|web-tls-cert|set|debug)) ]]
+while [[ $1 =~ ^(-(y)|--(yes|web-tls-key|web-tls-cert|set|debug|version)) ]]
 do
   key=$1
   value=$2
@@ -81,6 +81,10 @@ do
       ;;
     --set)
         SET_VALUES="$SET_VALUES --set $value"
+        shift
+      ;;
+    --version)
+        SET_VERSION="$SET_VERSION --version $value"
         shift
       ;;
     --debug)
@@ -208,5 +212,6 @@ helm upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   ${SEEDJOBS} \
   ${CERTJOBS} \
   ${SET_VALUES} \
+  ${SET_VERSION} \
   ${SET_DEBUG}
 #  ${MTU_VALUE}
