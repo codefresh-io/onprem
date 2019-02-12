@@ -8,6 +8,13 @@ global:
 ### Codefresh App domain name
   appUrl: your-domain.com
 
+# Storage class for all persistent services 
+# storageClass: my-storage-class
+
+# Default nodeSelector for storage pods. Useful in case of local volumes
+# storagePodNodeSelector:
+#   kubernetes.io/hostname: storage-host-01
+
 ### MTU Value for dockerd in builder and runner
 #  mtu: 1400
 
@@ -17,171 +24,142 @@ global:
 #    http_proxy: "http://myproxy.domain.com:8080"
 #    HTTPS_PROXY: "http://myproxy.domain.com:8080"
 #    https_proxy: "http://myproxy.domain.com:8080"
-#    NO_PROXY: "127.0.0.1,localhost,kubernetes.default.svc,.codefresh.svc,100.64.0.1,169.254.169.254,cf-builder,cf-cfapi,cf-cfui,cf-chartmuseum,cf-charts-manager,cf-cluster-providers,cf-consul,cf-consul-ui,cf-context-manager,cf-cronus,cf-helm-repo-manager,cf-hermes,cf-ingress-controller,cf-ingress-http-backend,cf-kube-integration,cf-mongodb,cf-nats,cf-nomios,cf-pipeline-manager,cf-postgresql,cf-rabbitmq,cf-redis,cf-registry,cf-runner,cf-runtime-environment-manager,cf-store"
-#    no_proxy: "127.0.0.1,localhost,kubernetes.default.svc,.codefresh.svc,100.64.0.1,169.254.169.254,cf-builder,cf-cfapi,cf-cfui,cf-chartmuseum,cf-charts-manager,cf-cluster-providers,cf-consul,cf-consul-ui,cf-context-manager,cf-cronus,cf-helm-repo-manager,cf-hermes,cf-ingress-controller,cf-ingress-http-backend,cf-kube-integration,cf-mongodb,cf-nats,cf-nomios,cf-pipeline-manager,cf-postgresql,cf-rabbitmq,cf-redis,cf-registry,cf-runner,cf-runtime-environment-manager,cf-store"
-
+#    NO_PROXY: "127.0.0.1,localhost,kubernetes.default.svc,.codefresh.svc,100.64.0.1,169.254.169.254,cf-builder,cf-cfapi,cf-cfui,cf-chartmuseum,cf-charts-manager,cf-cluster-providers,cf-consul,cf-consul-ui,cf-context-manager,cf-cronus,cf-helm-repo-manager,cf-hermes,cf-ingress-controller,cf-ingress-http-backend,cf-kube-integration,cf-mongodb,cf-nats,cf-nomios,cf-pipeline-manager,cf-postgresql,cf-rabbitmq,cf-redis,cf-registry,cf-runner,cf-runtime-environment-manager,cf-store,cf-tasker-kubernetes"
+#    no_proxy: "127.0.0.1,localhost,kubernetes.default.svc,.codefresh.svc,100.64.0.1,169.254.169.254,cf-builder,cf-cfapi,cf-cfui,cf-chartmuseum,cf-charts-manager,cf-cluster-providers,cf-consul,cf-consul-ui,cf-context-manager,cf-cronus,cf-helm-repo-manager,cf-hermes,cf-ingress-controller,cf-ingress-http-backend,cf-kube-integration,cf-mongodb,cf-nats,cf-nomios,cf-pipeline-manager,cf-postgresql,cf-rabbitmq,cf-redis,cf-registry,cf-runner,cf-runtime-environment-manager,cf-store,cf-tasker-kubernetes"
 
 ### Firebase secret
 firebaseSecret: 
 
-### Uncomment if kubernetes cluster is RBAC enabled
-rbacEnable: true
-
 ## Custom annotations for Codefresh ingress resource that override defaults
 #annotations:
-   #kubernetes.io/ingress.class: nginx-codefresh
+#  kubernetes.io/ingress.class: nginx-codefresh
 
-ingress:
-### Codefresh App domain name    
-  domain: your-domain.com
-### Uncomment if kubernetes cluster is RBAC enabled
-  rbacEnable: true
-### The name of kebernetes secret with customer certificate and private key
-  webTlsSecretName: "star.codefresh.io"  
-
-### For github provider (the apiHost and loginHost are different)
-cfapi:
-  rbacEnable: true
-
-
-consul:
-### If needed to use storage class that different from default
-  StorageClass: {}
-### Use existing volume claim name
-  #pvcName: cf-consul
-### Use NodeSelector to assing pod to a node
-  nodeSelector: {}
-#    services: consul-postgresql
-
-postgresql:
-  persistence:
-    #existingClaim: cf-postgresql
-    storageClass: {}
-  nodeSelector: {}
-#    services: consul-postgresql
+## Persistent services (mongodb, consul, postgress, redit, rabbit) configuration
+# you can configure storageClass for dynamic volume provisoning or precreated existingPvc name
+# existingPvc should exist before launching the intallation and takes precedence over storageClass
+#
+# Specify node selector if 
+# Example 1, mongodb with storageClass for dynamic volume provisoning:
+# mongodb:
+#   storageClass: ceph-pool-1
+#   storageSize: 8Gi
+#
+# Example 2, postgresql on precreated pvc for local volume on cpecific volume
+# 
+# postgresql:
+#   existingPvc: cf-postgress-lv
+#   nodeSelector:
+#     kubernetes.io/hostname: storage-host-01
 
 mongodb:
-## Enable persistence using Persistent Volume Claims
-## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
-##
-##  IMPORTANT !
-##  It is not possible the combination when pvcName is defined and persistence:enabled = true
-##  Only one of two:
-##  pvcName is defined AND persistence:enabled = false
-##  OR
-##  pvcName is not defined (commented out) AND persistence:enabled = true
-##  
-## Use existing volume claim name
-  #pvcName: cf-mongodb
-## Provision new volume claim
-  persistence:
-    enabled: true
-    ## If defined, volume.beta.kubernetes.io/storage-class: <storageClass>
-    ## Default: volume.alpha.kubernetes.io/storage-class: default
-    ##
-    storageClass: {}
-    accessMode: ReadWriteOnce
-    size: 8Gi
+  storageSize: 8Gi
+  storageClass: 
+  #existingPvc: cf-mongodb
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
 
-  nodeSelector: {}
-#    provisioner: local-volume
+postgresql:
+  storageSize: 8Gi
+  storageClass:
+  #existingPvc: cf-postgresql
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
+
+consul:
+  storageSize: 1Gi
+  storageClass:
+  #existingPvc: cf-consul-0
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
 
 redis:
-  persistence:
-## Use existing volume claim name    
-    #existingClaim: cf-redis
-    storageClass: {}
-  nodeSelector: {}
-#    provisioner: local-volume
+  storageSize: 8Gi
+  storageClass:
+  #existingPvc: cf-redis
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
 
 rabbitmq:
-  persistence:
-## Use existing volume claim name
-    #existingClaim: cf-rabbitmq  
-    storageClass: {}
-  nodeSelector: {}
-#    services: rabbitmq-registry
+  storageSize: 8Gi
+  storageClass:
+  #existingPvc: cf-rabbitmq
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
 
-registry:
-  storageClass: {}
-## Override default (4Gi) initial registry PV size  
-  #storageSize: {}
-  ## Use existing volume claim name
-  #pvcName: cf-registry
-  nodeSelector: {}
-#    services: rabbitmq-registry
-## Uncomment if needed to apply custom configuration to registry
-  #registryConfig:
-## Insert custom registry configuration (https://docs.docker.com/registry/configuration/)
-    #version: 0.1
-    #log:
-      #level: debug
-      #fields:
-        #service: registry
-    #storage:
-      #cache:
-        #blobdescriptor: inmemory
-      #s3:
-         #region: YOUR_REGION
-         #bucket: YOUR_BUCKET_NAME
-         #accesskey: AWS_ACCESS_KEY
-         #secretkey: AWS_SECRET_KEY
-    #http:
-      #addr: :5000
-      #headers:
-        #X-Content-Type-Options: [nosniff]
-    #health:
-      #storagedriver:
-        #enabled: true
-        #interval: 10s
-        #threshold: 3
+cronus:
+  storageSize: 1Gi
+  storageClass:
+  #existingPvc: cf-cronus
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
 
 hermes:
-  nodeSelector: {}
-#    services: rabbitmq-registry
   redis:
 ## Set hermes store password. It is mandatory
     redisPassword: verysecurepassword
-    nodeSelector: {}
-#      services: rabbitmq-registry
-    persistence:
-## Use existing volume claim name
-      #existingClaim: cf-store
-      storageClass: {}
+    storageSize: 8Gi
+    storageClass:
+    #existingPvc: cf-store
+    #nodeSelector:
+    #  kubernetes.io/hostname: storage-host-01
 
-cronus:
-  storageClass: {}
-## Use existing volume claim name
-  #pvcName: cf-cronus
-  nodeSelector: {}
-#    services: rabbitmq-registry
+registry:
+  storageSize: 100Gi
+  storageClass:
+  #existingPvc: cf-registry
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
+# Insert custom registry configuration (https://docs.docker.com/registry/configuration/)
+#   registryConfig:
+#     version: 0.1
+#     log:
+#       level: debug
+#       fields:
+#         service: registry
+#     storage:
+#       cache:
+#         blobdescriptor: inmemory
+#       s3:
+#          region: YOUR_REGION
+#          bucket: YOUR_BUCKET_NAME
+#          accesskey: AWS_ACCESS_KEY
+#          secretkey: AWS_SECRET_KEY
+#     http:
+#       addr: :5000
+#       headers:
+#         X-Content-Type-Options: [nosniff]
+#     health:
+#       storagedriver:
+#         enabled: true
+#         interval: 10s
+#         threshold: 3 
 
 builder:
-## Use existing volume claim name
-  #pvcName: cf-builder
+  nodeSelector: {}
 ## Set time to run docker cleaner  
   dockerCleanerCron: 0 0 * * *
 ## Override builder PV initial size
-  varLibDockerVolume:
-    storageClass: {}
-    storageSize: 100Gi
+  storageSize: 100Gi
+  storageClass:
+    #existingPvc: cf-builder-0
 
 runner:
-## Use existing volume claim name  
-  #pvcName: cf-runner
+  nodeSelector: {}
 ## Set time to run docker cleaner  
   dockerCleanerCron: 0 0 * * *
 ## Override runner PV initial size
-  varLibDockerVolume:
-    storageClass: {}
-    storageSize: 100Gi
+  storageSize: 100Gi
+  storageClass:
+    #existingPvc: cf-runner-0
 
-helm-repo-manager:
-  RepoUrlPrefix: "cm://<app_url>"
 
-backups:
-  #enabled: true
-  awsAccessKey: 
-  awsSecretAccessKey: 
-  s3Url: s3://<some-bucket>
+
+# helm-repo-manager:
+#   RepoUrlPrefix: "cm://<app_url>"
+
+# backups:
+#   #enabled: true
+#   awsAccessKey: 
+#   awsSecretAccessKey: 
+#   s3Url: s3://<some-bucket>
     

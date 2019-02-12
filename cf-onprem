@@ -2,20 +2,17 @@
 #
 
 #set -x
-
-msg() { echo -e "\e[32mINFO [$(date +%F\ %T)] ---> $1\e[0m"; }
-warning() { echo -e "\e[33mWARNING [$(date +%F\ %T)] ---> $1\e[0m"; }
-err() { echo -e "\e[31mERR [$(date +%F\ %T)] ---> $1\e[0m" ; exit 1; }
+DIR=$(dirname $0)
+source ${DIR}/scripts/helpers.sh
 
 if [ -f "./env-vars" ]; then
 . ./env-vars
 fi
 
-readonly HELM_VERSION="${CF_HELM_VERSION:-2.10.0}"
 readonly CHANNEL="${CF_HELM_CHANNEL:-dev}"
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
 
-#export KUBECONFIG=./.kube/config
+readonly RELEASE=cf
 
 readonly WORKING_DIR="$(dirname "$0")"
 readonly SERVICE_ACCOUNT="${WORKING_DIR}/sa.json"
@@ -29,144 +26,6 @@ usage() {
 	exit 0
 }
 
-check() { command -v $1 >/dev/null 2>&1 || err "$1 binary is required!"; }
-
-ver() { printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' ' '); }
-
-exists() {
-	if command -v $1 >/dev/null 2>&1; then
-		msg "$1 binary installed"
-	else
-		warning "Please install $1 to proceed"
-		exit 1
-	fi
-}
-
-run_as_root() {
-	if [[ $EUID > 0 ]]; then
-		err "Please run as root/sudo"
-		exit 1
-	fi
-}
-
-approveContext() {
-	msg "Your kubectl is configured with the following context: "
-	kubectl config current-context
-	read -r -p "Are you sure you want to continue? [y/N] " response
-
-	if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
-	then
-			msg "No problem, continuing with the script..."
-	else
-			msg "Exiting..."
-			exit 0
-	fi
-}
-
-checkHelmInstalled() {
-  if command -v $1 >/dev/null 2>&1; then
-    helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//')
-    msg "helm is already installed and has version v$helm_version"
-    [ $(ver $helm_version) -lt $(ver $HELM_VERSION) ] && \
-    err "You have older helm version than required. Please upgrade to v$HELM_VERSION or newer !"
-  else
-    warning "helm is not installed"
-    if [[ ! "$YES" == 'true' ]]; then
-    read -p "Do you want to install helm ? [y/n] " yn
-      case ${yn} in
-        y|Y)
-          helmInstall
-      ;;
-        *)
-          err "Need helm to deploy Codefresh app ! Exiting..."
-          #exit 1
-      ;;
-      esac
-    else
-      helmInstall
-    fi
-  fi
-}
-
-helmInstall() {
-  msg "Downloading and installing helm..."
-<< ////
-  case "$(uname -s)" in
-    Linux)
-      os=linux
-    ;;
-    Darwin)
-      os=darwin
-    ;;
-    *)
-    ;;
-  esac
-////
-  wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-${os}-amd64.tar.gz -P /tmp/
-  tar xvf /tmp/helm-v${HELM_VERSION}-${os}-amd64.tar.gz -C /tmp/
-  chmod +x /tmp/${os}-amd64/helm
-  sudo mv /tmp/${os}-amd64/helm /usr/local/bin/
-  rm -rf /tmp/helm-v${HELM_VERSION}-${os}-amd64 /tmp/helm-v${HELM_VERSION}-${os}-amd64.tar.gz
-}
-
-checkTillerInstalled() {
-  status=$(kubectl -nkube-system get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
-  if [ "$status" == "Running" ]; then
-    msg "Tiller is installed and running"
-    helm init -c
-    helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//')
-    tiller_version=$(helm version --server --short | sed 's/.*\: v//' | sed 's/+.*//')
-    if [[ ! "$YES" == 'true' ]] && [ $(ver $tiller_version) -lt $(ver $helm_version) ]; then
-      warning "You're running helm v$helm_version but tiller has v$tiller_version."
-      read -p  " Do you want to upgrade tiller to v$helm_version ? [y/n] " yn
-      case ${yn} in
-        y|Y)
-          kubectl create -f ./tiller-rbac-config.yaml > /dev/null 2>&1
-          helm init --upgrade --service-account tiller --wait
-      ;;
-        *)
-          err "You need to upgrade tiller ! Exiting..."
-      ;;
-      esac
-    fi
-    if [[ "$YES" == 'true' ]] && [ $(ver $tiller_version) -lt $(ver $helm_version) ]; then
-      err "You're running helm v$helm_version but tiller has v$tiller_version . You need to upgrade tiller ! Exiting..."
-    fi
-  else
-    warning "Unable to determine tiller at its default location."
-    if [[ ! "$YES" == 'true' ]]; then
-      read -p  " Do you want to deploy tiller ? [y/n] " yn
-      case ${yn} in
-        y|Y)
-          kubectl create -f ./tiller-rbac-config.yaml
-          helm init --service-account tiller --wait
-      ;;
-        *)
-          err "Need to deploy tiller ! Exiting..."
-          exit 1
-      ;;
-      esac
-    else
-      kubectl create -f ./tiller-rbac-config.yaml
-      helm init --service-account tiller --wait
-    fi
-  fi
-
-}
-
-checkTillerStatus() {
-	while true; do
-    status=$(kubectl -nkube-system get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
-
-	  msg "Tiller status = $status"
-	  [ "$status" == "Running" ] && break
-
-	  msg "Sleeping 5 seconds ..."
-	  sleep 5
-
-	done
-}
-
 generateWebTlsValuesFile() {
 
 WEBTLSKEY=$(cat ${WebTlsKey} | sed 's/^/    /')
@@ -177,6 +36,11 @@ WEBTLSCERT_CFUI=$(cat ${WebTlsCert} | sed 's/^/      /')
 
 cat <<-EOF >${WEBTLS_VALUES_FILE}
 ---
+ingress:
+  webTlsSecretName: "star.codefresh.io"
+nomios:
+  ingress:
+    webTlsSecretName: "star.codefresh.io"
 webTLS:
   secretName: star.codefresh.io
   key: |
@@ -199,7 +63,7 @@ EOF
 
 # run_as_root
 
-while [[ $1 =~ ^(-(y)|--(yes|web-tls-key|web-tls-cert|set)) ]]
+while [[ $1 =~ ^(-(y)|--(yes|web-tls-key|web-tls-cert|set|debug)) ]]
 do
   key=$1
   value=$2
@@ -218,6 +82,9 @@ do
     --set)
         SET_VALUES="$SET_VALUES --set $value"
         shift
+      ;;
+    --debug)
+        SET_DEBUG="--debug"
       ;;
   esac
   shift # past argument or value
@@ -316,12 +183,21 @@ EOF
 
 [ -n "${WebTlsKey}" ] && [ -f "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ] && [ -f "${WebTlsCert}" ] && [ -f "${WEBTLS_VALUES_FILE}" ] && WEBTLS_VALUES="--values ${WEBTLS_VALUES_FILE}"
 
-cf_status=$(helm ls -q cf)
+cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
-[ -z "${cf_status}" ] && SEEDJOBS="--set global.seedJobs=true" && CERTJOBS="--set global.certsJobs=true"
+if [[ -z "${cf_status}" ]]; then
+  SEEDJOBS="--set global.seedJobs=true"
+  CERTJOBS="--set global.certsJobs=true"
+  IN_INSTALLER="true" ${DIR}/run-validator.sh
+  if [[ $? != 0 ]]; then
+    echo "Validation failed"
+    exit 1
+  fi
+fi
+
 
 msg "Installing/Updating Codefresh..."
-helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
+helm upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   --install \
   --namespace codefresh \
   --values "${VALUES_FILE}" \
@@ -331,5 +207,6 @@ helm upgrade cf codefresh-onprem-${CHANNEL}/codefresh \
   --set cfapi.redeploy=true \
   ${SEEDJOBS} \
   ${CERTJOBS} \
-  ${SET_VALUES}
+  ${SET_VALUES} \
+  ${SET_DEBUG}
 #  ${MTU_VALUE}

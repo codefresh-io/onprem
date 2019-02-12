@@ -1,0 +1,117 @@
+{{- $scDict := dict -}}
+{{- $existingPvcsDict := dict -}}
+{{- $checkSc := false -}}
+{{- $checkDefaultSc := false -}}
+
+{{/* Fill dict persistent services */}}
+{{- $persistentServices := dict -}}
+{{- $persistentServiceNames := list "mongodb" "postgresql" "consul" "redis" "rabbitmq" "registry" "cronus" "runner" "builder" -}}
+{{- range $persistentServiceNames -}}
+{{- if (index $.Values . ) -}}
+{{- $_ := set $persistentServices . (index $.Values .) -}}
+{{- end -}}
+{{- end -}}
+
+{{- if .Values.hermes -}} {{- if .Values.hermes.redis -}}
+{{- $_ := set $persistentServices "store" .Values.hermes.redis -}}
+{{- end -}}{{- end -}}
+
+{{- range $k, $v := $persistentServices -}}
+  {{- if $v.existingPvc }}
+    {{- $_ := set $existingPvcsDict $v.existingPvc  "exists" -}}
+  {{- else if $v.storageClass -}}
+    {{- $_ := set $scDict $v.storageClass  "exists" -}}
+    {{- $checkSc = true -}}
+  {{- else -}}
+    {{- $checkDefaultSc = true -}}
+    {{- if and (empty $.Values.global.storageClass) (empty $.Values.defaultStorageClass ) -}}
+       {{-  fail (printf "No global.storageClass or kubernetes default storage class defined, persistent service %s will not be able to start" $k) -}}
+    {{- end -}}
+
+    {{- $_ := set $scDict (coalesce $.Values.global.storageClass $.Values.defaultStorageClass )  "exists" -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if .Values.global.storageClass -}}
+{{- $_ := set $scDict .Values.global.storageClass  "exists" -}}
+{{- end -}}
+
+{{- range $storageClass := keys $scDict }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "fullname" $ }}-storageclass-{{ $storageClass }}
+  labels:
+    app: {{ $.Release.Name }}
+spec:
+  storageClassName: {{ $storageClass }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+{{- end }}
+
+
+{{- range $k, $v := $persistentServices -}}
+{{- if $v.existingPvc }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pvc-{{ $v.existingPvc }}
+  labels:
+    app: {{ $.Release.Name }}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  restartPolicy: Never
+  terminationGracePeriodSeconds: 10
+  containers:
+  - image: alpine:3.7
+    name: test-pvc-{{ $v.existingPvc }}
+    imagePullPolicy: IfNotPresent     
+    volumeMounts:
+    - mountPath: /test-pvc
+      name: data
+    command:
+    - sh
+    - -c
+    - |
+      mount
+      ls -l /test-pvc
+      mkdir -pv /test-pvc/test-pvc
+      sleep 300
+    readinessProbe:
+      exec:
+        command:
+        - touch 
+        - /test-pvc/test-pvc/ready
+      initialDelaySeconds: 1
+      periodSeconds: 3
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: {{ $v.existingPvc }}
+  {{- if $v.nodeSelector }}
+  nodeSelector:
+{{ toYaml $v.nodeSelector | indent 4 }}
+  {{- end }}
+---
+{{- end -}}
+
+{{- end -}}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-pvc-dummy-cm
+  labels:
+    app: {{ $.Release.Name }}
+data:
+  dd: "11"

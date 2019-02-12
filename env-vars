@@ -1,2 +1,2 @@
-export CF_HELM_CHANNEL=
+export CF_HELM_CHANNEL=test
 export CF_HELM_VERSION=

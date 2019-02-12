@@ -1,0 +1,52 @@
+namePrefix: cf-
+basePath: /var/lib/codefresh
+
+# Enter default nodeSelector for volumes nodeAffinity - see https://kubernetes.io/docs/concepts/storage/volumes/#local 
+defaultNodeSelector:
+#  kubernetes.io/hostname: storage-node-01
+
+# Enter nodes where to run mkdirs for all the volumes
+mkdirPods:
+  nodes:
+#  - storage-node-01
+
+volumes:
+  mongodb:
+    storageSize: 8Gi
+    nodeSelector: {}
+
+  postgresql:
+    storageSize: 8Gi
+    nodeSelector: {}
+
+  consul-0:
+    storageSize: 1Gi
+    nodeSelector: {}
+
+  redis:
+    storageSize: 8Gi
+    nodeSelector: {}
+
+  rabbitmq:
+    storageSize: 8Gi
+    nodeSelector: {}
+
+  registry:
+    storageSize: 100Gi
+    nodeSelector: {}
+
+  cronus:
+    storageSize: 1Gi
+    nodeSelector: {}
+
+  store:
+    storageSize: 8Gi
+    nodeSelector: {}
+
+  builder-0:
+    storageSize: 100Gi
+    nodeSelector: {}
+
+  runner-0:
+    storageSize: 100Gi
+    nodeSelector: {}

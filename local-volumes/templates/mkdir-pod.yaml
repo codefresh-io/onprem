@@ -1,0 +1,65 @@
+{{- if .Values.mkdirPods }}
+{{- if empty .Values.mkdirPods.nodes }}
+{{- fail "mkdirPod cannot run - No nodes in .Values.mkdirPods.nodes" }}
+{{- end }}
+{{- $pathes := list }}
+{{- range $k, $v := .Values.volumes }}
+
+    {{- $path := "" }}
+    {{- if $v.localPath }}
+      {{- $path = isAbs $v.localPath | ternary $v.localPath (printf "%s/%s" $.Values.basePath $v.localPath) }}
+    {{- else }}
+      {{- $path = printf "%s/%s%s" $.Values.basePath $.Values.namePrefix $k }}
+    {{- end }}
+    {{- if or (empty $path) (eq $path "/") }}
+      {{- fail "Cannot calculate path for local volumes. Specify values for .Values.basePath or volumes.name.path " }}
+    {{- end }}
+    {{- $pathes = append $pathes $path }}
+{{- end }}
+
+{{- range .Values.mkdirPods.nodes }}
+{{- $nodeNameSplit := splitn "." 2 . }}
+{{- $podName := $nodeNameSplit._0 }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ printf "mkdir-%s%s-%s" $.Values.namePrefix $podName (randAlphaNum 5 | lower)}}
+  labels:
+    app: {{ $.Release.Name }}
+    chart: "{{ $.Chart.Name }}-{{ $.Chart.Version }}"
+    release: "{{ $.Release.Name }}"
+    heritage: "{{ $.Release.Service }}"
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  restartPolicy: Never
+  nodeSelector: 
+     kubernetes.io/hostname: {{ . }}
+  containers:
+  - image: alpine:3.7
+    name: mkdir
+    command:
+    - /bin/sh
+    - "-ec"
+    - |
+      {{- range $pathes }}
+      mkdir -pv {{ printf "/hostroot%s" . }}
+      {{- end }}
+    securityContext:
+      privileged: true    
+    volumeMounts:
+    - mountPath: /hostroot
+      readOnly: false
+      name: hostroot
+  volumes:
+  - name: hostroot
+    hostPath:
+      path: "/"
+
+{{- end }}
+{{- end }}
