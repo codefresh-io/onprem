@@ -16,4 +16,4 @@ maintainers:
 engine: gotpl 
 icon: https://codefresh.io/docs/assets/brand/codefresh-social-logo.png
 appVersion: v2.0.10
-tillerVersion: ">2.9.0"
+tillerVersion: ">2.12.0"

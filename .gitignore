@@ -6,6 +6,8 @@ assets
 tmp/
 # values.yaml
 /values.yaml
+/private.key
+/ssl.crt
 
 # decrypted files
 **/*-dec.*

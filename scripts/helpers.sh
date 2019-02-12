@@ -61,7 +61,7 @@ approveContext() {
 	fi
 }
 
-readonly HELM_VERSION="${CF_HELM_VERSION:-2.10.0}"
+readonly HELM_VERSION="${CF_HELM_VERSION:-2.12.0}"
 checkHelmInstalled() {
   if command -v $1 >/dev/null 2>&1; then
     helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//')
@@ -104,6 +104,8 @@ helmInstall() {
   wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-${os}-amd64.tar.gz -P /tmp/
   tar xvf /tmp/helm-v${HELM_VERSION}-${os}-amd64.tar.gz -C /tmp/
   chmod +x /tmp/${os}-amd64/helm
+
+  echo sudo mv /tmp/${os}-amd64/helm /usr/local/bin/
   sudo mv /tmp/${os}-amd64/helm /usr/local/bin/
   rm -rf /tmp/helm-v${HELM_VERSION}-${os}-amd64 /tmp/helm-v${HELM_VERSION}-${os}-amd64.tar.gz
 }
