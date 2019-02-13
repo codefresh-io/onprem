@@ -14,39 +14,49 @@ volumes:
   mongodb:
     storageSize: 8Gi
     nodeSelector: {}
+    #  kubernetes.io/hostname: storage-node-01
 
   postgresql:
     storageSize: 8Gi
     nodeSelector: {}
+    #  kubernetes.io/hostname: storage-node-01
 
   consul-0:
     storageSize: 1Gi
     nodeSelector: {}
+    #  kubernetes.io/hostname: storage-node-01
 
   redis:
     storageSize: 8Gi
     nodeSelector: {}
+    #  kubernetes.io/hostname: storage-node-01
 
   rabbitmq:
     storageSize: 8Gi
     nodeSelector: {}
+    #  kubernetes.io/hostname: storage-node-01
 
   registry:
     storageSize: 100Gi
     nodeSelector: {}
+    #  kubernetes.io/hostname: storage-node-01
 
   cronus:
     storageSize: 1Gi
     nodeSelector: {}
+    #  kubernetes.io/hostname: storage-node-01
 
   store:
     storageSize: 8Gi
     nodeSelector: {}
+    #  kubernetes.io/hostname: storage-node-01
 
   builder-0:
     storageSize: 100Gi
     nodeSelector: {}
+    #  kubernetes.io/hostname: storage-node-01
 
   runner-0:
     storageSize: 100Gi
     nodeSelector: {}
+    #  kubernetes.io/hostname: storage-node-01

@@ -1,5 +1,9 @@
 global:
 
+### expose codefresh internal registry from ingress
+  #registryPort: 443
+  #exposeRegistry: true
+
 ### Instantiate databases with seed data. Usually used in dynamic and on-prem environments.
   #seedJobs: true
   #certsJobs: true
@@ -152,10 +156,6 @@ runner:
   storageClass:
     #existingPvc: cf-runner-0
 
-
-
-# helm-repo-manager:
-#   RepoUrlPrefix: "cm://<app_url>"
 
 # backups:
 #   #enabled: true
