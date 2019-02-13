@@ -9,8 +9,7 @@ if [ -f "./env-vars" ]; then
 . ./env-vars
 fi
 
-readonly CHANNEL="${CF_HELM_CHANNEL:-dev}"
-readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
+CHANNEL="${CF_HELM_CHANNEL:-dev}"
 
 readonly RELEASE=cf
 
@@ -63,7 +62,7 @@ EOF
 
 # run_as_root
 
-while [[ $1 =~ ^(-(y)|--(yes|web-tls-key|web-tls-cert|set|debug|version)) ]]
+while [[ $1 =~ ^(-(y)|--(yes|web-tls-key|web-tls-cert|set|debug|version|repo-channel)) ]]
 do
   key=$1
   value=$2
@@ -81,6 +80,10 @@ do
       ;;
     --set)
         SET_VALUES="$SET_VALUES --set $value"
+        shift
+      ;;
+    --repo-channel)
+        CHANNEL="$value"
         shift
       ;;
     --version)
@@ -135,6 +138,7 @@ checkTillerStatus
 
 msg "Adding Helm repo..."
 #addHelmCodefreshRepo
+readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
 helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}"
 
 DOCKER_CFG_JSON=$(cat ${SERVICE_ACCOUNT})
