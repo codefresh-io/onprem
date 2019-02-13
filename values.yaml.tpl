@@ -157,10 +157,6 @@ runner:
     #existingPvc: cf-runner-0
 
 
-
-# helm-repo-manager:
-#   RepoUrlPrefix: "cm://<app_url>"
-
 # backups:
 #   #enabled: true
 #   awsAccessKey: 
