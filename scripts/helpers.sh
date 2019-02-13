@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 msg() { echo -e "\e[32mINFO [$(date +%F\ %T)] ---> $1\e[0m"; }
 warning() { echo -e "\e[33mWARNING [$(date +%F\ %T)] ---> $1\e[0m"; }
@@ -61,7 +61,7 @@ approveContext() {
 	fi
 }
 
-readonly HELM_VERSION="${CF_HELM_VERSION:-2.12.0}"
+HELM_VERSION="${CF_HELM_VERSION:-2.12.0}"
 checkHelmInstalled() {
   if command -v $1 >/dev/null 2>&1; then
     helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//')
@@ -89,7 +89,6 @@ checkHelmInstalled() {
 
 helmInstall() {
   msg "Downloading and installing helm..."
-<< ////
   case "$(uname -s)" in
     Linux)
       os=linux
@@ -100,7 +99,6 @@ helmInstall() {
     *)
     ;;
   esac
-////
   wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-${os}-amd64.tar.gz -P /tmp/
   tar xvf /tmp/helm-v${HELM_VERSION}-${os}-amd64.tar.gz -C /tmp/
   chmod +x /tmp/${os}-amd64/helm
@@ -112,6 +110,7 @@ helmInstall() {
 
 checkTillerInstalled() {
   status=$(kubectl -nkube-system get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
+  SCRIPTS_DIR=$(dirname "${BASH_SOURCE}")
   if [ "$status" == "Running" ]; then
     msg "Tiller is installed and running"
     helm init -c
@@ -122,7 +121,7 @@ checkTillerInstalled() {
       read -p  " Do you want to upgrade tiller to v$helm_version ? [y/n] " yn
       case ${yn} in
         y|Y)
-          kubectl create -f ./tiller-rbac-config.yaml > /dev/null 2>&1
+          kubectl create -f "${SCRIPTS_DIR}"/../tiller-rbac-config.yaml > /dev/null 2>&1
           helm init --upgrade --service-account tiller --wait
       ;;
         *)
@@ -139,7 +138,7 @@ checkTillerInstalled() {
       read -p  " Do you want to deploy tiller ? [y/n] " yn
       case ${yn} in
         y|Y)
-          kubectl create -f ./tiller-rbac-config.yaml
+          kubectl create -f "${SCRIPTS_DIR}"/../tiller-rbac-config.yaml
           helm init --service-account tiller --wait
       ;;
         *)
@@ -148,7 +147,7 @@ checkTillerInstalled() {
       ;;
       esac
     else
-      kubectl create -f ./tiller-rbac-config.yaml
+      kubectl create -f "${SCRIPTS_DIR}"/../tiller-rbac-config.yaml
       helm init --service-account tiller --wait
     fi
   fi
