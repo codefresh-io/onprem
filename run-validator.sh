@@ -30,10 +30,10 @@ fi
 
 ## Get default storage class
 SC_DEFAULT_QUERY='{{ range .items }}'
-SC_DEFAULT_QUERY+='{{if .metadata.annotations }}{{if (index .metadata.annotations "storageclass.beta.kubernetes.io/is-default-class") }}'
+SC_DEFAULT_QUERY+='{{if .metadata.annotations }}{{if or (index .metadata.annotations "storageclass.kubernetes.io/is-default-class") (index .metadata.annotations "storageclass.beta.kubernetes.io/is-default-class") }}'
 SC_DEFAULT_QUERY+='{{ .metadata.name }}{{"\n"}}'
 SC_DEFAULT_QUERY+='{{end}}{{end}}{{end}}'
-DEFAULT_STORAGE_CLASS=$(kubectl -ogo-template="$SC_DEFAULT_QUERY" get sc)
+DEFAULT_STORAGE_CLASS=$(kubectl -ogo-template="$SC_DEFAULT_QUERY" get sc | head -n1)
 if [[ -n "${DEFAULT_STORAGE_CLASS}" ]]; then
    DEFAULT_STORAGE_CLASS_PARAM="--set defaultStorageClass=${DEFAULT_STORAGE_CLASS}"
 fi
@@ -74,7 +74,7 @@ else
   echo "
 Validation FAILED. See the messages above
 Check failed or pending resources by: 
-kubectl desribe <pending pod|pvc|pv> ${RELEASE}-* to see the cause
+kubectl --namespace $NAMESPACE describe <pending pod|pvc|pv> ${RELEASE}-* to see the cause
   "
   exit 1
 fi
