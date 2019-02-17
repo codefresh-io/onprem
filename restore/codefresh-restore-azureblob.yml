@@ -5,11 +5,11 @@ steps:
     title: Download backup from Azure
     image: microsoft/azure-cli:0.10.14
     commands:
-      - rm ${{AZ_BLOB}} || true
+      - rm ${{BACKUP_TO_RESTORE}} || true
       - rm -rf backup || true
       - azure login -u ${{AZ_USER}} -p ${{AZ_PWD}}
-      - azure storage blob download ${{AZ_CONTAINER}} ${{AZ_BLOB}}
-      - tar -xzvf ${{AZ_BLOB}}
+      - azure storage blob download ${{AZ_CONTAINER}} ${{BACKUP_TO_RESTORE}}
+      - tar -xzvf ${{BACKUP_TO_RESTORE}}
     environment:
       - AZURE_STORAGE_ACCOUNT=${{AZ_STORAGE_ACCOUNT}}
       - AZURE_STORAGE_ACCESS_KEY=${{AZ_STORAGE_ACCESS_KEY}}
@@ -31,7 +31,7 @@ steps:
     commands:
       - cd * && cd redis
       - echo "Starting Redis restore"
-      - rdb --c protocol ./redis.bkp | redis-cli -u redis://cf-redis:6379 -a ${{REDIS_PWD}} --pipe
+      - rdb --c protocol ./redis.bkp | redis-cli -u redis://cf-store:6379 -a ${{REDIS_PWD}} --pipe
       - echo "Redis restore completed successfully"
 
   restoreMongo:
