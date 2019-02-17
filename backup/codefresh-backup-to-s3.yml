@@ -13,7 +13,7 @@ steps:
     commands:
       - mkdir -p backup/$DATE/mongo
       - echo "Starting Mongo backup"
-      - mongodump --out backup/$DATE/mongo/ --host cf-mongodb:27017 -u root -p ${{MONGO_PWD}} || echo "Mongo backup has failed for date $DATE"
+      - mongodump --out backup/$DATE/mongo/ --host cf-mongodb:27017 -u root -p ${{MONGO_PWD}} || (echo "Mongo backup has failed for date $DATE"; exit 1)
       - echo "Mongo backup completed successfully"
 
   backupConsul:
@@ -22,7 +22,7 @@ steps:
     commands:
       - mkdir -p backup/$DATE/consul
       - echo "Starting Consul backup"
-      - curl http://cf-consul:8500/v1/snapshot > backup/$DATE/consul/consul.bkp || echo "Consul backup has failed for date $DATE"
+      - curl http://cf-consul:8500/v1/snapshot > backup/$DATE/consul/consul.bkp || (echo "Consul backup has failed for date $DATE"; exit 1)
       - echo "Consul backup completed successfully"
 
   backupRedis:
@@ -31,12 +31,12 @@ steps:
     commands:
       - mkdir -p backup/$DATE/redis
       - echo "Starting Redis backup"
-      - redis-cli -u redis://cf-redis:6379 -a ${{REDIS_PWD}} --rdb backup/$DATE/redis/redis.bkp || echo "Redis backups has failed for date $DATE"
+      - redis-cli -u redis://cf-store:6379 -a ${{REDIS_PWD}} --rdb backup/$DATE/redis/redis.bkp || (echo "Redis backup has failed for date $DATE"; exit 1)
       - echo "Redis backup completed successfully"
 
   uploadS3:
     title: Upload backup to AWS S3
-    image: mikesir87/aws-cli:latest
+    image: mesosphere/aws-cli
     commands:
       - tar -zcvf cf-backup-$DATE.tar.gz backup/$DATE/
       - echo "Uploading to S3"
@@ -44,6 +44,7 @@ steps:
       - rm cf-backup-$DATE.tar.gz
       - rm -r backup/$DATE
     environment:
-      - AWS_ACCESS_KEY_ID=${{AWS_ACCESS_KEY}}
-      - AWS_SECRET_ACCESS_KEY=${{AWS_SECRET_KEY}}
-      - S3_URL=${{S3_BUCKET_URL}}
+      - AWS_ACCESS_KEY_ID=${{AWS_ACCESS_KEY_ID}}
+      - AWS_SECRET_ACCESS_KEY=${{AWS_SECRET_ACCESS_KEY}}
+      - S3_URL=${{S3_URL}}
+      - AWS_DEFAULT_REGION=${{AWS_DEFAULT_REGION}}

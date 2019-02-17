@@ -1,9 +1,9 @@
 version: '1.0'
 steps:
 
-  downloadBackupAzure:
+  downloadBackupS3:
     title: Download backup file from AWS S3
-    image: mikesir87/aws-cli:latest
+    image: mesosphere/aws-cli
     commands:
       - rm -rf backup || true
       - echo "Downloading from S3"
@@ -11,10 +11,10 @@ steps:
       - tar -xzvf $BACKUP_TO_RESTORE
       - rm $BACKUP_TO_RESTORE
     environment:
-      - AWS_ACCESS_KEY_ID=${{AWS_ACCESS_KEY}}
-      - AWS_SECRET_ACCESS_KEY=${{AWS_SECRET_KEY}}
-      - S3_URL=${{S3_BUCKET_URL}}
-      - BACKUP_TO_RESTORE=${{BACKUP_FILE_TO_RESTORE}}
+      - AWS_ACCESS_KEY_ID=${{AWS_ACCESS_KEY_ID}}
+      - AWS_SECRET_ACCESS_KEY=${{AWS_SECRET_ACCESS_KEY}}
+      - S3_URL=${{S3_URL}}
+      - BACKUP_TO_RESTORE=${{BACKUP_TO_RESTORE}}
 
   restoreConsul:
     title: Restore Consul
@@ -33,7 +33,7 @@ steps:
     commands:
       - cd * && cd redis
       - echo "Starting Redis restore"
-      - rdb --c protocol ./redis.bkp | redis-cli -u redis://cf-redis:6379 -a ${{REDIS_PWD}} --pipe
+      - rdb --c protocol ./redis.bkp | redis-cli -u redis://cf-store:6379 -a ${{REDIS_PWD}} --pipe
       - echo "Redis restore completed successfully"
 
   restoreMongo:
