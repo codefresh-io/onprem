@@ -24,12 +24,14 @@ usage() {
   $0 [ options ]
 
   options:
-  --web-tls-cert - path to web-tls certificate
-  --web-tls-key  - path to web-tls key
-  --set          - sets helm release values from command line, example --set global.mtu=1400
-  --repo-channel - helm repo channel of http://charts.codefresh.io/ 
-  --version      - helm repo version
-  --debug        - run helm in debug mode
+  --web-tls-cert   - path to web-tls certificate
+  --web-tls-key    - path to web-tls key
+  --set            - sets helm release values from command line, example --set global.mtu=1400
+  --repo-channel   - helm repo channel of http://charts.codefresh.io/ 
+  --version        - helm repo version
+  --debug          - run helm in debug mode
+  --skip-validator - skip validator running
+  --dry-run        - dry-run mode - echo command instead of actual running
   "
 }
 
@@ -53,6 +55,7 @@ generateWebTlsValuesFile() {
      echo "Error: .Values.tls.key $tls_key file does not exists "
      return 1
   fi
+  echo "generateWebTlsValuesFile: tls_cert=$tls_cert tls_key=$tls_key"
 
   WEBTLSKEY=$(cat ${tls_key} | sed 's/^/    /')
   WEBTLSCERT=$(cat ${tls_cert} | sed 's/^/    /')
@@ -86,7 +89,7 @@ EOF
 
 }
 
-while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel)) ]]
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|skip-validator|dry-run)) ]]
 do
   key=$1
   value=$2
@@ -112,6 +115,12 @@ do
       ;;
     --debug)
         SET_DEBUG="--debug"
+      ;;
+    --skip-validator)
+        SKIP_VALIDATOR="true"
+      ;;
+    --dry-run)
+        DRY_RUN="true"
       ;;
   esac
   shift # past argument or value
@@ -208,16 +217,22 @@ cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print
 if [[ -z "${cf_status}" ]]; then
   SEEDJOBS="--set global.seedJobs=true"
   CERTJOBS="--set global.certsJobs=true"
+fi
+
+if [[ -z "${cf_status}" && -z "${SKIP_VALIDATOR}" && -z "${DRY_RUN}" ]]; then
   IN_INSTALLER="true" ${DIR}/run-validator.sh
   if [[ $? != 0 ]]; then
     echo "Validation failed"
     exit 1
   fi
+else 
+  echo "Skipping validator because of cf_status=$cf_status or SKIP_VALIDATOR=$SKIP_VALIDATOR or DRY_RUN=$DRY_RUN"
 fi
 
+HELM=${HELM:-helm}
 
 msg "Installing/Updating Codefresh..."
-helm upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
+HELM_COMMAND="${HELM} upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   --install \
   --namespace codefresh \
   --values "${VALUES_FILE}" \
@@ -229,5 +244,16 @@ helm upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   ${CERTJOBS} \
   ${SET_VALUES} \
   ${SET_VERSION} \
-  ${SET_DEBUG}
-#  ${MTU_VALUE}
+  ${SET_DEBUG}"
+
+echo "Executing:
+  $HELM_COMMAND"
+
+if [[ -n ${DRY_RUN} ]]; then
+   echo "Dry run mode, do not execute"
+   exit 0
+fi
+$HELM_COMMAND
+
+
+
