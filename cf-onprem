@@ -45,6 +45,7 @@ generateWebTlsValuesFile() {
      unset SET_WEBTLS_VALUES
      return 0
   fi
+  # echo "using tls_cert=$tls_cert tls_key=$tls_key"
 
   if [[ -z "${tls_cert}" || ! -f "${tls_cert}" ]]; then
      echo "Error: .Values.tls.cert $tls_cert file does not exists "
