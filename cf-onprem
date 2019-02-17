@@ -35,14 +35,32 @@ usage() {
 
 
 generateWebTlsValuesFile() {
+  
+  eval "$(parse_yaml "${VALUES_FILE}" | grep tls_)"
+  if [[ "${tls_selfSigned}" == "true" ]]; then
+     echo "Using self Signed certificates"
+     #rm -fv ${WEBTLS_VALUES_FILE}
+     unset SET_WEBTLS_VALUES
+     return 0
+  fi
 
-WEBTLSKEY=$(cat ${WebTlsKey} | sed 's/^/    /')
-WEBTLSCERT=$(cat ${WebTlsCert} | sed 's/^/    /')
+  if [[ -z "${tls_cert}" || ! -f "${tls_cert}" ]]; then
+     echo "Error: .Values.tls.cert $tls_cert file does not exists "
+     return 1
+  fi
 
-WEBTLSKEY_CFUI=$(cat ${WebTlsKey} | sed 's/^/      /')
-WEBTLSCERT_CFUI=$(cat ${WebTlsCert} | sed 's/^/      /')
+  if [[ -z "${tls_key}" || ! -f "${tls_key}" ]]; then
+     echo "Error: .Values.tls.key $tls_key file does not exists "
+     return 1
+  fi
 
-cat <<-EOF >${WEBTLS_VALUES_FILE}
+  WEBTLSKEY=$(cat ${tls_key} | sed 's/^/    /')
+  WEBTLSCERT=$(cat ${tls_cert} | sed 's/^/    /')
+
+  WEBTLSKEY_CFUI=$(cat ${tls_key} | sed 's/^/      /')
+  WEBTLSCERT_CFUI=$(cat ${tls_cert} | sed 's/^/      /')
+
+  cat <<-EOF >${WEBTLS_VALUES_FILE}
 ---
 ingress:
   webTlsSecretName: "star.codefresh.io"
@@ -63,11 +81,12 @@ ${WEBTLSKEY_CFUI}
     cert: |
 ${WEBTLSCERT_CFUI}
 EOF
-#  echo "Success!"
-#  exit 0
+
+  SET_WEBTLS_VALUES="--values ${WEBTLS_VALUES_FILE} "
+
 }
 
-while [[ $1 =~ ^(-(y|h)|--(help|yes|web-tls-key|web-tls-cert|set|debug|version|repo-channel)) ]]
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel)) ]]
 do
   key=$1
   value=$2
@@ -78,14 +97,6 @@ do
       ;;
     -y|--yes)
         YES="true"
-      ;;
-    --web-tls-key)
-        WebTlsKey="$value"
-        shift
-      ;;
-    --web-tls-cert)
-        WebTlsCert="$value"
-        shift
       ;;
     --set)
         SET_VALUES="$SET_VALUES --set $value"
@@ -128,13 +139,7 @@ else
 	kubectl config current-context
 fi
 
-#if [ -n "${WebTlsKey}" ] && [ -z "${WebTlsCert}" ]; then
-#if [ -z "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ]; then
-[ -n "${WebTlsKey}" ] && [ -z "${WebTlsCert}" ] && err "Please specify --web-tls-cert argument"
-[ -n "${WebTlsKey}" ] && [ ! -f "${WebTlsKey}" ] && err "${WebTlsKey} file path not found. Please define correct path to the private key file."
-[ -z "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ] && err "Please specify --web-tls-key argument"
-[ -n "${WebTlsCert}" ] && [ ! -f "${WebTlsCert}" ] && err "${WebTlsCert} file path not found. Please define correct path to the certificate full chain file."
-[ -n "${WebTlsKey}" ] && [ -f "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ] && [ -f "${WebTlsCert}" ] && generateWebTlsValuesFile
+generateWebTlsValuesFile || err "Web Tls certificates error"
 
 msg "Checking helm binary on your system"
 checkHelmInstalled "helm"
@@ -198,8 +203,6 @@ EOF
 #  --version 0.6.62 \
 #  --force \
 
-[ -n "${WebTlsKey}" ] && [ -f "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ] && [ -f "${WebTlsCert}" ] && [ -f "${WEBTLS_VALUES_FILE}" ] && WEBTLS_VALUES="--values ${WEBTLS_VALUES_FILE}"
-
 cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
 if [[ -z "${cf_status}" ]]; then
@@ -219,9 +222,9 @@ helm upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   --namespace codefresh \
   --values "${VALUES_FILE}" \
   --values "${DOCKER_CFG_YAML}" \
-  ${WEBTLS_VALUES} \
   --no-hooks \
   --set cfapi.redeploy=true \
+  ${SET_WEBTLS_VALUES} \
   ${SEEDJOBS} \
   ${CERTJOBS} \
   ${SET_VALUES} \

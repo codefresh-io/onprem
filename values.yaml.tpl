@@ -34,6 +34,11 @@ global:
 ### Firebase secret
 firebaseSecret: 
 
+tls:
+  selfSigned: false
+  cert: certs/ssl.crt
+  key: certs/private.key
+
 ## Custom annotations for Codefresh ingress resource that override defaults
 #annotations:
 #  kubernetes.io/ingress.class: nginx-codefresh
