@@ -24,8 +24,6 @@ usage() {
   $0 [ options ]
 
   options:
-  --web-tls-cert   - path to web-tls certificate
-  --web-tls-key    - path to web-tls key
   --set            - sets helm release values from command line, example --set global.mtu=1400
   --repo-channel   - helm repo channel of http://charts.codefresh.io/ 
   --version        - helm repo version
