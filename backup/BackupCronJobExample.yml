@@ -1,0 +1,89 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: codefresh-backup
+spec:
+  schedule: "0 1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+          - name: mongo-backup
+            image: mongo
+            env:
+              - name: MONGO_PWD
+                value: ...
+            command:
+              - "/bin/sh"
+              - "-ec"
+              - |
+                DATE=$(date +%Y%m%d_%H%M%S)
+                echo $DATE > /backup/export_date
+                mkdir -p /backup/$DATE/mongo
+                echo "Starting Mongo backup"
+                mongodump --out /backup/$DATE/mongo/ --host cf-mongodb:27017 -u root -p $MONGO_PWD || (echo "Mongo backup has failed for date $DATE"; exit 1)
+                echo "Mongo backup completed successfully"
+            volumeMounts:
+            - name: backup-data
+              mountPath: /backup
+          - name: consul-backup
+            image: consul
+            command:
+              - "/bin/sh"
+              - "-ec"
+              - |
+                DATE=$(cat /backup/export_date)
+                mkdir -p /backup/$DATE/consul
+                echo "Starting Consul backup"
+                curl http://cf-consul:8500/v1/snapshot > /backup/$DATE/consul/consul.bkp || (echo "Consul backup has failed for date $DATE"; exit 1)
+                echo "Consul backup completed successfully"
+            volumeMounts:
+            - name: backup-data
+              mountPath: /backup
+          - name: redis-backup
+            image: codefresh/rdbtools:master
+            env:
+              - name: REDIS_PWD
+                value: ...
+            command:
+              - "/bin/sh"
+              - "-ec"
+              - |
+                DATE=$(cat /backup/export_date)
+                mkdir -p /backup/$DATE/redis
+                echo "Starting Redis backup"
+                redis-cli -u redis://cf-store:6379 -a $REDIS_PWD --rdb /backup/$DATE/redis/redis.bkp || (echo "Redis backup has failed for date $DATE"; exit 1)
+                echo "Redis backup completed successfully"
+            volumeMounts:
+            - name: backup-data
+              mountPath: /backup
+          containers:
+          - name: aws-cli
+            image: mesosphere/aws-cli
+            env:
+              - name: AWS_ACCESS_KEY_ID
+                value: ...
+              - name: AWS_SECRET_ACCESS_KEY
+                value: ...
+              - name: S3_URL
+                value: s3://your-s3-bucket
+              - name: AWS_DEFAULT_REGION
+                value: us-east-1
+            command:
+              - "/bin/sh"
+              - "-ec"
+              - |
+                DATE=$(cat /backup/export_date)
+                tar -zcvf cf-backup-$DATE.tar.gz /backup/$DATE/
+                echo "Uploading to S3"
+                aws s3 cp cf-backup-$DATE.tar.gz $S3_URL/cf-backup-$DATE.tar.gz
+                rm cf-backup-$DATE.tar.gz
+                rm -r /backup/$DATE
+            volumeMounts:
+            - name: backup-data
+              mountPath: /backup
+          restartPolicy: Never
+          volumes:
+          - name: backup-data
+            emptyDir: {}

@@ -1,8 +1,10 @@
 # Backup Codefresh on-premises
 
+Codefresh on-premises backup can be done either with a Codefresh pipeline or with a K8 CronJob. To save the state of an on-prem installation, it is needed to backup 3 databases - mongo, consul and redis. It is It is strongly advised to run at least **one test restore** on a separate clean Codefresh installation before leaving the backups running.
+
 ## Backup using pipeline
 
-Codefresh on-prem backup can be done using Codefresh pipeline and the archive can be uploaded to a storage of your choice. Currently pipelines for S3 and Azure Blob Storage are available.
+The backup pipeline provides automation to save the Codefresh on-prem installation state to a tarball and upload it to a storage of your choice. Currently pipelines for S3 and Azure Blob Storage are available.
 
 To enable Codefresh backups:
 
@@ -11,7 +13,9 @@ To enable Codefresh backups:
 3. Setup a [cron trigger](https://codefresh.io/docs/docs/configure-ci-cd-pipeline/triggers/cron-triggers/) to run the backup pipeline continuosly
 4. [Configure notifications](https://codefresh.io/docs/docs/integrations/notifications) to be informed in case if a backup fails
 
-It is strongly advised to run at least **one test restore** on a **separate clean** Codefresh installation before leaving the backups running on a regular basis.
+## Backup using a CronJob
+
+One can create a custom CronJob for Codefresh on-prem backups. [Here](./BackupCronJobExample.yml) is a working example of such CronJob, which dumps all the databases every day at 1.00AM and uploads the archive file to an S3 bucket. To run just fill in the environment variable values and type `kubectl apply -f yourBackupCronJob.yaml -n codefresh`
 
 ## Environment Variables
 
