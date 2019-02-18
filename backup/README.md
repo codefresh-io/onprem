@@ -1,6 +1,6 @@
 # Backup Codefresh on-premises
 
-Codefresh on-premises backup can be done either with a Codefresh pipeline or with a K8 CronJob. To save the state of an on-prem installation, it is needed to backup 3 databases - mongo, consul and redis. It is It is strongly advised to run at least **one test restore** on a separate clean Codefresh installation before leaving the backups running.
+Codefresh on-premises backup can be done either with a Codefresh pipeline or with a K8 CronJob. To save the state of an on-prem installation, it is needed to backup 3 databases - mongo, consul and redis. 
 
 ## Backup using pipeline
 
