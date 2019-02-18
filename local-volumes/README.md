@@ -1,5 +1,5 @@
 ### Local Volumes helm chart 
-Creates Loval volumes and pvcs, makes directories on the nodes
+Creates local volumes and pvcs, makes directories on the nodes
 
 Copy from template and edit values.yaml
 Set 
