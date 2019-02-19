@@ -36,15 +36,30 @@ Mandatory to set `global.appUrl` and `firebaseToken`
         then run `local-volumes/create-local-pvcs.sh`
         edit values.yaml and set the values for `existingPvc`s
 
-4. Validate values and cluster
-   `./run-validator.sh`
-   It will validate:
-   - values.yaml
-   - ability to launch persistent services on specified storage classes
-   - ability to launch persistent services on specified existing pvcs
-   - To do: validating networks, dns, loadbalances, ingress
+4. Web SSL Certificates
+installer configures ingress tls patameters accorfing to  "tls" key in values.yaml
 
-5. run Intaller:
+```yaml
+# default values
+tls:
+  selfSigned: false
+  cert: certs/ssl.crt
+  key: certs/private.key
+```
+
+if ssl.selfSigned=false (default) installer validates and uses values of ssl.cert and ssl.key.
+Certifaicate and key files should exist in the specified location.
+Otherwise if ssl.selfSigned=true it generates selfsigned certificates with CN=<global.appUrl>
+
+
+4. run Intaller:
  ```
- ./cf-onprem [ --web-tls-key certs/key.pem --web-tls-cert certs/cert.pem ]
+ ./cf-onprem
  ```
+
+    On first run the installers invokes Validator chart which validates:
+    - values.yaml
+    - ability to launch persistent services on specified storage classes
+    - ability to launch persistent services on specified existing pvcs
+
+   the validator can be run separately by `./run-validator.sh`

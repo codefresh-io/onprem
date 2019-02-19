@@ -1,4 +1,3 @@
-**/certs
 .idea
 assets
 .kube
@@ -6,8 +5,9 @@ assets
 tmp/
 # values.yaml
 /values.yaml
-/private.key
-/ssl.crt
+/webtls.yaml
+#/private.key
+#/ssl.crt
 
 # decrypted files
 **/*-dec.*
@@ -19,13 +19,14 @@ tmp/
 .vscode/
 
 # secret files
-service-account.json
+
 dockercfg.yaml
 sa.json
-certchain.pem
-privkey.pem
-webtls.yaml
-cert-secret.yaml
+
+certs/*key
+certs/*pem
+certs/*crt
+
 
 # junk files
 QUESTIONS.md
@@ -36,5 +37,4 @@ index.yaml
 *.orig
 .idea/
 
-values.yaml.francisco
 

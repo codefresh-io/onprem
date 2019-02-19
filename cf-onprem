@@ -5,8 +5,8 @@
 DIR=$(dirname $0)
 source ${DIR}/scripts/helpers.sh
 
-if [ -f "./env-vars" ]; then
-. ./env-vars
+if [ -f "${DIR}/env-vars" ]; then
+. ${DIR}/env-vars
 fi
 
 CHANNEL="${CF_HELM_CHANNEL:-dev}"
@@ -14,153 +14,41 @@ CHANNEL="${CF_HELM_CHANNEL:-dev}"
 readonly RELEASE=cf
 
 readonly WORKING_DIR="$(dirname "$0")"
-readonly SERVICE_ACCOUNT="${WORKING_DIR}/sa.json"
+readonly SERVICE_ACCOUNT_FILE="${WORKING_DIR}/sa.json"
 readonly VALUES_FILE="${WORKING_DIR}/values.yaml"
 readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yaml"
 readonly WEBTLS_VALUES_FILE="${WORKING_DIR}/webtls.yaml"
+NAMESPACE=${NAMESPACE:-codefresh}
 
 usage() {
   echo "Usage:
   $0 [ options ]
 
   options:
-  --web-tls-cert - path to web-tls certificate
-  --web-tls-key  - path to web-tls key
-  --set          - sets helm release values from command line, example --set global.mtu=1400
-  --repo-channel - helm repo channel of http://charts.codefresh.io/ 
-  --version      - helm repo version
-  --debug        - run helm in debug mode
+  --set            - sets helm release values from command line, example --set global.mtu=1400
+  --repo-channel   - helm repo channel of http://charts.codefresh.io/ 
+  --version        - helm repo version
+  --debug          - run helm in debug mode
+  --skip-validator - skip validator running
+  --dry-run        - dry-run mode - echo command instead of actual running
   "
 }
 
+generateDockerConfig(){
 
-generateWebTlsValuesFile() {
+  echo "generateDockerConfig: SERVICE_ACCOUNT_FILE=$SERVICE_ACCOUNT_FILE "
+  if [[ ! -f ${SERVICE_ACCOUNT_FILE} ]]; then
+    echo "Error: Docker registry service account ${SERVICE_ACCOUNT_FILE} is not found"
+    return 1
+  fi
+  DOCKER_CFG_JSON=$(cat ${SERVICE_ACCOUNT_FILE})
+  DOCKER_CFG_VAR=$(echo -n "_json_key:${DOCKER_CFG_JSON}" | $BASE64)
 
-WEBTLSKEY=$(cat ${WebTlsKey} | sed 's/^/    /')
-WEBTLSCERT=$(cat ${WebTlsCert} | sed 's/^/    /')
-
-WEBTLSKEY_CFUI=$(cat ${WebTlsKey} | sed 's/^/      /')
-WEBTLSCERT_CFUI=$(cat ${WebTlsCert} | sed 's/^/      /')
-
-cat <<-EOF >${WEBTLS_VALUES_FILE}
----
-ingress:
-  webTlsSecretName: "star.codefresh.io"
-nomios:
-  ingress:
-    webTlsSecretName: "star.codefresh.io"
-webTLS:
-  secretName: star.codefresh.io
-  key: |
-${WEBTLSKEY}
-  cert: |
-${WEBTLSCERT}
-
-cfui:
-  webTLS:
-    key: |
-${WEBTLSKEY_CFUI}
-    cert: |
-${WEBTLSCERT_CFUI}
-EOF
-#  echo "Success!"
-#  exit 0
-}
-
-while [[ $1 =~ ^(-(y|h)|--(help|yes|web-tls-key|web-tls-cert|set|debug|version|repo-channel)) ]]
-do
-  key=$1
-  value=$2
-  case $key in
-    -h|--help)
-        usage
-        exit 0
-      ;;
-    -y|--yes)
-        YES="true"
-      ;;
-    --web-tls-key)
-        WebTlsKey="$value"
-        shift
-      ;;
-    --web-tls-cert)
-        WebTlsCert="$value"
-        shift
-      ;;
-    --set)
-        SET_VALUES="$SET_VALUES --set $value"
-        shift
-      ;;
-    --repo-channel)
-        CHANNEL="$value"
-        shift
-      ;;
-    --version)
-        SET_VERSION="$SET_VERSION --version $value"
-        shift
-      ;;
-    --debug)
-        SET_DEBUG="--debug"
-      ;;
-  esac
-  shift # past argument or value
-done
-
-os=
-
-case "$(uname -s)" in
-  Linux)
-    os=linux
-  ;;
-  Darwin)
-    os=darwin
-  ;;
-  *)
-  ;;
-esac
-
-msg "Starting on-prem Codefresh deployment"
-
-if [[ ! "$YES" == 'true' ]]; then
-  approveContext
-else
-  msg "Your kubectl is configured with the following context: "
-	kubectl config current-context
-fi
-
-#if [ -n "${WebTlsKey}" ] && [ -z "${WebTlsCert}" ]; then
-#if [ -z "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ]; then
-[ -n "${WebTlsKey}" ] && [ -z "${WebTlsCert}" ] && err "Please specify --web-tls-cert argument"
-[ -n "${WebTlsKey}" ] && [ ! -f "${WebTlsKey}" ] && err "${WebTlsKey} file path not found. Please define correct path to the private key file."
-[ -z "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ] && err "Please specify --web-tls-key argument"
-[ -n "${WebTlsCert}" ] && [ ! -f "${WebTlsCert}" ] && err "${WebTlsCert} file path not found. Please define correct path to the certificate full chain file."
-[ -n "${WebTlsKey}" ] && [ -f "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ] && [ -f "${WebTlsCert}" ] && generateWebTlsValuesFile
-
-msg "Checking helm binary on your system"
-checkHelmInstalled "helm"
-
-msg "Checking if tiller is installed on kubernetes cluster"
-checkTillerInstalled
-
-msg "Checking tiller status..."
-checkTillerStatus
-
-msg "Adding Helm repo..."
-#addHelmCodefreshRepo
-readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
-helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}"
-
-DOCKER_CFG_JSON=$(cat ${SERVICE_ACCOUNT})
-
-if [ $os == "linux" ]; then
-  BASE64="base64 -w0"
-else
-  BASE64="base64"
-fi
-
-DOCKER_CFG_VAR=$(echo -n "_json_key:${DOCKER_CFG_JSON}" | $BASE64)
-
-cat <<EOF >${DOCKER_CFG_YAML}
+  if [[ -z "${DOCKER_CFG_VAR}" ]]; then
+    echo "Error: Cannot parse docker registry service account in ${SERVICE_ACCOUNT_FILE}, it is empty"
+    return 1
+  fi
+  cat <<EOF >${DOCKER_CFG_YAML}
 ---
 dockerconfigjson:
   auths:
@@ -191,40 +79,188 @@ cfanalytic:
       gcr.io:
         auth: ${DOCKER_CFG_VAR}
 EOF
+}
 
-#MTU_VALUE="--set global.mtu=$(cat /sys/class/net/cni0/mtu)"
-#TIMESTAMP=$(date +%F_%H-%M-%S)
-# --values "${SECRET_VALUES_FILE}" \
-#  --version 0.6.62 \
-#  --force \
+generateWebTlsValuesFile() {
+  
+  eval "$(parse_yaml "${VALUES_FILE}" | grep tls_)"
+  echo "generateWebTlsValuesFile: tls_cert=$tls_cert tls_key=$tls_key tls_selfSigned=$tls_selfSigned "
+  if [[ "${tls_selfSigned}" == "true" ]]; then
+     echo "Using self Signed certificates"
+     #rm -fv ${WEBTLS_VALUES_FILE}
+     unset SET_WEBTLS_VALUES
+     return 0
+  fi
+  # echo "using tls_cert=$tls_cert tls_key=$tls_key"
 
-[ -n "${WebTlsKey}" ] && [ -f "${WebTlsKey}" ] && [ -n "${WebTlsCert}" ] && [ -f "${WebTlsCert}" ] && [ -f "${WEBTLS_VALUES_FILE}" ] && WEBTLS_VALUES="--values ${WEBTLS_VALUES_FILE}"
+  if [[ -z "${tls_cert}" ]]; then
+     echo "Error: .Values.tls.cert is empty "
+     return 1
+  fi
+
+  if [[ -z "${tls_key}" ]]; then
+     echo "Error: .Values.tls.key is empty "
+     return 1
+  fi
+
+  if [[ "$tls_cert" =~ ^/ ]]; then 
+    tls_cert_realpath=$(realpath ${tls_cert})
+  else
+    tls_cert_realpath=$(realpath "${WORKING_DIR}/${tls_cert}" )
+  fi
+
+  if [[ "$tls_key" =~ ^/ ]]; then 
+    tls_key_realpath=$(realpath ${tls_key})
+  else
+    tls_key_realpath=$(realpath "${WORKING_DIR}/${tls_key}" )
+  fi
+
+  if [[ ! -f "${tls_cert_realpath}" ]]; then
+     echo "Error: .Values.tls.cert $tls_cert_realpath file does not exists "
+     return 1
+  fi
+
+  if [[ ! -f "${tls_key_realpath}" ]]; then
+     echo "Error: .Values.tls.key $tls_key_realpath file does not exists "
+     return 1
+  fi
+
+  WEBTLSCERT=$(cat ${tls_cert_realpath} | sed 's/^/    /')
+  WEBTLSKEY=$(cat ${tls_key_realpath} | sed 's/^/    /')
+
+  WEBTLSCERT_CFUI=$(cat ${tls_cert_realpath} | sed 's/^/      /')
+  WEBTLSKEY_CFUI=$(cat ${tls_key_realpath} | sed 's/^/      /')
+
+  cat <<-EOF >${WEBTLS_VALUES_FILE}
+---
+ingress:
+  webTlsSecretName: "star.codefresh.io"
+nomios:
+  ingress:
+    webTlsSecretName: "star.codefresh.io"
+webTLS:
+  secretName: star.codefresh.io
+  key: |
+${WEBTLSKEY}
+  cert: |
+${WEBTLSCERT}
+
+cfui:
+  webTLS:
+    key: |
+${WEBTLSKEY_CFUI}
+    cert: |
+${WEBTLSCERT_CFUI}
+EOF
+
+  SET_WEBTLS_VALUES="--values ${WEBTLS_VALUES_FILE} "
+
+}
+
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|skip-validator|dry-run)) ]]
+do
+  key=$1
+  value=$2
+  case $key in
+    -h|--help)
+        usage
+        exit 0
+      ;;
+    -y|--yes)
+        YES="true"
+      ;;
+    --set)
+        SET_VALUES="$SET_VALUES --set $value"
+        shift
+      ;;
+    --repo-channel)
+        CHANNEL="$value"
+        shift
+      ;;
+    --version)
+        SET_VERSION="$SET_VERSION --version $value"
+        shift
+      ;;
+    --debug)
+        SET_DEBUG="--debug"
+      ;;
+    --skip-validator)
+        SKIP_VALIDATOR="true"
+      ;;
+    --dry-run)
+        DRY_RUN="true"
+      ;;
+  esac
+  shift # past argument or value
+done
+
+msg "Starting on-prem Codefresh deployment"
+generateDockerConfig || err "Failed to generate docker credentials for image pulling"
+generateWebTlsValuesFile || err "Web Tls certificates error"
+
+if [[ ! "$YES" == 'true' ]]; then
+  approveContext
+else
+  msg "Your kubectl is configured with the following context: "
+	kubectl config current-context
+fi
+
+msg "Checking helm binary on your system"
+checkHelmInstalled "helm"
+
+msg "Checking if tiller is installed on kubernetes cluster"
+checkTillerInstalled
+
+msg "Checking tiller status..."
+checkTillerStatus
+
+msg "Adding Helm repo..."
+#addHelmCodefreshRepo
+readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
+helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}" || err "Failed to add helm repo codefresh-onprem-${CHANNEL} ${CODEFRESH_REPOSITORY}"
 
 cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
 if [[ -z "${cf_status}" ]]; then
   SEEDJOBS="--set global.seedJobs=true"
   CERTJOBS="--set global.certsJobs=true"
+fi
+
+if [[ -z "${cf_status}" && -z "${SKIP_VALIDATOR}" && -z "${DRY_RUN}" ]]; then
   IN_INSTALLER="true" ${DIR}/run-validator.sh
   if [[ $? != 0 ]]; then
     echo "Validation failed"
     exit 1
   fi
+else 
+  echo "Skipping validator because of cf_status=$cf_status or SKIP_VALIDATOR=$SKIP_VALIDATOR or DRY_RUN=$DRY_RUN"
 fi
 
+HELM=${HELM:-helm}
 
 msg "Installing/Updating Codefresh..."
-helm upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
+HELM_COMMAND="${HELM} upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   --install \
-  --namespace codefresh \
+  --namespace "${NAMESPACE}" \
   --values "${VALUES_FILE}" \
   --values "${DOCKER_CFG_YAML}" \
-  ${WEBTLS_VALUES} \
   --no-hooks \
   --set cfapi.redeploy=true \
+  ${SET_WEBTLS_VALUES} \
   ${SEEDJOBS} \
   ${CERTJOBS} \
   ${SET_VALUES} \
   ${SET_VERSION} \
-  ${SET_DEBUG}
-#  ${MTU_VALUE}
+  ${SET_DEBUG}"
+
+echo "Executing:
+  $HELM_COMMAND"
+
+if [[ -n ${DRY_RUN} ]]; then
+   echo "Dry run mode, do not execute"
+   exit 0
+fi
+$HELM_COMMAND
+
+
+

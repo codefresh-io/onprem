@@ -8,6 +8,24 @@ check() { command -v $1 >/dev/null 2>&1 || err "$1 binary is required!"; }
 
 ver() { printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' ' '); }
 
+os=
+case "$(uname -s)" in
+  Linux)
+    os=linux
+  ;;
+  Darwin)
+    os=darwin
+  ;;
+  *)
+  ;;
+esac
+
+if [ $os == "linux" ]; then
+  BASE64="base64 -w0"
+else
+  BASE64="base64"
+fi
+
 exists() {
 	if command -v $1 >/dev/null 2>&1; then
 		msg "$1 binary installed"
