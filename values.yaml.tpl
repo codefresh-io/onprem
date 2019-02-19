@@ -145,7 +145,7 @@ builder:
 ## Override builder PV initial size
   storageSize: 100Gi
   storageClass:
-    #existingPvc: cf-builder-0
+  #existingPvc: cf-builder-0
 
 runner:
   nodeSelector: {}
@@ -154,7 +154,7 @@ runner:
 ## Override runner PV initial size
   storageSize: 100Gi
   storageClass:
-    #existingPvc: cf-runner-0
+  #existingPvc: cf-runner-0
 
 
 # backups:
