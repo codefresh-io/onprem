@@ -5,8 +5,8 @@
 DIR=$(dirname $0)
 source ${DIR}/scripts/helpers.sh
 
-if [ -f "./env-vars" ]; then
-. ./env-vars
+if [ -f "${DIR}/env-vars" ]; then
+. ${DIR}/env-vars
 fi
 
 CHANNEL="${CF_HELM_CHANNEL:-dev}"
@@ -14,10 +14,11 @@ CHANNEL="${CF_HELM_CHANNEL:-dev}"
 readonly RELEASE=cf
 
 readonly WORKING_DIR="$(dirname "$0")"
-readonly SERVICE_ACCOUNT="${WORKING_DIR}/sa.json"
+readonly SERVICE_ACCOUNT_FILE="${WORKING_DIR}/sa.json"
 readonly VALUES_FILE="${WORKING_DIR}/values.yaml"
 readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yaml"
 readonly WEBTLS_VALUES_FILE="${WORKING_DIR}/webtls.yaml"
+NAMESPACE=${NAMESPACE:-codefresh}
 
 usage() {
   echo "Usage:
@@ -33,10 +34,57 @@ usage() {
   "
 }
 
+generateDockerConfig(){
+
+  echo "generateDockerConfig: SERVICE_ACCOUNT_FILE=$SERVICE_ACCOUNT_FILE "
+  if [[ ! -f ${SERVICE_ACCOUNT_FILE} ]]; then
+    echo "Error: Docker registry service account ${SERVICE_ACCOUNT_FILE} is not found"
+    return 1
+  fi
+  DOCKER_CFG_JSON=$(cat ${SERVICE_ACCOUNT_FILE})
+  DOCKER_CFG_VAR=$(echo -n "_json_key:${DOCKER_CFG_JSON}" | $BASE64)
+
+  if [[ -z "${DOCKER_CFG_VAR}" ]]; then
+    echo "Error: Cannot parse docker registry service account in ${SERVICE_ACCOUNT_FILE}, it is empty"
+    return 1
+  fi
+  cat <<EOF >${DOCKER_CFG_YAML}
+---
+dockerconfigjson:
+  auths:
+    gcr.io:
+      auth: ${DOCKER_CFG_VAR}
+
+cfui:
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
+
+runtime-environment-manager:
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
+
+onboarding-status:
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
+
+cfanalytic:
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
+EOF
+}
 
 generateWebTlsValuesFile() {
   
   eval "$(parse_yaml "${VALUES_FILE}" | grep tls_)"
+  echo "generateWebTlsValuesFile: tls_cert=$tls_cert tls_key=$tls_key tls_selfSigned=$tls_selfSigned "
   if [[ "${tls_selfSigned}" == "true" ]]; then
      echo "Using self Signed certificates"
      #rm -fv ${WEBTLS_VALUES_FILE}
@@ -45,22 +93,43 @@ generateWebTlsValuesFile() {
   fi
   # echo "using tls_cert=$tls_cert tls_key=$tls_key"
 
-  if [[ -z "${tls_cert}" || ! -f "${tls_cert}" ]]; then
-     echo "Error: .Values.tls.cert $tls_cert file does not exists "
+  if [[ -z "${tls_cert}" ]]; then
+     echo "Error: .Values.tls.cert is empty "
      return 1
   fi
 
-  if [[ -z "${tls_key}" || ! -f "${tls_key}" ]]; then
-     echo "Error: .Values.tls.key $tls_key file does not exists "
+  if [[ -z "${tls_key}" ]]; then
+     echo "Error: .Values.tls.key is empty "
      return 1
   fi
-  echo "generateWebTlsValuesFile: tls_cert=$tls_cert tls_key=$tls_key"
 
-  WEBTLSKEY=$(cat ${tls_key} | sed 's/^/    /')
-  WEBTLSCERT=$(cat ${tls_cert} | sed 's/^/    /')
+  if [[ "$tls_cert" =~ ^/ ]]; then 
+    tls_cert_realpath=$(realpath ${tls_cert})
+  else
+    tls_cert_realpath=$(realpath "${WORKING_DIR}/${tls_cert}" )
+  fi
 
-  WEBTLSKEY_CFUI=$(cat ${tls_key} | sed 's/^/      /')
-  WEBTLSCERT_CFUI=$(cat ${tls_cert} | sed 's/^/      /')
+  if [[ "$tls_key" =~ ^/ ]]; then 
+    tls_key_realpath=$(realpath ${tls_key})
+  else
+    tls_key_realpath=$(realpath "${WORKING_DIR}/${tls_key}" )
+  fi
+
+  if [[ ! -f "${tls_cert_realpath}" ]]; then
+     echo "Error: .Values.tls.cert $tls_cert_realpath file does not exists "
+     return 1
+  fi
+
+  if [[ ! -f "${tls_key_realpath}" ]]; then
+     echo "Error: .Values.tls.key $tls_key_realpath file does not exists "
+     return 1
+  fi
+
+  WEBTLSCERT=$(cat ${tls_cert_realpath} | sed 's/^/    /')
+  WEBTLSKEY=$(cat ${tls_key_realpath} | sed 's/^/    /')
+
+  WEBTLSCERT_CFUI=$(cat ${tls_cert_realpath} | sed 's/^/      /')
+  WEBTLSKEY_CFUI=$(cat ${tls_key_realpath} | sed 's/^/      /')
 
   cat <<-EOF >${WEBTLS_VALUES_FILE}
 ---
@@ -125,20 +194,9 @@ do
   shift # past argument or value
 done
 
-os=
-
-case "$(uname -s)" in
-  Linux)
-    os=linux
-  ;;
-  Darwin)
-    os=darwin
-  ;;
-  *)
-  ;;
-esac
-
 msg "Starting on-prem Codefresh deployment"
+generateDockerConfig || err "Failed to generate docker credentials for image pulling"
+generateWebTlsValuesFile || err "Web Tls certificates error"
 
 if [[ ! "$YES" == 'true' ]]; then
   approveContext
@@ -146,8 +204,6 @@ else
   msg "Your kubectl is configured with the following context: "
 	kubectl config current-context
 fi
-
-generateWebTlsValuesFile || err "Web Tls certificates error"
 
 msg "Checking helm binary on your system"
 checkHelmInstalled "helm"
@@ -161,55 +217,7 @@ checkTillerStatus
 msg "Adding Helm repo..."
 #addHelmCodefreshRepo
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
-helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}"
-
-DOCKER_CFG_JSON=$(cat ${SERVICE_ACCOUNT})
-
-if [ $os == "linux" ]; then
-  BASE64="base64 -w0"
-else
-  BASE64="base64"
-fi
-
-DOCKER_CFG_VAR=$(echo -n "_json_key:${DOCKER_CFG_JSON}" | $BASE64)
-
-cat <<EOF >${DOCKER_CFG_YAML}
----
-dockerconfigjson:
-  auths:
-    gcr.io:
-      auth: ${DOCKER_CFG_VAR}
-
-cfui:
-  dockerconfigjson:
-    auths:
-      gcr.io:
-        auth: ${DOCKER_CFG_VAR}
-
-runtime-environment-manager:
-  dockerconfigjson:
-    auths:
-      gcr.io:
-        auth: ${DOCKER_CFG_VAR}
-
-onboarding-status:
-  dockerconfigjson:
-    auths:
-      gcr.io:
-        auth: ${DOCKER_CFG_VAR}
-
-cfanalytic:
-  dockerconfigjson:
-    auths:
-      gcr.io:
-        auth: ${DOCKER_CFG_VAR}
-EOF
-
-#MTU_VALUE="--set global.mtu=$(cat /sys/class/net/cni0/mtu)"
-#TIMESTAMP=$(date +%F_%H-%M-%S)
-# --values "${SECRET_VALUES_FILE}" \
-#  --version 0.6.62 \
-#  --force \
+helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}" || err "Failed to add helm repo codefresh-onprem-${CHANNEL} ${CODEFRESH_REPOSITORY}"
 
 cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
@@ -233,7 +241,7 @@ HELM=${HELM:-helm}
 msg "Installing/Updating Codefresh..."
 HELM_COMMAND="${HELM} upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   --install \
-  --namespace codefresh \
+  --namespace "${NAMESPACE}" \
   --values "${VALUES_FILE}" \
   --values "${DOCKER_CFG_YAML}" \
   --no-hooks \
