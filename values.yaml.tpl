@@ -13,11 +13,11 @@ global:
   appUrl: your-domain.com
 
 # Storage class for all persistent services 
-# storageClass: my-storage-class
+#  storageClass: my-storage-class
 
 # Default nodeSelector for storage pods. Useful in case of local volumes
-# storagePodNodeSelector:
-#   kubernetes.io/hostname: storage-host-01
+#  storagePodNodeSelector:
+#    kubernetes.io/hostname: storage-host-01
 
 ### MTU Value for dockerd in builder and runner
 #  mtu: 1400
