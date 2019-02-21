@@ -50,6 +50,11 @@ generateDockerConfig(){
   fi
   cat <<EOF >${DOCKER_CFG_YAML}
 ---
+global:
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
 dockerconfigjson:
   auths:
     gcr.io:
