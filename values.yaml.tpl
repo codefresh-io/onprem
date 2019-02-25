@@ -12,7 +12,7 @@ global:
 ### Codefresh App domain name
   appUrl: your-domain.com
 
-# Storage class for all persistent services (only in case your storage class supports automatic volume provisioning). By default Codefresh will use the default storage class configured in your cluster.
+# Storage class for all persistent services (only in case your storage class supports automatic volume provisioning). By default Codefresh will use the default storage class configured in your cluster, if the storage class you want to use isn't set as default in your k8s cluster please use this variable to describe it
 #  storageClass: my-storage-class
 
 # Default nodeSelector for storage pods. Useful in case of local volumes
