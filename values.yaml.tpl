@@ -4,9 +4,12 @@ global:
   #registryPort: 443
   #exposeRegistry: true
 
-### Instantiate databases with seed data. Usually used in dynamic and on-prem environments.
-  #seedJobs: true
-  #certsJobs: true
+### configuring external mongo database service
+  #mongodbRootUser: my-mongo-admin-user
+  #mongodbRootPassword: yeqTeVwqVa9qDqebq
+  #mongoURI: mongodb://someuser:mTiqweAsdw@my-mongo-cluster-shard-00-00-vziq1.mongodb.net:27017/?ssl=true
+  #mongoSkipUserCreation: true
+  #mongoDeploy: false   # disables deployment of internal mongo service
 
   appProtocol: https
 ### Codefresh App domain name
