@@ -35,7 +35,12 @@ usage() {
 }
 
 generateDockerConfig(){
-
+if [[ -n ${USE_CUSTOM_REG} ]]; then
+  echo "Using custom registry to pull cf images from..."
+  if [[ -z ${REG_USER} ]] || [[ -z ${REG_PASSWORD} ]]; then err "Custom docker registry login and/or password are not set"; fi
+  DOCKER_CFG_VAR=$(echo -n "${REG_USER}:${REG_PASSWORD}" | $BASE64)
+  REGISTRY=$(echo $imageNamePrefix | cut -d '/' -f1)
+else
   echo "generateDockerConfig: SERVICE_ACCOUNT_FILE=$SERVICE_ACCOUNT_FILE "
   if [[ ! -f ${SERVICE_ACCOUNT_FILE} ]]; then
     echo "Error: Docker registry service account ${SERVICE_ACCOUNT_FILE} is not found"
@@ -48,40 +53,41 @@ generateDockerConfig(){
     echo "Error: Cannot parse docker registry service account in ${SERVICE_ACCOUNT_FILE}, it is empty"
     return 1
   fi
+fi
   cat <<EOF >${DOCKER_CFG_YAML}
 ---
 global:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 dockerconfigjson:
   auths:
-    gcr.io:
+    ${REGISTRY}:
       auth: ${DOCKER_CFG_VAR}
 
 cfui:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 
 runtime-environment-manager:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 
 onboarding-status:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 
 cfanalytic:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 EOF
 }
@@ -162,7 +168,7 @@ EOF
 
 }
 
-while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|skip-validator|dry-run)) ]]
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|skip-validator|dry-run|use-custom-reg|reg-user|reg-password|img-name-prefix)) ]]
 do
   key=$1
   value=$2
@@ -195,10 +201,24 @@ do
     --dry-run)
         DRY_RUN="true"
       ;;
+    --use-custom-reg)
+        USE_CUSTOM_REG="true"
+      ;;
+    --reg-user)
+        REG_USER=$value
+        shift
+      ;;
+    --reg-password)
+        REG_PASSWORD=$value
+        shift
+      ;;
+    --img-name-prefix)
+        imageNamePrefix=$value
+        shift
+      ;;
   esac
   shift # past argument or value
 done
-
 msg "Starting on-prem Codefresh deployment"
 generateDockerConfig || err "Failed to generate docker credentials for image pulling"
 generateWebTlsValuesFile || err "Web Tls certificates error"
@@ -223,6 +243,38 @@ msg "Adding Helm repo..."
 #addHelmCodefreshRepo
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
 helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}" || err "Failed to add helm repo codefresh-onprem-${CHANNEL} ${CODEFRESH_REPOSITORY}"
+helm fetch --untar codefresh-onprem-${CHANNEL}/codefresh
+
+if [[ -n ${USE_CUSTOM_REG} ]]; then
+  getImageShortName() {
+      echo $1 | awk -F / '{print $NF}' | tr -d '"'
+  }
+
+  getValuesToReplace() {
+      grep -hR image: ./codefresh | egrep -v '{{|default|r.cfcr.io'| cut -d ":" -f2-4 | sort -u | sed '1d' | tr -d ' '
+  }
+
+  replaceImageValues() {
+      mapfile -t ValuesToReplace < <(getValuesToReplace)
+      for value in "${ValuesToReplace[@]}"; do
+        imageShortName=$(getImageShortName $value)
+        egrep -lRZ $value ./codefresh | xargs -0 -l sed -i "s|image: $value|image: $imageNamePrefix/$imageShortName|"
+       
+      done
+      ## below I needed to hardcode some of the exceptional cases as a quick workaround
+      for value in $(cat imageList); do
+        imageShortName=$(getImageShortName $value)
+        egrep -lRZ $value ./codefresh | xargs -0 -l sed -i "s|$value|$imageNamePrefix/$imageShortName|"
+      done
+      ## even more hardcoding...
+      sed -i "s|repository: chartmuseum/chartmuseum|repository: $imageNamePrefix/chartmuseum|" codefresh/charts/helm-repo-manager/charts/chartmuseum/values.yaml
+      sed -i "/Image:/c Image: $imageNamePrefix/consul" codefresh/charts/consul/values.yaml
+      sed -i "s|alpine:3.7|$imageNamePrefix/alpine:3.7|" validator/templates/storageclasses/pvcs.yaml local-volumes/templates/mkdir-pod.yaml
+  }
+  echo "Replacing image references according to the specified image name prefix..."
+  replaceImageValues
+
+fi
 
 cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
@@ -244,7 +296,7 @@ fi
 HELM=${HELM:-helm}
 
 msg "Installing/Updating Codefresh..."
-HELM_COMMAND="${HELM} upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
+HELM_COMMAND="${HELM} upgrade ${RELEASE} ./codefresh \
   --install \
   --namespace "${NAMESPACE}" \
   --values "${VALUES_FILE}" \
