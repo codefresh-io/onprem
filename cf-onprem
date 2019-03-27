@@ -258,13 +258,12 @@ if [[ -n ${USE_CUSTOM_REG} ]]; then
       mapfile -t ValuesToReplace < <(getValuesToReplace)
       for value in "${ValuesToReplace[@]}"; do
         imageShortName=$(getImageShortName $value)
-        egrep -lRZ $value ./codefresh | xargs -0 -l sed -i "s|image: $value|image: $imageNamePrefix/$imageShortName|"
-       
+        for file in $(egrep -lR $value ./codefresh); do sed -i "s|image: $value|image: $imageNamePrefix/$imageShortName|" $file; done
       done
       ## below I needed to hardcode some of the exceptional cases as a quick workaround
       for value in $(cat imageList); do
         imageShortName=$(getImageShortName $value)
-        egrep -lRZ $value ./codefresh | xargs -0 -l sed -i "s|$value|$imageNamePrefix/$imageShortName|"
+         for file in $(egrep -lR $value ./codefresh); do sed -i "s|$value|$imageNamePrefix/$imageShortName|" $file; done
       done
       ## even more hardcoding...
       sed -i "s|repository: chartmuseum/chartmuseum|repository: $imageNamePrefix/chartmuseum|" codefresh/charts/helm-repo-manager/charts/chartmuseum/values.yaml
