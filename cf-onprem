@@ -35,7 +35,12 @@ usage() {
 }
 
 generateDockerConfig(){
-
+if [[ -n ${IMAGE_NAME_PREFIX} ]]; then
+  echo "Using custom registry to pull cf images from..."
+  if [[ -z ${REG_USER} ]] || [[ -z ${REG_PASSWORD} ]]; then err "Custom docker registry login and/or password are not set"; fi
+  DOCKER_CFG_VAR=$(echo -n "${REG_USER}:${REG_PASSWORD}" | $BASE64)
+  REGISTRY=$(echo $IMAGE_NAME_PREFIX | cut -d '/' -f1)
+else
   echo "generateDockerConfig: SERVICE_ACCOUNT_FILE=$SERVICE_ACCOUNT_FILE "
   if [[ ! -f ${SERVICE_ACCOUNT_FILE} ]]; then
     echo "Error: Docker registry service account ${SERVICE_ACCOUNT_FILE} is not found"
@@ -48,40 +53,41 @@ generateDockerConfig(){
     echo "Error: Cannot parse docker registry service account in ${SERVICE_ACCOUNT_FILE}, it is empty"
     return 1
   fi
+fi
   cat <<EOF >${DOCKER_CFG_YAML}
 ---
 global:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 dockerconfigjson:
   auths:
-    gcr.io:
+    ${REGISTRY}:
       auth: ${DOCKER_CFG_VAR}
 
 cfui:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 
 runtime-environment-manager:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 
 onboarding-status:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 
 cfanalytic:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 EOF
 }
@@ -162,7 +168,7 @@ EOF
 
 }
 
-while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|skip-validator|dry-run)) ]]
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|skip-validator|dry-run|reg-user|reg-password|img-name-prefix)) ]]
 do
   key=$1
   value=$2
@@ -194,6 +200,18 @@ do
       ;;
     --dry-run)
         DRY_RUN="true"
+      ;;
+    --reg-user)
+        REG_USER=$value
+        shift
+      ;;
+    --reg-password)
+        REG_PASSWORD=$value
+        shift
+      ;;
+    --img-name-prefix)
+        IMAGE_NAME_PREFIX=$value
+        shift
       ;;
   esac
   shift # past argument or value
@@ -241,10 +259,62 @@ else
   echo "Skipping validator because of cf_status=$cf_status or SKIP_VALIDATOR=$SKIP_VALIDATOR or DRY_RUN=$DRY_RUN"
 fi
 
+cd $WORKING_DIR
+rm -rf ./codefresh ./tmp-templ 2>/dev/null
+
+helm fetch --untar codefresh-onprem-${CHANNEL}/codefresh --untardir $WORKING_DIR
+
+if [[ -n ${IMAGE_NAME_PREFIX} ]]; then
+  if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    sed="sed -i "
+  elif [[ "$OSTYPE" == "darwin"* ]] || [[ "$OSTYPE" == "freebsd" ]]; then
+    sed="sed -i '' "
+  fi
+  getValuesToReplace() {
+    grep -hR image: ./tmp-templ | cut -d ":" -f2-4 | sort -u
+  }
+  getImageShortName() {
+    echo $1 | awk -F / '{print $NF}' | tr -d '"'
+  }
+
+  echo "Replacing image references according to the specified image name prefix..."
+
+  mkdir ./tmp-templ 2>/dev/null
+
+  helm template codefresh --name cf --namespace "${NAMESPACE}" \
+    --values "${VALUES_FILE}" \
+    --values "${DOCKER_CFG_YAML}" \
+    --set cfapi.redeploy=true \
+    ${SET_WEBTLS_VALUES} \
+    ${SEEDJOBS} \
+    ${CERTJOBS} \
+    ${SET_VALUES} \
+    ${SET_VERSION} \
+    --output-dir ./tmp-templ 1>/dev/null
+
+  mapfile -t ValuesToReplace < <(getValuesToReplace)
+  for value in "${ValuesToReplace[@]}"; do
+    imageShortName=$(getImageShortName $value)
+    for file in $(egrep -lR $value ./tmp-templ/codefresh); do $sed "s|$value| $IMAGE_NAME_PREFIX/$imageShortName|" $file; done
+  done
+
+  cat <<EOF >./tmp-templ/list.txt
+codefresh/charts/hermes/templates/configmap.yaml
+codefresh/charts/cronus/templates/configmap.yaml
+codefresh/charts/nomios/templates/configmap.yaml
+codefresh/charts/cfapi/templates/cfapi-cm.yaml
+EOF
+
+  for path in $(cat ./tmp-templ/list.txt); do let "i++"; cp $path ./tmp-templ/$path; done 
+
+  cp -R ./tmp-templ/codefresh .
+
+fi
+
 HELM=${HELM:-helm}
 
 msg "Installing/Updating Codefresh..."
-HELM_COMMAND="${HELM} upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
+HELM_COMMAND="${HELM} upgrade ${RELEASE} ./codefresh \
   --install \
   --namespace "${NAMESPACE}" \
   --values "${VALUES_FILE}" \
