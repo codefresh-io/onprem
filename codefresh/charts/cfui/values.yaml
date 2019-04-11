@@ -1,0 +1,27 @@
+replicaCount: 1
+imagePullPolicy: Always
+redeploy: false
+imageTag: 2.8.342
+image: r.cfcr.io/codefresh-inc/codefresh/cf-ui
+affinity: {}
+env:
+  NODE_ENV: kubernetes
+  ASSETS_OPTIMIZED: 'true'
+  LOGGER_LEVEL: error
+  LOGGER_MORAN_ACTIVE: 'false'
+  LOGS_PATH: /var/log/cf-ui.log
+  NEW_USER_REDIRECT: ''
+port: 80
+servicePort: 80
+dockerconfigjson: {}
+segmentKey: ''
+newrelicLicenseKey: ''
+stripePublicKey: ''
+rollbarAccessToken: ''
+logglyToken: ''
+slackAppID: ''
+webTLS:
+  cert: ''
+  key: ''
+ingress:
+  enabled: false

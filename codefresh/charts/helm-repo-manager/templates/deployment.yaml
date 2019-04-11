@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "helm-repo-manager.fullname" . }}
+  labels:
+    app: {{ template "helm-repo-manager.name" . }}
+    role: {{ template "helm-repo-manager.role" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "helm-repo-manager.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "helm-repo-manager.name" . }}
+        role: {{ template "helm-repo-manager.role" . }}
+        release: {{ .Release.Name }}
+    spec:
+      # In production Kubernetes clusters we have multiple tiers of worker nodes.
+      # The following setting makes sure that your applicaiton will run on
+      # service nodes which don't run internal pods like monitoring.
+      # This is needed to ensure a good quality of service.
+      affinity:
+{{ toYaml ( default .Values.global.affinity ) | indent 8 }}
+      imagePullSecrets:
+        - name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}-registry"
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.internalPort }}
+          env:
+          {{- if .Values.global.env }}
+          {{- range $key, $value := .Values.global.env }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+          {{- end}}
+          {{- end}}
+          - name: LOG_LEVEL
+            value: {{ .Values.logLevel | quote }}
+          - name: LOG_JSON
+            value: {{ .Values.logJSON | quote }}
+          {{- if ne .Values.logLevel "debug" }}
+          - name: GIN_MODE
+            value: release
+          {{- end }}
+          - name: PORT
+            value: {{ .Values.service.internalPort | quote }}
+          - name: CONTEXT_MANAGER_URI
+            value: {{ .Release.Name }}-{{ .Values.global.contextManagerService }}
+          - name: CONTEXT_MANAGER_PORT
+            value: {{ .Values.global.contextManagerPort | quote }}
+          - name: CONTEXT_MANAGER_HELM_REPO_URL_PREFIX
+            value: {{ coalesce .Values.RepoUrlPrefix ( empty .Values.global.appUrl | ternary "" (printf "cm://%s" .Values.global.appUrl) )  .Values.TestRepoUrlPrefix | quote }}
+          - name: CHARTMUSEUM_URI
+            value: "{{ .Release.Name }}-chartmuseum"
+          - name: CHARTMUSEUM_PORT
+            value: "8080"
+          - name: POSTGRES_DBNAME
+            value: {{ .Values.global.postgresDatabase }}
+          - name: POSTGRES_HOST
+            value: {{ default (printf "%s-%s" .Release.Name .Values.global.postgresService) .Values.global.postgresHostname | quote }}
+          - name: POSTGRES_PORT
+            value: "{{ .Values.postgres.port }}"
+          - name: POSTGRES_DISABLE_SSL
+            value: "{{ .Values.postgres.disableSSL }}"
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}"
+                key: postgres-password
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}"
+                key: postgres-user
+          - name: NEWRELIC_LICENSE_KEY
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}"
+                key: newrelic-license-key
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            failureThreshold: 5
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}

@@ -1,0 +1,46 @@
+# This file is in here to serve the local development using Merlin
+
+{{ $port := GetAvailablePort }}
+
+operators:
+
+- name: connect
+  type: cmd
+  description: Establish connection to cluster
+  spec:
+    program: telepresence
+    detached: true
+    env:
+    - KUBECONFIG={{ .Merlin.kube.path }}
+    - SERVICE_AVAILABLE_PORT={{ $port }}
+    args:
+    - -s
+    - {{ .Merlin.kube.namespace }}-context-manager
+    - --namespace
+    - {{ .Merlin.kube.namespace }}
+    - --context
+    - {{ .Merlin.kube.context }}
+    - --expose
+    - {{ $port }}:{{ .Values.targetPort }}
+    {{ if .Values.telepresence.run }}
+    - {{ .Values.telepresence.run }}
+    {{ else }}
+    - --run-shell
+    {{ end }}
+ 
+- name: start
+  type: cmd
+  description: Start nodejs application
+  spec:
+    program: node
+    env:
+    - PORT={{ env.Getenv "SERVICE_AVAILABLE_PORT" }}
+    - FORMAT_LOGS_TO_ELK=false
+    args:
+    - --inspect={{ GetAvailablePort }}
+    - {{ .Values.program }}
+
+
+
+
+

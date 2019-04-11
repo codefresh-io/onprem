@@ -1,0 +1,34 @@
+{{- if .Values.ingress.enabled }}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.org/redirect-to-https: "false"
+  name: {{ template "fullname" . }}-ingress
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service  | quote }}
+spec:
+  tls:
+  - hosts:
+    - '{{ .Values.ingress.domain }}'
+    {{- if .Values.webTLS }}
+    secretName: {{ template "fullname" . }}-tls
+    {{- else }}
+    secretName: {{ template "fullname" . }}-star-selfsigned
+    {{- end }}
+  rules:
+  - host: {{ .Values.ingress.domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ template "fullname" . }}
+          servicePort: {{ .Values.servicePort }}
+{{- end }}

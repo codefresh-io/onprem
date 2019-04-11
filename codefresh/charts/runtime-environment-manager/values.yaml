@@ -1,0 +1,18 @@
+replicaCount: 1
+imagePullPolicy: Always
+redeploy: false
+imageTag: 1.7.23
+image: r.cfcr.io/codefresh-inc/codefresh/runtime-environment-manager
+affinity: {}
+formatLogsToElk: true
+env:
+  NODE_ENV: kubernetes
+  RUNTIME_ENVS_JSON_PATH: /etc/admin/runtimeEnvironments.json
+port: 80
+servicePort: 80
+dockerconfigjson: {}
+newrelicLicenseKey: ''
+requiredInfraComponenets:
+  mongo: true
+mongoCreateDbJobScript: files/mongoCreateDbJobScript
+mongodbName: runtime-environment-manager

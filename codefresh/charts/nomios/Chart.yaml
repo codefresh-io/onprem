@@ -1,0 +1,18 @@
+apiVersion: v1
+appVersion: "0.4"
+description: Nomios - Codefresh DockerHub Event Provider
+home: https://github.com/codefresh-io/nomios
+icon: https://raw.githubusercontent.com/codefresh-io/nomios-chart/master/docker.png
+keywords:
+- codefresh
+- trigger
+- event-provider
+- registry
+- dockerhub
+maintainers:
+- email: dev@codefresh.io
+  name: Codefresh
+name: nomios
+sources:
+- https://github.com/codefresh-io/nomios-chart
+version: 0.4.21

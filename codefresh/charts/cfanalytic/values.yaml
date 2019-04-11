@@ -1,0 +1,16 @@
+replicaCount: 1
+imagePullPolicy: Always
+redeploy: false
+imageTag: 1.0.49
+image: r.cfcr.io/codefresh-inc/codefresh/cf-analytic
+affinity: {}
+formatLogsToElk: true
+env:
+  NODE_ENV: kubernetes
+port: 80
+servicePort: 80
+dockerconfigjson: {}
+newrelicLicenseKey: ''
+requiredInfraComponenets:
+  mongo: true
+  postgres: true

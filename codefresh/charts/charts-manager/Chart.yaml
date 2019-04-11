@@ -1,0 +1,16 @@
+apiVersion: v1
+description: Codefresh API for Helm Charts
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+keywords:
+- codefresh
+- kubernetes
+- helm-charts
+- charts-manager
+maintainers:
+- email: davidl@codefresh.io
+  name: David Levy
+name: charts-manager
+sources:
+- https://github.com/codefresh-io/charts-manager
+version: 0.0.3

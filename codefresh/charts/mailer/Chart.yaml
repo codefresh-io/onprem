@@ -1,0 +1,15 @@
+apiVersion: v1
+description: Codefresh API Engine
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+keywords:
+- codefresh
+- kubernetes
+- mailer
+maintainers:
+- email: alexei@codefresh.io
+  name: Alexei Ledenev
+name: mailer
+sources:
+- https://github.com/codefresh-io/mailer
+version: 0.0.3

@@ -1,0 +1,15 @@
+env/*
+regsecret-*
+values-*
+
+# backup files
+bak/*
+*.orig
+*.bak
+
+# files dirs
+files/dynamic/*
+files/load/*
+files/local/*
+files/staging/*
+files/production/*

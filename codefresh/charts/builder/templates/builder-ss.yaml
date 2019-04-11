@@ -1,0 +1,165 @@
+{{- $registryService := printf "%s-%s.%s.svc:%v" .Release.Name .Values.global.registryService .Release.Namespace .Values.global.registryPort }}
+
+apiVersion: apps/v1beta1
+kind: StatefulSet
+{{- if .Values.global.privateRegistry }}
+imagePullSecrets:
+  - name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}-registry"
+{{- end }}
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  serviceName: {{ template "fullname" . }}
+  replicas: {{ default 2 .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}  
+  template:
+    metadata:
+      annotations:
+      {{- if .Values.redeploy }}
+        forceRedeployUniqId: {{ now | quote }}
+      {{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/builder-cm.yaml") . | sha256sum }}
+      labels:
+        app: {{ template "fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+        release: {{ .Release.Name  | quote }}
+        heritage: {{ .Release.Service  | quote }}
+    spec:
+      {{- $nodeSelector := coalesce .Values.nodeSelector .Values.global.storagePodNodeSelector }}
+      {{- if $nodeSelector }}
+      nodeSelector:
+{{ toYaml $nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations:
+        - key: {{ .Values.tolerations.key | quote }}
+          operator: {{ .Values.tolerations.operator | quote }}
+          value: {{ .Values.tolerations.value | quote }}
+          effect: {{ .Values.tolerations.effect | quote }}
+      {{- end }}
+      initContainers:
+      - name: register-builder-container
+        image: codefresh/curl
+        imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        command: ["/bin/sh", "-c", "cp -L /opt/dind/register /usr/local/bin/ && chmod +x /usr/local/bin/register && /usr/local/bin/register ${POD_NAME} {{ template "fullname" . }}.{{ .Release.Namespace}}.svc"]
+        volumeMounts:
+        - name: builder-config
+          mountPath: /opt/dind/register
+          subPath: register
+      containers:
+      - image: {{ .Values.global.dindImage | quote }}
+        name:  {{ template "fullname" . }}
+        imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
+        resources:
+          limits:
+            cpu: {{ .Values.global.dindCPULimits }}
+            memory: {{ .Values.global.dindMemoryLimits }}
+          requests:
+            cpu: {{ .Values.global.dindCPU }}
+            memory: {{ .Values.global.dindMemory }}
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: {{ .Values.containerPort }}
+          protocol: TCP
+        env:
+        {{- if .Values.global.env }}
+        {{- range $key, $value := .Values.global.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end}}
+        {{- end}}
+        {{- with .Values.global.tlsRejectUnauthorize }}
+        - name: NODE_TLS_REJECT_UNAUTHORIZED
+          value: {{ .Values.global.tlsRejectUnauthorized | quote }}
+        {{- end }}
+        - name: RUNTIME_LOCAL_REGISTRY_NAME
+          value: {{ $registryService | quote }}
+        {{- if .Values.dockerCleanerCron }}
+        - name: DOCKER_CLEANER_CRON
+          value: {{ .Values.dockerCleanerCron | quote }}
+        {{- end }}
+        command:
+          - "/bin/sh"
+          - "-c"
+          - |
+            rm -fv /var/run/docker.pid
+            mkdir -p /var/run/codefresh
+            # Adding cleaner
+            cp -L /opt/dind/docker-cleaner.sh /usr/local/bin/ && chmod +x /usr/local/bin/docker-cleaner.sh 
+            if [[ -n "${DOCKER_CLEANER_CRON}" ]]; then
+              echo "Set /etc/crontabs/root - ${DOCKER_CLEANER_CRON} /usr/local/bin/docker-cleaner.sh"
+              echo "${DOCKER_CLEANER_CRON} /usr/local/bin/docker-cleaner.sh " >> /etc/crontabs/root
+              crond
+            fi
+            mkdir -p /etc/docker/certs.d/$(RUNTIME_LOCAL_REGISTRY_NAME)/
+            cp /etc/ssl/cf/ca.pem /etc/docker/certs.d/$(RUNTIME_LOCAL_REGISTRY_NAME)/ca.crt
+            dockerd {{ if .Values.global.mtu }}--mtu {{ .Values.global.mtu }}{{ end }}
+        volumeMounts:
+        - mountPath: /etc/ssl/cf
+          readOnly: true
+          name: cf-certs
+        - mountPath: /etc/docker/daemon.json
+          name: builder-config
+          readOnly: true
+          subPath: daemon.json
+        - mountPath: /opt/dind/docker-cleaner.sh
+          name: builder-config
+          subPath: docker-cleaner
+        {{- if .Values.global.addResolvConf }}
+        - mountPath: /etc/resolv.conf
+          name: resolvconf
+          subPath: resolv.conf
+          readOnly: true
+        {{- end }}
+        {{- if or .Values.varLibDockerVolume .Values.pvcName }}
+        - mountPath: /var/lib/docker
+          name: varlibdocker
+        {{- end }}
+      volumes:
+      - name: cf-certs
+        secret:
+          secretName: "{{ .Release.Name }}-{{ .Values.global.codefresh }}-certs-client"
+      - name: builder-config
+        configMap:
+          name: {{ template "fullname" . }}
+      {{- if .Values.global.addResolvConf }}
+      - name: resolvconf
+        configMap:
+          name: {{ .Release.Name }}-{{ .Values.global.codefresh }}-resolvconf
+      {{- end }}
+{{- $existingPvc := ( include "builder.existingPvc" . ) -}}
+      {{- if $existingPvc }}
+      - name: varlibdocker
+        persistentVolumeClaim:
+          claimName: {{ $existingPvc }}
+      {{- end }}    
+  {{- if not $existingPvc }}
+{{- $storageClass := ( include "builder.storageClass" . ) }}
+{{- $storageSize := ( include "builder.storageSize" . ) }}
+  volumeClaimTemplates:
+  - metadata:
+      name: varlibdocker
+    spec:
+      accessModes: [ {{ .Values.varLibDockerVolume.accessMode | quote }} ]
+      {{- if $storageClass }}
+      storageClassName: {{ $storageClass | quote }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ $storageSize }}
+  {{- end }}
+  

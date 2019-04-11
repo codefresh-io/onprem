@@ -1,0 +1,90 @@
+{{- if eq .Values.enabled true }}
+apiVersion: extensions/v1beta1
+{{- if .Values.ingressDeamonSet }}
+kind: DeamonSet
+{{- else }}
+kind: Deployment
+{{- end }}
+metadata:
+  name: {{ template "fullname" . }}-controller
+  labels:
+    app: {{ template "fullname" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name  | quote }}
+    heritage: {{ .Release.Service  | quote }}
+    k8s-app: nginx-ingress-controller
+spec:
+  {{- if not .Values.ingressDeamonSet }}
+  replicas:  {{ default 1 .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}  
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+        release: {{ .Release.Name  | quote }}
+        heritage: {{ .Release.Service  | quote }}
+        k8s-app: nginx-ingress-controller
+    spec:
+      # hostNetwork makes it possible to use ipv6 and to preserve the source IP correctly regardless of docker configuration
+      # however, it is not a hard dependency of the nginx-ingress-controller itself and it may cause issues if port 10254 already is taken on the host
+      # that said, since hostPort is broken on CNI (https://github.com/kubernetes/kubernetes/issues/31307) we have to use hostNetwork where CNI is used
+      # like with kubeadm
+      # hostNetwork: true
+      affinity:
+{{ toYaml (default .Values.global.appServiceAffinity .Values.affinity) | indent 8 }}
+      hostNetwork: true
+      terminationGracePeriodSeconds: 60
+      containers:
+      - image: "{{ .Values.controllerImage }}:{{ .Values.controllerImageTag }}"
+        name: {{ template "fullname" . }}-controller
+        {{- if .Values.global.privateRegistry }}
+        imagePullSecrets:
+          - name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}-registry"
+        {{- end }}
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ .Values.controllerProbePort }}
+            scheme: HTTP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ .Values.controllerProbePort }}
+            scheme: HTTP
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+        ports:
+        - containerPort: {{ .Values.controllerContainerPort }}
+          hostPort: {{ .Values.controllerHostPost }}
+        - containerPort: {{ .Values.controllerSecureContainerPort }}
+          hostPort: {{ .Values.controllerSecureHostPort }}
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        args:
+        - /nginx-ingress-controller
+        - --ingress-class=nginx-codefresh
+        - --default-backend-service={{ .Release.Namespace }}/{{ template "fullname" . }}-http-backend
+        - --watch-namespace={{ .Release.Namespace }}
+        {{- if .Values.webTlsSecretName }}
+        - --default-ssl-certificate={{ .Release.Namespace }}/{{ .Release.Name }}-{{ .Values.global.codefresh }}-{{ .Values.webTlsSecretName }}
+        {{- else }}
+        - --default-ssl-certificate={{ .Release.Namespace }}/{{ template "fullname" . }}-star-selfsigned
+        {{- end }}
+        - --configmap=$(POD_NAMESPACE)/{{ template "fullname" . }}-controller
+      {{- if .Values.rbacEnable }}
+      serviceAccountName: ingress
+      {{- end }}
+
+      #  - --annotations-prefix=nginx.ingress.kubernetes.io
+{{- end }}

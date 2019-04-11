@@ -1,0 +1,136 @@
+{{- if .Values.rbacEnable }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ingress
+  namespace: {{ .Release.Namespace }}
+---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRole
+# metadata:
+#   name: ingress
+# rules:
+#   - apiGroups:
+#       - ""
+#       - "extensions"
+#     resources:
+#       - configmaps
+#       - secrets
+#       - endpoints
+#       - ingresses
+#       - nodes
+#       - pods
+#     verbs:
+#       - list
+#       - watch
+#   - apiGroups:
+#       - ""
+#     resources:
+#       - nodes
+#     verbs:
+#       - get
+#   - apiGroups:
+#       - ""
+#     resources:
+#       - services
+#     verbs:
+#       - list
+#       - watch
+#       - get
+#       - update
+#   - apiGroups:
+#       - "extensions"
+#     resources:
+#       - ingresses
+#     verbs:
+#       - get
+#       - list
+#       - watch
+#   - apiGroups:
+#       - ""
+#     resources:
+#       - events
+#     verbs:
+#       - create
+#       - patch
+#   - apiGroups:
+#       - "extensions"
+#     resources:
+#       - ingresses/status
+#     verbs:
+#       - update
+# ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ingress-ns
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - pods
+      - secrets
+      - namespaces
+      - services
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    resourceNames:
+      # Defaults to "<election-id>-<ingress-class>"
+      # Here: "<ingress-controller-leader>-<nginx>"
+      # This has to be adapted if you change either parameter
+      # when launching the nginx-ingress-controller.
+      - "ingress-controller-leader-nginx"
+    verbs:  
+      - get
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - get
+      - update
+      - delete 
+  - apiGroups:
+      - ""
+    resources:
+      - endpoints
+    verbs:
+      - get
+      - create
+      - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ingress-ns-binding
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ingress-ns
+subjects:
+  - kind: ServiceAccount
+    name: ingress
+    namespace: {{ .Release.Namespace }}
+---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: ingress-binding
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: ingress
+# subjects:
+#   - kind: ServiceAccount
+#     name: ingress
+#     namespace: {{ .Release.Namespace }}
+{{ end }}

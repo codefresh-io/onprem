@@ -1,0 +1,24 @@
+{{- if eq .Values.enabled true }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-controller
+  labels:
+    app: {{ template "fullname" . }}-controller
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name  | quote }}
+    heritage: {{ .Release.Service  | quote }}
+data:
+  disable-access-log: {{ default "false" .Values.disableAccessLog | quote }}
+  enable-vts-status: "true"
+  client-body-buffer-size: "16k"
+  log-format-escape-json: "true"
+  log-format-upstream: '{ "time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr",
+                             "x-forward-for": "$proxy_add_x_forwarded_for", "remote_user":
+                             "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time, "status":
+                             $status, "vhost": "$host", "request_proto": "$server_protocol", "path": "$uri",
+                             "request_query": "$args", "request_length": $request_length, "duration": $request_time,
+                             "method": "$request_method", "http_referrer": "$http_referer", "http_user_agent":
+                             "$http_user_agent", "http_x_github_delivery": "$http_x_github_delivery", "http_x_hook_uuid": "$http_x_hook_uuid", "metadata": { "correlationId": "$request_id", "service": "ingress", "time": "$time_iso8601" } }'
+{{- end }}                             

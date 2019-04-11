@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-runtime-envs
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service  | quote }}
+data:
+  runtimeEnvironments.json: |
+{{- if .Values.getRuntimeEnvs }}
+{{ include "runtime-environment-config" . | indent 4 }}
+{{- else }}
+    {}
+{{- end }}

@@ -1,0 +1,15 @@
+apiVersion: v1
+description: Codefresh API Engine
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+keywords:
+- codefresh
+- kubernetes
+- kube-integration
+maintainers:
+- email: alexei@codefresh.io
+  name: Alexei Ledenev
+name: kube-integration
+sources:
+- https://github.com/codefresh-io/kube-integration
+version: 0.0.4

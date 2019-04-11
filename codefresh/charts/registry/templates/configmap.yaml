@@ -1,0 +1,15 @@
+{{- if .Values.registryConfig }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service  | quote }}
+data:
+  config.yml: |
+{{ toYaml .Values.registryConfig | indent 4 }}
+{{- end }}

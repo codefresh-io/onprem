@@ -1,0 +1,16 @@
+apiVersion: v1
+description: Codefresh analytic tool
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+keywords:
+- codefresh
+- kubernetes
+- cfanalytic
+maintainers:
+- email: vadim@codefresh.io
+  name: Vadim Waisman
+name: cfanalytic
+sources:
+- https://github.com/codefresh-io/cf-analytic
+- https://github.com/codefresh-io/pipelines/commit/9bc12171af05fd4b9f198cffc47bc2d56a1f1d26
+version: 1.0.49

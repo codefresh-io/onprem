@@ -1,0 +1,17 @@
+replicaCount: 1
+imagePullPolicy: Always
+redeploy: false
+imageTag: 1.0.23
+image: r.cfcr.io/codefresh-inc/codefresh/cf-broadcaster
+affinity: {}
+formatLogsToElk: true
+env:
+  NODE_ENV: kubernetes
+port: 9016
+servicePort: 80
+dockerconfigjson: {}
+newrelicLicenseKey: ''
+redis:
+  port: 6379
+  db: 1
+global: {}

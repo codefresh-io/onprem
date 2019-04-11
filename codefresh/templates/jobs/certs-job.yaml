@@ -1,0 +1,72 @@
+{{- if .Values.global.certsJobs }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "fullname" . }}-gencerts
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service  | quote }}
+spec:
+  template:
+    metadata:
+      name: {{ template "fullname" . }}-gencerts
+      labels:
+        app: {{ template "fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+        release: {{ .Release.Name | quote }}
+        heritage: {{ .Release.Service  | quote }}
+    spec:
+      {{- if .Values.rbacEnable }}
+      serviceAccountName: cf-codefresh-gencerts
+      {{- end }}
+      {{- if .Values.global.privateRegistry }}
+      imagePullSecrets:
+        - name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}-registry"
+      {{- end }}
+      containers:
+      {{- if not .Values.global.clientCertsCA }}
+      - name: {{ template "fullname" . }}-certs
+        image: {{ .Values.kubectlImage }}
+        imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
+        command: ["/bin/sh", "/opt/codefresh/gen-runtime-certs"]
+        env:
+          - name: DUMMY
+            value: "1"
+          {{- if .Values.global.env }}
+          {{- range $key, $value := .Values.global.env }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+          {{- end}}
+          {{- end}}
+        volumeMounts:
+        - name: tools
+          mountPath: "/opt/codefresh/gen-runtime-certs"
+          subPath: "gen-runtime-certs"
+      {{- end }}
+      {{- if not .Values.webTLS }}
+      - name: {{ template "fullname" . }}-tls
+        image: {{ .Values.kubectlImage }}
+        imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
+        command: ["/bin/sh", "/opt/codefresh/gen-website-tls"]
+        env:
+          - name: DUMMY
+            value: "1"
+          {{- if .Values.global.env }}
+          {{- range $key, $value := .Values.global.env }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+          {{- end}}
+          {{- end}}
+        volumeMounts:
+        - name: tools
+          mountPath: "/opt/codefresh/gen-website-tls"
+          subPath: "gen-website-tls"
+      {{- end }}
+      restartPolicy: OnFailure
+      volumes:
+      - name: tools
+        configMap:
+          name: {{ template "fullname" . }}-certs-scripts
+{{- end }}

@@ -1,0 +1,16 @@
+apiVersion: v1
+description: Codefresh CD pipeline management platform for Kubernetes
+name: codefresh
+version: 1.0.66
+keywords:
+- codefresh
+- kubernetes
+- pipeline
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+sources:
+- https://github.com/codefresh-io/cf-helm
+maintainers:
+- name: Codefresh Authors
+  email: dev@codefresh.io
+appVersion: 0.6

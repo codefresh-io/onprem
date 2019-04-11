@@ -72,7 +72,7 @@ spec:
   restartPolicy: Never
   terminationGracePeriodSeconds: 10
   containers:
-  - image: alpine:3.7
+  - image: containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/alpine:3.7
     name: test-pvc-{{ $v.existingPvc }}
     imagePullPolicy: IfNotPresent     
     volumeMounts:

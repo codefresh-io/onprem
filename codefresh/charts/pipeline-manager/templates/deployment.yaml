@@ -1,0 +1,164 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name  | quote }}
+    heritage: {{ .Release.Service  | quote }}
+    version: {{ .Values.imageTag | quote }}
+spec:
+  replicas: {{ default 1 .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 50%
+      maxSurge: 50%
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+  template:
+    metadata:
+      {{- if .Values.redeploy }}
+      annotations:
+        forceRedeployUniqId: {{ now | quote }}
+      {{- end }}
+      labels:
+        app: {{ template "fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+        release: {{ .Release.Name  | quote }}
+        heritage: {{ .Release.Service  | quote }}
+        version: {{ .Values.imageTag | quote }}
+    spec:
+      # In production Kubernetes clusters we have multiple tiers of worker nodes.
+      # The following setting makes sure that your applicaiton will run on
+      # service nodes which don't run internal pods like monitoring.
+      # This is needed to ensure a good quality of service.
+      affinity:
+{{ toYaml (default .Values.global.appServiceAffinity .Values.affinity) | indent 8 }}
+      imagePullSecrets:
+        - name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}-registry"
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: {{ template "fullname" . }}
+        image: "{{ .Values.image }}:{{ .Values.imageTag }}"
+        imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
+        env:
+        {{- if .Values.global.env }}
+        {{- range $key, $value := .Values.global.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end}}
+        {{- end}}
+        - name: NODE_ENV
+          value: kubernetes
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "fullname" . }}
+              key: mongo-uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}"
+              key: rabbitmq-password
+        - name: RABBIT_USER
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}"
+              key: rabbitmq-username
+        - name: EVENTBUS_URI
+          value: amqp://$(RABBIT_USER):$(RABBIT_PASSWORD)@{{ default (printf "%s-%s" .Release.Name .Values.global.rabbitService) .Values.global.rabbitmqHostname }}
+        - name: POSTGRES_HOST
+          value: {{ default (printf "%s-%s" .Release.Name .Values.global.postgresService) .Values.global.postgresHostname | quote }}
+        - name: POSTGRES_DATABASE
+          value: {{ .Values.global.postgresDatabase }}
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}"
+              key: postgres-user
+        - name: SAFE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "fullname" . }}
+              key: safe-secret
+        {{- if .Values.stepsCatalogEnabled }}
+        - name: STEPS_CATALOG_ENABLED
+          value: "true"
+        - name: STEPS_CATALOG_GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "fullname" . }}
+              key: steps-catalog-github-token
+        {{- end}}
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}"
+              key: postgres-password
+        - name: NEWRELIC_LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}"
+              key: newrelic-license-key
+        - name: REDIS_URL
+          value: {{ default (printf "%s-%s" .Release.Name .Values.global.redisService) .Values.global.redisUrl }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}"
+              key: redis-password
+        - name: PORT
+          value: "{{ .Values.global.pipelineManagerPort }}"
+        - name: SERVICE_NAME
+          value: {{ template "name" . }}
+        - name: FORMAT_LOGS_TO_ELK
+          value: "{{ .Values.formatLogsToElk }}"
+        - name: API_URI
+          value: "{{ .Release.Name }}-{{ .Values.global.cfapiService }}"
+        - name: API_PORT
+          value: {{ .Values.global.cfapiInternalPort | quote }}
+        - name: CONTEXT_MANAGER_URI
+          value: "{{ .Release.Name }}-{{ .Values.global.contextManagerService }}"
+        - name: CONTEXT_MANAGER_PORT
+          value: {{ .Values.global.contextManagerPort | quote }}
+        - name: RUNTIME_ENVIRONMENT_MANAGER_URI
+          value: "{{ .Release.Name }}-{{ .Values.global.runtimeEnvironmentManagerService }}"
+        - name: RUNTIME_ENVIRONMENT_MANAGER_PORT
+          value: {{ .Values.global.runtimeEnvironmentManagerPort | quote }}
+        ports:
+        - containerPort: {{ .Values.targetPort }}
+          protocol: TCP
+
+        readinessProbe:
+          httpGet:
+            path: /api/ready
+            port: {{ .Values.targetPort }}
+          periodSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: {{ .Values.targetPort }}
+          periodSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+          initialDelaySeconds: 10
+
+      {{- if .Values.global.addResolvConf }}
+        volumeMounts:
+        - mountPath: /etc/resolv.conf
+          name: resolvconf
+          subPath: resolv.conf
+          readOnly: true
+      volumes:
+      - name: resolvconf
+        configMap:
+          name: {{ .Release.Name }}-{{ .Values.global.codefresh }}-resolvconf
+      {{- end }}
+      restartPolicy: Always

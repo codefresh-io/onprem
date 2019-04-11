@@ -1,0 +1,65 @@
+---
+# kind: scheduler-kubernetes
+apiVersion: apps/v1beta1
+kind: StatefulSet
+{{- if .Values.global.privateRegistry }}
+imagePullSecrets:
+  - name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}-registry"
+{{- end }}
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name  | quote }}
+    heritage: {{ .Release.Service  | quote }}
+spec:
+  serviceName: {{ template "fullname" . }}
+  replicas: {{ default 1 .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+        release: {{ .Release.Name | quote }}
+        heritage: {{ .Release.Service | quote }}
+      annotations:
+      {{- range $key, $value := .Values.service.annotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+    spec:
+      affinity:
+{{ toYaml (default .Values.global.appServiceAffinity .Values.affinity) | indent 8 }}
+      containers:
+      - image: "{{ .Values.image }}:{{ .Values.imageTag }}"
+        name: {{ template "fullname" . }}
+        imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        args:
+          - --addr
+          - {{ .Values.addr }}
+          - --port
+          - {{ .Values.clientPort | quote }}
+          - --http_port
+          - {{ .Values.httpPort | quote }}
+          - --cluster
+          - nats://$(POD_IP):{{ .Values.clusterPort }}
+          - --routes
+          - nats://{{ template "fullname" . }}-0.{{ template "fullname" . }}:{{ .Values.clusterPort }}
+        env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+        ports:
+        - containerPort: {{ .Values.httpPort }}
+          protocol: TCP
+        - containerPort: {{ .Values.clusterPort }}
+          protocol: TCP
+        - containerPort: {{ .Values.clientPort }}
+          protocol: TCP
+      restartPolicy: {{ .Values.restartPolicy }}

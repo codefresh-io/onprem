@@ -1,0 +1,13 @@
+{{- if .Values.global.maintenanceMode }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maintenance-reason
+data:
+  maintenance-reason.html: |
+    <div>
+      <p>Sorry for the inconvenience but we’re performing some maintenance at the moment. We’ll be back online shortly. Thanks for your patience!</p>
+      <p>— Codefresh</p>
+    </div>
+{{- end }}

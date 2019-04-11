@@ -1,0 +1,6 @@
+dependencies:
+- name: redis
+  repository: file://local-charts/redis
+  version: 1.1.25
+digest: sha256:dce31425179044971f7799f272c63b8f0baf317f575f8b13c79486b73fa73569
+generated: 2019-03-28T17:15:12.159170406Z

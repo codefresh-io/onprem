@@ -1,0 +1,14 @@
+apiVersion: v1
+description: Codefresh Context Manager
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+keywords:
+- codefresh
+- context-manager
+maintainers:
+- email: itai@codefresh.io
+  name: Itai Gendler
+name: context-manager
+sources:
+- https://github.com/codefresh-io/context-manager
+version: 0.0.2

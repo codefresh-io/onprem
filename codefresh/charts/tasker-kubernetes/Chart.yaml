@@ -1,0 +1,15 @@
+apiVersion: v1
+description: Handle all task that should be running in the background for kubernetes.
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+keywords:
+- codefresh
+- kubernetes
+- tasker-kubernetes
+maintainers:
+- email: olegs@codefresh.io
+  name: Oleg Sucharevich
+name: tasker-kubernetes
+sources:
+- https://github.com/codefresh-io/tasker-kubernetes
+version: 0.0.2

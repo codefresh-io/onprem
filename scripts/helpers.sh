@@ -127,13 +127,15 @@ helmInstall() {
 }
 
 checkTillerInstalled() {
-  status=$(kubectl -nkube-system get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
+  TILLER_NAMESPACE=${1:-"kube-system"}
+  msg "TILLER_NAMESPACE = $TILLER_NAMESPACE"
+  status=$(kubectl -n${TILLER_NAMESPACE} get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
   SCRIPTS_DIR=$(dirname "${BASH_SOURCE}")
   if [ "$status" == "Running" ]; then
     msg "Tiller is installed and running"
     helm init -c
     helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//')
-    tiller_version=$(helm version --server --short | sed 's/.*\: v//' | sed 's/+.*//')
+    tiller_version=$(helm version --server --tiller-namespace $TILLER_NAMESPACE --short | sed 's/.*\: v//' | sed 's/+.*//')
     if [[ ! "$YES" == 'true' ]] && [ $(ver $tiller_version) -lt $(ver $helm_version) ]; then
       warning "You're running helm v$helm_version but tiller has v$tiller_version."
       read -p  " Do you want to upgrade tiller to v$helm_version ? [y/n] " yn
@@ -173,8 +175,9 @@ checkTillerInstalled() {
 }
 
 checkTillerStatus() {
+  TILLER_NAMESPACE=${1:-"kube-system"}
 	while true; do
-    status=$(kubectl -nkube-system get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
+    status=$(kubectl -n${TILLER_NAMESPACE} get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
 
 	  msg "Tiller status = $status"
 	  [ "$status" == "Running" ] && break
