@@ -259,7 +259,9 @@ else
   echo "Skipping validator because of cf_status=$cf_status or SKIP_VALIDATOR=$SKIP_VALIDATOR or DRY_RUN=$DRY_RUN"
 fi
 
+[[ -z $WORKING_DIR ]] || [ ! -d $WORKING_DIR ] && err "Invalid working directory"
 cd $WORKING_DIR
+
 rm -rf ./codefresh ./tmp-templ 2>/dev/null
 
 helm fetch --untar codefresh-onprem-${CHANNEL}/codefresh --untardir $WORKING_DIR
@@ -270,14 +272,8 @@ if [[ -n ${IMAGE_NAME_PREFIX} ]]; then
   elif [[ "$OSTYPE" == "darwin"* ]] || [[ "$OSTYPE" == "freebsd" ]]; then
     sed="sed -i '' "
   fi
-  getValuesToReplace() {
-    grep -hR image: ./tmp-templ | cut -d ":" -f2-4 | sort -u
-  }
-  getImageShortName() {
-    echo $1 | awk -F / '{print $NF}' | tr -d '"'
-  }
-
-  echo "Replacing image references according to the specified image name prefix..."
+ 
+  msg "Replacing image references according to the specified image name prefix..."
 
   mkdir ./tmp-templ 2>/dev/null
 
@@ -291,6 +287,13 @@ if [[ -n ${IMAGE_NAME_PREFIX} ]]; then
     ${SET_VALUES} \
     ${SET_VERSION} \
     --output-dir ./tmp-templ 1>/dev/null
+
+  getValuesToReplace() {
+    grep -hR image: ./tmp-templ | cut -d ":" -f2-4 | sort -u
+  }
+  getImageShortName() {
+    echo $1 | awk -F / '{print $NF}' | tr -d '"'
+  }
 
   mapfile -t ValuesToReplace < <(getValuesToReplace)
   for value in "${ValuesToReplace[@]}"; do
@@ -337,5 +340,4 @@ if [[ -n ${DRY_RUN} ]]; then
 fi
 $HELM_COMMAND
 
-
-
+rm -rf ./codefresh ./tmp-templ 2>/dev/null
