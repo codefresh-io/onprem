@@ -301,6 +301,10 @@ if [[ -n ${IMAGE_NAME_PREFIX} ]]; then
     for file in $(egrep -lR $value ./tmp-templ/codefresh); do $sed "s|$value| $IMAGE_NAME_PREFIX/$imageShortName|" $file; done
   done
 
+# below actions are needed because there are certain templates for configmaps containing "{{ }}" in their string data (taken from the values),
+# which cause the helm install to fail when run on the template files with already interpolated values
+# for such templates we make an exception
+
   cat <<EOF >./tmp-templ/list.txt
 codefresh/charts/hermes/templates/configmap.yaml
 codefresh/charts/cronus/templates/configmap.yaml
@@ -308,7 +312,7 @@ codefresh/charts/nomios/templates/configmap.yaml
 codefresh/charts/cfapi/templates/cfapi-cm.yaml
 EOF
 
-  for path in $(cat ./tmp-templ/list.txt); do let "i++"; cp $path ./tmp-templ/$path; done 
+  for path in $(cat ./tmp-templ/list.txt); do cp $path ./tmp-templ/$path; done 
 
   cp -R ./tmp-templ/codefresh .
 
