@@ -37,11 +37,11 @@ usage() {
 }
 
 generateDockerConfig(){
-if [[ -n ${USE_CUSTOM_REG} ]]; then
+if [[ -n ${IMAGE_NAME_PREFIX} ]]; then
   echo "Using custom registry to pull cf images from..."
   if [[ -z ${REG_USER} ]] || [[ -z ${REG_PASSWORD} ]]; then err "Custom docker registry login and/or password are not set"; fi
   DOCKER_CFG_VAR=$(echo -n "${REG_USER}:${REG_PASSWORD}" | $BASE64)
-  REGISTRY=$(echo $imageNamePrefix | cut -d '/' -f1)
+  REGISTRY=$(echo $IMAGE_NAME_PREFIX | cut -d '/' -f1)
 else
   echo "generateDockerConfig: SERVICE_ACCOUNT_FILE=$SERVICE_ACCOUNT_FILE "
   if [[ ! -f ${SERVICE_ACCOUNT_FILE} ]]; then
@@ -67,25 +67,21 @@ dockerconfigjson:
   auths:
     ${REGISTRY}:
       auth: ${DOCKER_CFG_VAR}
-
 cfui:
   dockerconfigjson:
     auths:
       ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
-
 runtime-environment-manager:
   dockerconfigjson:
     auths:
       ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
-
 onboarding-status:
   dockerconfigjson:
     auths:
       ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
-
 cfanalytic:
   dockerconfigjson:
     auths:
@@ -170,7 +166,7 @@ EOF
 
 }
 
-while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|tiller-namespace|skip-validator|dry-run|use-custom-reg|reg-user|reg-password|img-name-prefix)) ]]
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|tiller-namespace|skip-validator|dry-run|reg-user|reg-password|img-name-prefix)) ]]
 do
   key=$1
   value=$2
@@ -207,9 +203,6 @@ do
     --dry-run)
         DRY_RUN="true"
       ;;
-    --use-custom-reg)
-        USE_CUSTOM_REG="true"
-      ;;
     --reg-user)
         REG_USER=$value
         shift
@@ -219,12 +212,13 @@ do
         shift
       ;;
     --img-name-prefix)
-        imageNamePrefix=$value
+        IMAGE_NAME_PREFIX=$value
         shift
       ;;
   esac
   shift # past argument or value
 done
+
 msg "Starting on-prem Codefresh deployment"
 generateDockerConfig || err "Failed to generate docker credentials for image pulling"
 generateWebTlsValuesFile || err "Web Tls certificates error"
@@ -249,37 +243,6 @@ msg "Adding Helm repo..."
 #addHelmCodefreshRepo
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
 helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}" || err "Failed to add helm repo codefresh-onprem-${CHANNEL} ${CODEFRESH_REPOSITORY}"
-helm fetch --untar codefresh-onprem-${CHANNEL}/codefresh
-
-if [[ -n ${USE_CUSTOM_REG} ]]; then
-  getImageShortName() {
-      echo $1 | awk -F / '{print $NF}' | tr -d '"'
-  }
-
-  getValuesToReplace() {
-      grep -hR image: ./codefresh | egrep -v '{{|default|r.cfcr.io'| cut -d ":" -f2-4 | sort -u | sed '1d' | tr -d ' '
-  }
-
-  replaceImageValues() {
-      mapfile -t ValuesToReplace < <(getValuesToReplace)
-      for value in "${ValuesToReplace[@]}"; do
-        imageShortName=$(getImageShortName $value)
-        for file in $(egrep -lR $value ./codefresh); do sed -i "" "s|image: $value|image: $imageNamePrefix/$imageShortName|" $file; done
-      done
-      ## below I needed to hardcode some of the exceptional cases as a quick workaround
-      for value in $(cat imageList); do
-        imageShortName=$(getImageShortName $value)
-         for file in $(egrep -lR $value ./codefresh); do sed -i "" "s|$value|$imageNamePrefix/$imageShortName|" $file; done
-      done
-      ## even more hardcoding...
-      sed -i "" "s|repository: chartmuseum/chartmuseum|repository: $imageNamePrefix/chartmuseum|" codefresh/charts/helm-repo-manager/charts/chartmuseum/values.yaml
-      sed -i "" "/Image:/c Image: $imageNamePrefix/consul" codefresh/charts/consul/values.yaml
-      sed -i "" "s|alpine:3.7|$imageNamePrefix/alpine:3.7|" validator/templates/storageclasses/pvcs.yaml local-volumes/templates/mkdir-pod.yaml
-  }
-  echo "Replacing image references according to the specified image name prefix..."
-  replaceImageValues
-
-fi
 
 cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
@@ -298,69 +261,10 @@ else
   echo "Skipping validator because of cf_status=$cf_status or SKIP_VALIDATOR=$SKIP_VALIDATOR or DRY_RUN=$DRY_RUN"
 fi
 
-[[ -z $WORKING_DIR ]] || [ ! -d $WORKING_DIR ] && err "Invalid working directory"
-cd $WORKING_DIR
-
-rm -rf ./codefresh ./tmp-templ 2>/dev/null
-
-helm fetch --untar codefresh-onprem-${CHANNEL}/codefresh --untardir $WORKING_DIR
-
-if [[ -n ${IMAGE_NAME_PREFIX} ]]; then
-  if [[ "$OSTYPE" == "linux-gnu" ]]; then
-    sed="sed -i "
-  elif [[ "$OSTYPE" == "darwin"* ]] || [[ "$OSTYPE" == "freebsd" ]]; then
-    sed="sed -i '' "
-  fi
- 
-  msg "Replacing image references according to the specified image name prefix..."
-
-  mkdir ./tmp-templ 2>/dev/null
-
-  helm template codefresh --name cf --namespace "${NAMESPACE}" \
-    --values "${VALUES_FILE}" \
-    --values "${DOCKER_CFG_YAML}" \
-    --set cfapi.redeploy=true \
-    ${SET_WEBTLS_VALUES} \
-    ${SEEDJOBS} \
-    ${CERTJOBS} \
-    ${SET_VALUES} \
-    ${SET_VERSION} \
-    --output-dir ./tmp-templ 1>/dev/null
-
-  getValuesToReplace() {
-    grep -hR image: ./tmp-templ | cut -d ":" -f2-4 | sort -u
-  }
-  getImageShortName() {
-    echo $1 | awk -F / '{print $NF}' | tr -d '"'
-  }
-
-  mapfile -t ValuesToReplace < <(getValuesToReplace)
-  for value in "${ValuesToReplace[@]}"; do
-    imageShortName=$(getImageShortName $value)
-    for file in $(egrep -lR $value ./tmp-templ/codefresh); do $sed "s|$value| $IMAGE_NAME_PREFIX/$imageShortName|" $file; done
-  done
-
-# below actions are needed because there are certain templates for configmaps containing "{{ }}" in their string data (taken from the values),
-# which cause the helm install to fail when run on the template files with already interpolated values
-# for such templates we make an exception
-
-  cat <<EOF >./tmp-templ/list.txt
-codefresh/charts/hermes/templates/configmap.yaml
-codefresh/charts/cronus/templates/configmap.yaml
-codefresh/charts/nomios/templates/configmap.yaml
-codefresh/charts/cfapi/templates/cfapi-cm.yaml
-EOF
-
-  for path in $(cat ./tmp-templ/list.txt); do cp $path ./tmp-templ/$path; done 
-
-  cp -R ./tmp-templ/codefresh .
-
-fi
-
 HELM=${HELM:-helm}
 
 msg "Installing/Updating Codefresh..."
-HELM_COMMAND="${HELM} upgrade ${RELEASE} ./codefresh \
+HELM_COMMAND="${HELM} upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   --install \
   --namespace "${NAMESPACE}" \
   --tiller-namespace "${TILLER_NAMESPACE}" \
@@ -384,4 +288,5 @@ if [[ -n ${DRY_RUN} ]]; then
 fi
 $HELM_COMMAND
 
-rm -rf ./codefresh ./tmp-templ 2>/dev/null
+
+
