@@ -41,7 +41,7 @@ spec:
   nodeSelector: 
      kubernetes.io/hostname: {{ . }}
   containers:
-  - image: alpine:3.7
+  - image: {{ $.Values.helperImage }}
     name: mkdir
     command:
     - /bin/sh
