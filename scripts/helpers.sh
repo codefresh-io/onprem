@@ -135,7 +135,7 @@ checkTillerInstalled() {
     msg "Tiller is installed and running"
     helm init -c
     helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//')
-    tiller_version=$(helm version --server --tiller-namespace $TILLER_NAMESPACE --short | sed 's/.*\: v//' | sed 's/+.*//')
+    tiller_version=$(helm version --server --tiller-namespace ${TILLER_NAMESPACE} --short | sed 's/.*\: v//' | sed 's/+.*//')
     if [[ ! "$YES" == 'true' ]] && [ $(ver $tiller_version) -lt $(ver $helm_version) ]; then
       warning "You're running helm v$helm_version but tiller has v$tiller_version."
       read -p  " Do you want to upgrade tiller to v$helm_version ? [y/n] " yn
