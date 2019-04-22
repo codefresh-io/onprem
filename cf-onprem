@@ -33,15 +33,16 @@ usage() {
   --skip-validator   - skip validator running
   --dry-run          - dry-run mode - echo command instead of actual running
   --tiller-namespace - custom namespace for tiller
+  --private-registry - pull the images from a private docker registry
   "
 }
 
 generateDockerConfig(){
-if [[ -n ${IMAGE_NAME_PREFIX} ]]; then
+if [[ -n "${PRIVATE_REGISTRY}" ]]; then
   echo "Using custom registry to pull cf images from..."
   if [[ -z ${REG_USER} ]] || [[ -z ${REG_PASSWORD} ]]; then err "Custom docker registry login and/or password are not set"; fi
   DOCKER_CFG_VAR=$(echo -n "${REG_USER}:${REG_PASSWORD}" | $BASE64)
-  REGISTRY=$(echo $IMAGE_NAME_PREFIX | cut -d '/' -f1)
+  REGISTRY=$(echo $PRIVATE_REGISTRY | cut -d '/' -f1)
 else
   echo "generateDockerConfig: SERVICE_ACCOUNT_FILE=$SERVICE_ACCOUNT_FILE "
   if [[ ! -f ${SERVICE_ACCOUNT_FILE} ]]; then
@@ -166,7 +167,7 @@ EOF
 
 }
 
-while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|tiller-namespace|skip-validator|dry-run|reg-user|reg-password|img-name-prefix)) ]]
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|tiller-namespace|skip-validator|dry-run|reg-user|reg-password|private-registry)) ]]
 do
   key=$1
   value=$2
@@ -211,8 +212,9 @@ do
         REG_PASSWORD=$value
         shift
       ;;
-    --img-name-prefix)
-        IMAGE_NAME_PREFIX=$value
+    --private-registry)
+        PRIVATE_REGISTRY=${value}
+        SET_PRIVATE_REGISTRY="--set global.privateRegistry=true --set global.dockerRegistry=${value}"
         shift
       ;;
   esac
@@ -277,6 +279,7 @@ HELM_COMMAND="${HELM} upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   ${CERTJOBS} \
   ${SET_VALUES} \
   ${SET_VERSION} \
+  ${SET_PRIVATE_REGISTRY} \
   ${SET_DEBUG}"
 
 echo "Executing:
