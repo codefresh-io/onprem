@@ -3,13 +3,14 @@
 
 #set -x
 DIR=$(dirname $0)
-source ${DIR}/scripts/helpers.sh
 
 if [ -f "${DIR}/env-vars" ]; then
 . ${DIR}/env-vars
 fi
 
 CHANNEL="${CF_HELM_CHANNEL:-dev}"
+TILLER_NAMESPACE="${tiller-namespace:-kube-system}"
+source ${DIR}/scripts/helpers.sh
 
 readonly RELEASE=cf
 
@@ -25,17 +26,24 @@ usage() {
   $0 [ options ]
 
   options:
-  --set            - sets helm release values from command line, example --set global.mtu=1400
-  --repo-channel   - helm repo channel of http://charts.codefresh.io/ 
-  --version        - helm repo version
-  --debug          - run helm in debug mode
-  --skip-validator - skip validator running
-  --dry-run        - dry-run mode - echo command instead of actual running
+  --set              - sets helm release values from command line, example --set global.mtu=1400
+  --repo-channel     - helm repo channel of http://charts.codefresh.io/ 
+  --version          - helm repo version
+  --debug            - run helm in debug mode
+  --skip-validator   - skip validator running
+  --dry-run          - dry-run mode - echo command instead of actual running
+  --tiller-namespace - custom namespace for tiller
+  --private-registry - pull the images from a private docker registry
   "
 }
 
 generateDockerConfig(){
-
+if [[ -n "${PRIVATE_REGISTRY}" ]]; then
+  echo "Using custom registry to pull cf images from..."
+  if [[ -z ${REG_USER} ]] || [[ -z ${REG_PASSWORD} ]]; then err "Custom docker registry login and/or password are not set"; fi
+  DOCKER_CFG_VAR=$(echo -n "${REG_USER}:${REG_PASSWORD}" | $BASE64)
+  REGISTRY=$(echo $PRIVATE_REGISTRY | cut -d '/' -f1)
+else
   echo "generateDockerConfig: SERVICE_ACCOUNT_FILE=$SERVICE_ACCOUNT_FILE "
   if [[ ! -f ${SERVICE_ACCOUNT_FILE} ]]; then
     echo "Error: Docker registry service account ${SERVICE_ACCOUNT_FILE} is not found"
@@ -48,40 +56,37 @@ generateDockerConfig(){
     echo "Error: Cannot parse docker registry service account in ${SERVICE_ACCOUNT_FILE}, it is empty"
     return 1
   fi
+fi
   cat <<EOF >${DOCKER_CFG_YAML}
 ---
 global:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 dockerconfigjson:
   auths:
-    gcr.io:
+    ${REGISTRY}:
       auth: ${DOCKER_CFG_VAR}
-
 cfui:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
-
 runtime-environment-manager:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
-
 onboarding-status:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
-
 cfanalytic:
   dockerconfigjson:
     auths:
-      gcr.io:
+      ${REGISTRY}:
         auth: ${DOCKER_CFG_VAR}
 EOF
 }
@@ -162,7 +167,7 @@ EOF
 
 }
 
-while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|skip-validator|dry-run)) ]]
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|tiller-namespace|skip-validator|dry-run|reg-user|reg-password|private-registry)) ]]
 do
   key=$1
   value=$2
@@ -176,6 +181,10 @@ do
       ;;
     --set)
         SET_VALUES="$SET_VALUES --set $value"
+        shift
+      ;;
+    --tiller-namespace)
+        TILLER_NAMESPACE="$value"
         shift
       ;;
     --repo-channel)
@@ -194,6 +203,19 @@ do
       ;;
     --dry-run)
         DRY_RUN="true"
+      ;;
+    --reg-user)
+        REG_USER=$value
+        shift
+      ;;
+    --reg-password)
+        REG_PASSWORD=$value
+        shift
+      ;;
+    --private-registry)
+        PRIVATE_REGISTRY=${value}
+        SET_PRIVATE_REGISTRY="--set global.privateRegistry=true --set global.dockerRegistry=${value}"
+        shift
       ;;
   esac
   shift # past argument or value
@@ -214,10 +236,10 @@ msg "Checking helm binary on your system"
 checkHelmInstalled "helm"
 
 msg "Checking if tiller is installed on kubernetes cluster"
-checkTillerInstalled
+checkTillerInstalled $TILLER_NAMESPACE
 
 msg "Checking tiller status..."
-checkTillerStatus
+checkTillerStatus $TILLER_NAMESPACE
 
 msg "Adding Helm repo..."
 #addHelmCodefreshRepo
@@ -247,6 +269,7 @@ msg "Installing/Updating Codefresh..."
 HELM_COMMAND="${HELM} upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   --install \
   --namespace "${NAMESPACE}" \
+  --tiller-namespace "${TILLER_NAMESPACE}" \
   --values "${VALUES_FILE}" \
   --values "${DOCKER_CFG_YAML}" \
   --no-hooks \
@@ -256,6 +279,7 @@ HELM_COMMAND="${HELM} upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
   ${CERTJOBS} \
   ${SET_VALUES} \
   ${SET_VERSION} \
+  ${SET_PRIVATE_REGISTRY} \
   ${SET_DEBUG}"
 
 echo "Executing:
