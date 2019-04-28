@@ -130,6 +130,10 @@ checkTillerInstalled() {
   TILLER_NAMESPACE=${1:-"kube-system"}
   msg "TILLER_NAMESPACE = $TILLER_NAMESPACE"
   status=$(kubectl -n${TILLER_NAMESPACE} get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
+  
+  if [[ "$status" != "Running" && "${TILLER_NAMESPACE}" != "kube-system" ]]; then
+    err "Tiller is not running on namespace ${TILLER_NAMESPACE} . Please install tiller on the namespace ${TILLER_NAMESPACE} and retry"
+  fi
   SCRIPTS_DIR=$(dirname "${BASH_SOURCE}")
   if [ "$status" == "Running" ]; then
     msg "Tiller is installed and running"
