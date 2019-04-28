@@ -9,7 +9,6 @@ if [ -f "${DIR}/env-vars" ]; then
 fi
 
 CHANNEL="${CF_HELM_CHANNEL:-dev}"
-TILLER_NAMESPACE="${tiller-namespace:-kube-system}"
 source ${DIR}/scripts/helpers.sh
 
 readonly RELEASE=cf
@@ -44,6 +43,7 @@ if [[ -n "${PRIVATE_REGISTRY}" ]]; then
   DOCKER_CFG_VAR=$(echo -n "${REG_USER}:${REG_PASSWORD}" | $BASE64)
   REGISTRY=$(echo $PRIVATE_REGISTRY | cut -d '/' -f1)
 else
+  REGISTRY='gcr.io'
   echo "generateDockerConfig: SERVICE_ACCOUNT_FILE=$SERVICE_ACCOUNT_FILE "
   if [[ ! -f ${SERVICE_ACCOUNT_FILE} ]]; then
     echo "Error: Docker registry service account ${SERVICE_ACCOUNT_FILE} is not found"
@@ -220,6 +220,10 @@ do
   esac
   shift # past argument or value
 done
+
+if [[ -z "${TILLER_NAMESPACE}" ]]; then
+   TILLER_NAMESPACE="kube-system"
+fi
 
 msg "Starting on-prem Codefresh deployment"
 generateDockerConfig || err "Failed to generate docker credentials for image pulling"
