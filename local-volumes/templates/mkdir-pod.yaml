@@ -41,7 +41,7 @@ spec:
   nodeSelector: 
      kubernetes.io/hostname: {{ . }}
   containers:
-  - image: containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/containers-nexus-francisco.codefresh.io/alpine:3.7
+  - image: {{ $.Values.helperImage }}
     name: mkdir
     command:
     - /bin/sh
