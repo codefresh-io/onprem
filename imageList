@@ -1,9 +1,0 @@
-bitnami/mongodb:4.0.3
-codefresh/cronus
-codefresh/hermes
-codefresh/nomios
-docker:18.09-dind
-gcr.io/codefresh-enterprise/codefresh/helm-repo-manager
-gcr.io/google_containers/defaultbackend
-lachlanevenson/k8s-kubectl:v1.9.9
-quay.io/kubernetes-ingress-controller/nginx-ingress-controller
