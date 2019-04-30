@@ -26,7 +26,8 @@ usage() {
 
   options:
   --set              - sets helm release values from command line, example --set global.mtu=1400
-  --repo-channel     - helm repo channel of http://charts.codefresh.io/ 
+  --repo-channel     - helm repo channel of http://charts.codefresh.io/
+  --helm-chart       - helm chart to use. if not set we will use codefresh-onprem-<REPO-CHANNEL>/codefresh 
   --version          - helm repo version
   --debug            - run helm in debug mode
   --skip-validator   - skip validator running
@@ -167,7 +168,7 @@ EOF
 
 }
 
-while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|tiller-namespace|skip-validator|dry-run|reg-user|reg-password|private-registry)) ]]
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|helm-chart|tiller-namespace|skip-validator|dry-run|reg-user|reg-password|private-registry)) ]]
 do
   key=$1
   value=$2
@@ -189,6 +190,10 @@ do
       ;;
     --repo-channel)
         CHANNEL="$value"
+        shift
+      ;;
+    --helm-chart)
+        HELM_CHART="$value"
         shift
       ;;
     --version)
@@ -245,11 +250,13 @@ checkTillerInstalled $TILLER_NAMESPACE
 msg "Checking tiller status..."
 checkTillerStatus $TILLER_NAMESPACE
 
-msg "Adding Helm repo..."
-#addHelmCodefreshRepo
-readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
-helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}" || err "Failed to add helm repo codefresh-onprem-${CHANNEL} ${CODEFRESH_REPOSITORY}"
-
+if [[ -z "${HELM_CHART}" ]]; then
+  msg "Adding Helm repo..."
+  #addHelmCodefreshRepo
+  readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
+  helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}" || err "Failed to add helm repo codefresh-onprem-${CHANNEL} ${CODEFRESH_REPOSITORY}"
+  HELM_CHART=codefresh-onprem-${CHANNEL}/codefresh
+fi
 cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
 if [[ -z "${cf_status}" ]]; then
@@ -270,7 +277,7 @@ fi
 HELM=${HELM:-helm}
 
 msg "Installing/Updating Codefresh..."
-HELM_COMMAND="${HELM} upgrade ${RELEASE} codefresh-onprem-${CHANNEL}/codefresh \
+HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
   --install \
   --namespace "${NAMESPACE}" \
   --tiller-namespace "${TILLER_NAMESPACE}" \
