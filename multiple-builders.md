@@ -5,6 +5,7 @@
 * check that you have created the directory structure on every node you want to run a builder pod on.
 the node names should be set in`local-volumes/values.yaml` file
 in `mkdirPods.nodes` list
+
 after the installation finishes and everything works fine, you need to:
 
 * point kubectl to the cluster where your codefresh onprem is installed:
