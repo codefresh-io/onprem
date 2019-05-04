@@ -30,6 +30,7 @@ in pvc yaml change:
 `volumeName:` cf-builder-1
 ```
 apply the yamls with `kubectl apply -f filename.yaml`
+
 check pv and pvc:
 ```
 kubectl get pv
@@ -72,7 +73,7 @@ in statefulset yaml change:
 increment cf-builder-{n}  for every new builder instance (can be as much as nodes in the cluster), 
 then apply yamls with `kubectl apply -f filename.yaml`
 
-check that new builders are registered by checking `AdminManagement-->Nodes`
+check that all new builders are registered by visiting `AdminManagement-->Nodes`
 
 example yamls of an additional builder can be found in examples dir.
 
