@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  generation: 1
+  labels:
+    app: cf-builder-1
+    chart: builder-0.1.4
+    heritage: Tiller
+    release: cf
+  name: cf-builder-1
+  namespace: codefresh
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: cf-builder-1
+  serviceName: cf-builder-1
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: cf-builder-1
+        chart: builder-0.1.4
+        heritage: Tiller
+        release: cf
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - "rm -fv /var/run/docker.pid\nmkdir -p /var/run/codefresh\n# Adding cleaner\ncp
+          -L /opt/dind/docker-cleaner.sh /usr/local/bin/ && chmod +x /usr/local/bin/docker-cleaner.sh
+          \nif [[ -n \"${DOCKER_CLEANER_CRON}\" ]]; then\n  echo \"Set /etc/crontabs/root
+          - ${DOCKER_CLEANER_CRON} /usr/local/bin/docker-cleaner.sh\"\n  echo \"${DOCKER_CLEANER_CRON}
+          /usr/local/bin/docker-cleaner.sh \" >> /etc/crontabs/root\n  crond\nfi\nmkdir
+          -p /etc/docker/certs.d/$(RUNTIME_LOCAL_REGISTRY_NAME)/\ncp /etc/ssl/cf/ca.pem
+          /etc/docker/certs.d/$(RUNTIME_LOCAL_REGISTRY_NAME)/ca.crt\ndockerd \n"
+        env:
+        - name: RUNTIME_LOCAL_REGISTRY_NAME
+          value: cf-registry.codefresh.svc:5000
+        - name: DOCKER_CLEANER_CRON
+          value: 0 0 * * *
+        image: docker:18.09-dind
+        imagePullPolicy: IfNotPresent
+        name: cf-builder-1
+        ports:
+        - containerPort: 1300
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "1"
+            memory: 4Gi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        securityContext:
+          privileged: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/ssl/cf
+          name: cf-certs
+          readOnly: true
+        - mountPath: /etc/docker/daemon.json
+          name: builder-config
+          readOnly: true
+          subPath: daemon.json
+        - mountPath: /opt/dind/docker-cleaner.sh
+          name: builder-config
+          subPath: docker-cleaner
+        - mountPath: /var/lib/docker
+          name: varlibdocker
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - command:
+        - /bin/sh
+        - -c
+        - cp -L /opt/dind/register /usr/local/bin/ && chmod +x /usr/local/bin/register
+          && /usr/local/bin/register ${POD_NAME} cf-builder-1.codefresh.svc
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        image: alexeiled/curl:3.6
+        imagePullPolicy: IfNotPresent
+        name: register-builder-container
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /opt/dind/register
+          name: builder-config
+          subPath: register
+      nodeSelector:
+        kubernetes.io/hostname: gke-alexaladov-onprem-te-default-pool-aae0907d-8lwz
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: cf-certs
+        secret:
+          defaultMode: 420
+          secretName: cf-codefresh-certs-client
+      - configMap:
+          defaultMode: 420
+          name: cf-builder
+        name: builder-config
+      - name: varlibdocker
+        persistentVolumeClaim:
+          claimName: cf-builder-1
+  updateStrategy:
+    type: OnDelete
+
