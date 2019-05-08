@@ -75,6 +75,6 @@ then apply yamls with `kubectl apply -f filename.yaml`
 
 check that all new builders are registered by visiting `AdminManagement-->Nodes`
 
-example yamls of an additional builder can be found in examples dir.
+example yamls of an additional builder can be found in scale-builders dir.
 
 
