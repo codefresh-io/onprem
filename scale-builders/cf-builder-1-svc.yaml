@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cf-builder-1
+    chart: builder-0.1.4
+    heritage: Tiller
+    release: cf
+  name: cf-builder-1
+  namespace: codefresh
+spec:
+  clusterIP: None
+  ports:
+  - name: dind-port
+    port: 1300
+    protocol: TCP
+    targetPort: 1300
+  selector:
+    app: cf-builder-1
+  sessionAffinity: None
+  type: ClusterIP
+
