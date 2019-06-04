@@ -105,6 +105,13 @@ cronus:
   #nodeSelector:
   #  kubernetes.io/hostname: storage-host-01
 
+chartmuseum:
+  storageSize: 8Gi
+  storageClass:
+  #existingPvc: cf-chartmuseum
+  #nodeSelector:
+  #  kubernetes.io/hostname: storage-host-01
+
 hermes:
   redis:
 ## Set hermes store password. It is mandatory
