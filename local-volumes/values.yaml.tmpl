@@ -52,6 +52,11 @@ volumes:
     storageSize: 8Gi
     nodeSelector: {}
     #  kubernetes.io/hostname: storage-node-01
+    
+  chartmuseum:
+    storageSize: 8Gi
+    nodeSelector: {}
+    #  kubernetes.io/hostname: storage-node-01
 
   builder-0:
     storageSize: 100Gi
