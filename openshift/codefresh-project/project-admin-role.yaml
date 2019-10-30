@@ -1,0 +1,33 @@
+apiVersion: authorization.openshift.io/v1
+kind: Role
+metadata:
+  annotations:
+    openshift.io/description: Grants admin rights within project
+    openshift.io/reconcile-protect: "false"
+  name: project-admin
+  namespace: codefresh
+rules:
+- apiGroups:
+  - '*'
+  attributeRestrictions: null
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: authorization.openshift.io/v1
+groupNames: null
+kind: RoleBinding
+metadata:
+  name: project-admin
+  namespace: codefresh
+roleRef:
+  kind: Role
+  name: project-admin
+  namespace: codefresh
+subjects:
+- kind: ServiceAccount
+  name: admin
+  namespace: codefresh
+userNames:
+- system:serviceaccount:codefresh:admin

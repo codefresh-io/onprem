@@ -1,0 +1,11 @@
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  annotations:
+    openshift.io/description: Codefresh Services
+    openshift.io/display-name: Codefresh
+#    openshift.io/requester: system:admin
+    openshift.io/sa.scc.mcs: s0:c11,c10
+    openshift.io/sa.scc.supplemental-groups: 0/10000
+    openshift.io/sa.scc.uid-range: 0/1
+  name: codefresh
