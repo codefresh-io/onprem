@@ -1,0 +1,31 @@
+{{- range $k, $v := .Values.volumes }}
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ printf "%s%s" $.Values.namePrefix $k }}
+  labels:
+    app: {{ $.Release.Name }}
+    chart: "{{ $.Chart.Name }}-{{ $.Chart.Version }}"
+    release: "{{ $.Release.Name }}"
+    heritage: "{{ $.Release.Service }}"
+spec:
+  capacity:
+    storage: {{ default "40Gi" $v.storageSize}}
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    {{- $path := "" }}
+    {{- if $v.path }}
+      {{- $path = isAbs $v.path | ternary $v.path (printf "%s/%s" $.Values.basePath $v.path) }}
+    {{- else }}
+      {{- $path = printf "%s/%s%s" $.Values.basePath $.Values.namePrefix $k }}
+    {{- end }}
+    {{- if or (empty $path) (eq $path "/") }}
+    {{- fail "Cannot calculate path for local volumes. Specify values for .Values.basePath or volumes.<name>.path " }}
+    {{- end }}
+    path: {{ $path }}
+    type: DirectoryOrCreate
+---
+{{- end }}

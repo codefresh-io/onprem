@@ -1,0 +1,21 @@
+{{- range $k, $v := .Values.volumes }}
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s%s" $.Values.namePrefix $k }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $.Release.Name }}
+    chart: "{{ $.Chart.Name }}-{{ $.Chart.Version }}"
+    release: "{{ $.Release.Name }}"
+    heritage: "{{ $.Release.Service }}"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ default "40Gi" $v.storageSize}}
+  volumeName: {{ printf "%s%s" $.Values.namePrefix $k }}
+---
+{{- end }}

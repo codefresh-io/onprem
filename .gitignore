@@ -30,7 +30,7 @@ certs/*crt
 
 # junk files
 QUESTIONS.md
-out/
+**/out/
 darwin-amd64/
 index.yaml
 **/.DS_Store
