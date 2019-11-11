@@ -1,9 +1,11 @@
 # Installing Codefresh on openshift
 
 ### Abstract
-* we are creating codefresh openshift project 
-* we use "admin" serviceAccount in codefresh project which gets admin role in the project only
-* we create SecurityContextConstraints assigned to system:serviceaccount:codefresh:admin
+* all codefresh assets are running in separate "codefresh" openshift project
+* some of the services use serviceAccount in codefresh project which gets admin role in the project only
+* we need SecurityContextConstraints which allows privileged securityContext to be assigned to system:serviceaccount:codefresh:admin 
+* helm tiller is running in "codefresh" project with project-admin role and doesn't have any cluster wide privileges 
+* we need to create routes for our frontend services
 
 ### Creating Project with admin role and sec content
 As system-admin create codefresh Project, ServiceAccount and SecurityContextConstraints  
@@ -13,6 +15,8 @@ or
 ./create-codefresh-project
 ```
 
+### 
+
 ### Create kubeconfig file for codefresh serviceaccount
 ```
 ./create-sa-kubeconfig.sh -n codefresh admin
@@ -21,12 +25,19 @@ or
 export KUBECONFIG=~/.kube/<cluster-name>_8443-codefresh-admin-kubeconfig
 ```
 
-### Install tiller with admin role
-###
- ./cf-onprem --tiller-namespace codefresh
+### Install tiller with project-admin role
+```
+oc apply -f tiller/
+```
+
+### run the installer (from repo root dir)
+```
+./cf-onprem --tiller-namespace codefresh
+```
 
 ### deploy routers
+```
 oc apply -f ./routes
-
+```
 
 
