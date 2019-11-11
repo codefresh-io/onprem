@@ -15,6 +15,11 @@ spec:
   accessModes:
   - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: {{ printf "%s%s" $.Values.namePrefix $k }}
+    namespace: {{ $.Release.Namespace }}
   hostPath:
     {{- $path := "" }}
     {{- if $v.path }}

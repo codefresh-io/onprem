@@ -8,18 +8,20 @@
 
 usage() {
   echo "
-Create kubeconfig file from service account. Outputs to ./<namespace>-<service-account-name>-kubeconfig (if no --output specified)
+Create kubeconfig file from service account. Outputs to ~/.kube/<cluster-name>-<namespace>-<service-account-name>-kubeconfig (if no --output specified)
 Usage:
   ./create-sa-kubeconfig [options] service-account-name
 
 Options:  [-n|--namespace <namespace>] [--kubeconfig <kubeconfig-file> ] [--context <context-name>] [-o|output <file-name>]
+
+
 "
   
 }
 
 DIR=$(dirname $BASH_SOURCE)
 
-GETOPT=$(getopt -o hn:o: --long help,namespace:,project:,kubeconfig:,context:,output: -- "$@") 
+GETOPT=$(getopt -o h,n:,o: --long help,namespace:,project:,kubeconfig:,context:,output: -- "$@") 
 if [[ $? != 0 ]]; then
   usage
   exit 1

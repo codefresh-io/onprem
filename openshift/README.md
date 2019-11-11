@@ -17,9 +17,24 @@ or
 ```
 ./create-sa-kubeconfig.sh -n codefresh admin
 
-export KUBECONFIG
+# see the output to get exact kubeconfig filename
+export KUBECONFIG=~/.kube/<cluster-name>_8443-codefresh-admin-kubeconfig
 ```
- 
 
+### Install tiller with admin role
+###
+ ./cf-onprem --tiller-namespace codefresh
 
+### deploy routers
+oc apply -f ./routes
+
+### deployments and statefulsets for the services 
+oc patch sts/cf-builder --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
+oc patch sts/cf-runner --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
+oc patch sts/cf-consul --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
+
+oc patch deploy/cf-redis --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
+oc patch deploy/cf-mongodb --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
+oc patch deploy/cf-postgresql  --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
+oc patch deploy/cf-rabbitmq --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
 
