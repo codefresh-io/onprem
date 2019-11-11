@@ -257,7 +257,7 @@ if [[ -z "${HELM_CHART}" ]]; then
   helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}" || err "Failed to add helm repo codefresh-onprem-${CHANNEL} ${CODEFRESH_REPOSITORY}"
   HELM_CHART=codefresh-onprem-${CHANNEL}/codefresh
 fi
-cf_status=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
+cf_status=$(helm --tiller-namespace $TILLER_NAMESPACE status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
 if [[ -z "${cf_status}" ]]; then
   SEEDJOBS="--set global.seedJobs=true"
@@ -265,7 +265,7 @@ if [[ -z "${cf_status}" ]]; then
 fi
 
 if [[ -z "${cf_status}" && -z "${SKIP_VALIDATOR}" && -z "${DRY_RUN}" ]]; then
-  IN_INSTALLER="true" ${DIR}/run-validator.sh
+  IN_INSTALLER="true" TILLER_NAMESPACE=$TILLER_NAMESPACE ${DIR}/run-validator.sh
   if [[ $? != 0 ]]; then
     echo "Validation failed"
     exit 1

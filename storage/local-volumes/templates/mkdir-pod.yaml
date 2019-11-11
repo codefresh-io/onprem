@@ -51,7 +51,7 @@ spec:
       mkdir -pv {{ printf "/hostroot%s" . }}
       {{- end }}
     securityContext:
-      privileged: true    
+      privileged: true
     volumeMounts:
     - mountPath: /hostroot
       readOnly: false

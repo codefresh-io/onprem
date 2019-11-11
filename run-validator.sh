@@ -22,10 +22,10 @@ if [[ -z "${IN_INSTALLER}" ]]; then
   checkHelmInstalled "helm"
 
   msg "Checking if tiller is installed on kubernetes cluster"
-  checkTillerInstalled
+  checkTillerInstalled ${TILLER_NAMESPACE}
 
   msg "Checking tiller status..."
-  checkTillerStatus
+  checkTillerStatus ${TILLER_NAMESPACE}
 fi
 
 ## Get default storage class
@@ -47,7 +47,7 @@ fi
 
 HELM=${HELM:-helm}
 
-HELM_COMMAND="$HELM --namespace $NAMESPACE install -n $RELEASE $CHART -f ${VALUES_FILE} ${DEFAULT_STORAGE_CLASS_PARAM} --timeout $HELM_TIMEOUT --wait $@"
+HELM_COMMAND="$HELM --namespace $NAMESPACE --tiller-namespace $TILLER_NAMESPACE install -n $RELEASE $CHART -f ${VALUES_FILE} ${DEFAULT_STORAGE_CLASS_PARAM} --timeout $HELM_TIMEOUT --wait $@"
 
 echo "Running ${RELEASE} helm release 
 $HELM_COMMAND

@@ -1,0 +1,33 @@
+namePrefix: cf-
+basePath: /var/lib/origin/codefresh
+
+volumes:
+  mongodb:
+    storageSize: 8Gi
+
+  postgresql:
+    storageSize: 8Gi
+
+  consul-0:
+    storageSize: 1Gi
+
+  redis:
+    storageSize: 8Gi
+
+  rabbitmq:
+    storageSize: 8Gi
+
+  registry:
+    storageSize: 100Gi
+
+  cronus:
+    storageSize: 1Gi
+
+  store:
+    storageSize: 8Gi
+
+  builder-0:
+    storageSize: 100Gi
+
+  runner-0:
+    storageSize: 100Gi
