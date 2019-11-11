@@ -15,7 +15,7 @@ or
 ./create-codefresh-project
 ```
 
-### 
+### Create 
 
 ### Create kubeconfig file for codefresh serviceaccount
 ```
