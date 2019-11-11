@@ -28,13 +28,5 @@ export KUBECONFIG=~/.kube/<cluster-name>_8443-codefresh-admin-kubeconfig
 ### deploy routers
 oc apply -f ./routes
 
-### deployments and statefulsets for the services 
-oc patch sts/cf-builder --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
-oc patch sts/cf-runner --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
-oc patch sts/cf-consul --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
 
-oc patch deploy/cf-redis --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
-oc patch deploy/cf-mongodb --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
-oc patch deploy/cf-postgresql  --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
-oc patch deploy/cf-rabbitmq --patch '{"spec":{"template":{"spec":{"serviceAccountName": "admin"}}}}'
 

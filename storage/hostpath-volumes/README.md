@@ -9,3 +9,13 @@ vi  values.yaml
 
 ./create-hostpath-pvcs.sh
 ```
+It outputs the yamls to `out/hostpath-volumes/templates `
+
+Create PV and PVCs:  
+```
+kubectl apply -f out/hostpath-volumes/templates/*
+```
+
+##### selinux note
+the hostPath folders should be of container_file_t selinux type to be accessed from pods
+
