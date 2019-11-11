@@ -7,7 +7,7 @@ CHART=$(realpath ${DIR}/../local-volumes)
 NAMESPACE=${NAMESPACE:-codefresh}
 HELM_TIMEOUT=60
 
-source ${DIR}/../scripts/helpers.sh
+source ${DIR}/../../scripts/helpers.sh
 
 if [[ -z "${IN_INSTALLER}" ]]; then
   approveContext
