@@ -25,13 +25,16 @@ spec:
         name: tiller
     spec:
       automountServiceAccountToken: true
+      imagePullSecrets:
+      - name: private-docker-registry
       containers:
       - env:
         - name: TILLER_NAMESPACE
           value: codefresh
         - name: TILLER_HISTORY_MAX
           value: "20"
-        image: gcr.io/kubernetes-helm/tiller:v2.15.2
+        image: os-registry.cf-cd.com:5000/gcr.io/kubernetes-helm/tiller:v2.15.2
+        #image: gcr.io/kubernetes-helm/tiller:v2.15.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3

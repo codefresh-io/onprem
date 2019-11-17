@@ -295,6 +295,7 @@ HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
 
 echo "Executing:
   $HELM_COMMAND"
+approveContext
 
 if [[ -n ${DRY_RUN} ]]; then
    echo "Dry run mode, do not execute"
