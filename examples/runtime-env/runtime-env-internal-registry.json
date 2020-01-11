@@ -1,0 +1,66 @@
+metadata:
+  name: system/test-1
+  agent: false
+description: null
+extends:
+  - system/default
+runtimeScheduler:
+  type: KubernetesPod
+  workflowLimits:
+    MAXIMUM_ALLOWED_WORKFLOW_AGE_BEFORE_TERMINATION: '86400'
+  internalInfra: true
+  cluster:
+    inCluster: true
+    namespace: codefresh
+  image: 'os-registry.cf-cd.com:5000/codefresh/engine:cf-onprem-v1.0.90'
+  envVars:
+    RESOURCE_LIMITATIONS_JSON: /etc/admin/resource-limitations.json
+    RUNTIME_INTERNAL_REGISTRY_JSON: /etc/admin/internal-registry.json
+    RUNTIME_ADDITIONAL_INTERNAL_REGISTRIES_JSON: /etc/admin/additional-internal-registries.json
+    LOGGER_LEVEL: debug
+    NODE_ENV: kubernetes
+    DOCKER_PUSHER_IMAGE: 'os-registry.cf-cd.com:5000/codefresh/cf-docker-pusher:cf-onprem-v1.0.90'
+    DOCKER_PULLER_IMAGE: 'os-registry.cf-cd.com:5000/codefresh/cf-docker-puller:cf-onprem-v1.0.90'
+    DOCKER_BUILDER_IMAGE: 'os-registry.cf-cd.com:5000/codefresh/cf-docker-builder:cf-onprem-v1.0.90'
+    CONTAINER_LOGGER_IMAGE: 'os-registry.cf-cd.com:5000/codefresh/cf-container-logger:cf-onprem-v1.0.90'
+    GIT_CLONE_IMAGE: 'codefresh/cf-git-cloner:cf-onprem-v1.0.90'
+    DOCKER_TAG_PUSHER_IMAGE: 'os-registry.cf-cd.com:5000/codefresh/cf-docker-tag-pusher:v2'
+    NODE_TLS_REJECT_UNAUTHORIZED: '0'
+  volumeMounts:
+    internal-registry:
+      name: internal-registry
+      mountPath: /etc/admin/internal-registry.json
+      subPath: internal-registry.json
+      readOnly: true
+    additional-internal-registries:
+      name: additional-internal-registries
+      mountPath: /etc/admin/additional-internal-registries.json
+      subPath: additional-internal-registries.json
+      readOnly: true
+    resource-limitations:
+      name: resource-limitations
+      mountPath: /etc/admin/resource-limitations.json
+      subPath: resource-limitations.json
+      readOnly: true
+    cf-certs:
+      name: cf-certs
+      mountPath: /etc/ssl/cf
+      readOnly: true
+  volumes:
+    internal-registry:
+      name: internal-registry
+      configMap:
+        name: cf-codefresh-registry
+    additional-internal-registries:
+      name: additional-internal-registries
+      configMap:
+        name: cf-codefresh-registry
+    resource-limitations:
+      name: resource-limitations
+      configMap:
+        name: cf-codefresh-resource-limitations
+    cf-certs:
+      name: cf-certs
+      secret:
+        secretName: cf-codefresh-certs-client
+nonComplete: false
