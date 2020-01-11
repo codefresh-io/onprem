@@ -23,6 +23,7 @@ oc secrets add serviceaccount/default secrets/<pull_secret_name> [ --for=pull ]
 Example:  
 ```
 oc secrets add serviceaccount/default secrets/runtime-registry --for=pull
+oc secrets add serviceaccount/cf-cfapi secrets/runtime-registry --for=pull
 oc secrets add serviceaccount/admin secrets/runtime-registry
 ```
 

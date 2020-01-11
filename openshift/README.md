@@ -12,7 +12,7 @@ As system-admin create codefresh Project, ServiceAccount and SecurityContextCons
 `oc apply -f codefresh-project/`
 or 
 ```
-./create-codefresh-project
+./create-codefresh-project.sh
 ```
 
 ### Create 

@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  # annotations:
+  #   openshift.io/scc: codefresh-default
+  labels:
+    app: cf-validator
+  name: test-pvc-cf-mongodb
+  namespace: codefresh
+spec:
+  containers:
+  - command:
+    - sh
+    - -c
+    - |
+      mount
+      ls -l /test-pvc
+      mkdir -pv /test-pvc/test-pvc-1
+      sleep 300
+    image: alpine:3.7
+    imagePullPolicy: IfNotPresent
+    name: test-pvc-cf-mongodb
+    readinessProbe:
+      exec:
+        command:
+        - touch
+        - /test-pvc/test-pvc-1/ready
+      failureThreshold: 3
+      initialDelaySeconds: 1
+      periodSeconds: 3
+      successThreshold: 1
+      timeoutSeconds: 1
+    resources: {}
+    # securityContext:
+    #   privileged: true
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /test-pvc
+      name: data
+  dnsPolicy: ClusterFirst
+  # imagePullSecrets:
+  # - name: default-dockercfg-ctvfq
+  # # nodeName: ip-172-31-11-87.us-east-2.compute.internal
+  nodeSelector:
+    kubernetes.io/hostname: ip-172-31-11-87.us-east-2.compute.internal
+    node-role.kubernetes.io/compute: "true"
+  restartPolicy: Never
+  schedulerName: default-scheduler
+  securityContext:
+    runAsUser: 1001
+  # securityContext:
+  #   privileged: true
+    # seLinuxOptions:
+    #   level: s0
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 2
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: cf-mongodb-t1
+

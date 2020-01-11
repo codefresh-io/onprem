@@ -13,7 +13,7 @@ It outputs the yamls to `out/hostpath-volumes/templates `
 
 Create PV and PVCs:  
 ```
-kubectl apply -f out/hostpath-volumes/templates/*
+kubectl apply -f out/hostpath-volumes/templates/
 ```
 
 ##### selinux note

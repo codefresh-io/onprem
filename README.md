@@ -54,8 +54,20 @@ Otherwise if ssl.selfSigned=true it generates selfsigned certificates with CN=<g
 
 4. run Intaller:
  ```
- ./cf-onprem
+ ./cf-onprem [parameters]
  ```
+
+ Example 1 - from dev repo channel specific version :
+ ```
+ ./cf-onprem --tiller-namespace codefresh --repo-channel dev --version 1.0.90
+ ```
+
+Example 2 - from downloaded helm chart with private registry
+```
+./
+```
+
+
 
     On first run the installers invokes Validator chart which validates:
     - values.yaml
@@ -63,3 +75,5 @@ Otherwise if ssl.selfSigned=true it generates selfsigned certificates with CN=<g
     - ability to launch persistent services on specified existing pvcs
 
    the validator can be run separately by `./run-validator.sh`
+
+  
