@@ -1,0 +1,7 @@
+metadata:
+  name: system/test-1
+  agent: false
+description: null
+extends:
+  - system/default
+nonComplete: false
