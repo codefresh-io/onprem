@@ -62,9 +62,11 @@ Otherwise if ssl.selfSigned=true it generates selfsigned certificates with CN=<g
  ./cf-onprem --tiller-namespace codefresh --repo-channel dev --version 1.0.90
  ```
 
-Example 2 - from downloaded helm chart with private registry
+Example 2 - from downloaded helm chart with private registry and downloaded helm 
 ```
-./
+helm repo add http://charts.codefresh.io/dev
+helm fetch codefresh-onprem-dev/codefresh
+./cf-onprem --tiller-namespace codefresh --helm-chart codefresh-1.0.90.tgz  --reg-user admin --reg-password <password> --private-registry docker-local.jfrog1.cf-cd.com/
 ```
 
 
