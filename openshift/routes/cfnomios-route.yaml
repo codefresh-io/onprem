@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: cf-nomios
+  namespace: codefresh
+spec:
+  host: g.apps-os-t2.cf-cd.com
+  path: /nomios
+  port:
+    targetPort: 80
+  to:
+    kind: Service
+    name: cf-nomios
+    weight: 100
+  tls:
+    termination: edge
+  # wildcardPolicy: None
