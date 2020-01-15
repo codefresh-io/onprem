@@ -82,7 +82,7 @@ approveContext() {
 HELM_VERSION="${CF_HELM_VERSION:-2.12.0}"
 checkHelmInstalled() {
   if command -v $1 >/dev/null 2>&1; then
-    helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//')
+    helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//' | sed 's/v//' )
     msg "helm is already installed and has version v$helm_version"
     [ $(ver $helm_version) -lt $(ver $HELM_VERSION) ] && \
     err "You have older helm version than required. Please upgrade to v$HELM_VERSION or newer !"

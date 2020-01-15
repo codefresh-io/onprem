@@ -20,12 +20,7 @@ if [[ -z "${IN_INSTALLER}" ]]; then
 
   msg "Checking helm binary on your system"
   checkHelmInstalled "helm"
-
-  msg "Checking if tiller is installed on kubernetes cluster"
-  checkTillerInstalled ${TILLER_NAMESPACE}
-
-  msg "Checking tiller status..."
-  checkTillerStatus ${TILLER_NAMESPACE}
+  
 fi
 
 ## Get default storage class
@@ -38,20 +33,24 @@ if [[ -n "${DEFAULT_STORAGE_CLASS}" ]]; then
    DEFAULT_STORAGE_CLASS_PARAM="--set defaultStorageClass=${DEFAULT_STORAGE_CLASS}"
 fi
 
-RELEASE_STATUS=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
+RELEASE_STATUS=$(helm --namespace $NAMESPACE status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 if [[ -n "${RELEASE_STATUS}" ]]; then
    echo "There is a previous run of $RELEASE with status $RELEASE_STATUS , deleting it"
-   helm delete $RELEASE --purge
+   helm --namespace $NAMESPACE delete $RELEASE
    sleep 10
 fi
 
 HELM=${HELM:-helm}
 
-HELM_COMMAND="$HELM --namespace $NAMESPACE --tiller-namespace $TILLER_NAMESPACE install -n $RELEASE $CHART -f ${VALUES_FILE} ${DEFAULT_STORAGE_CLASS_PARAM} --timeout $HELM_TIMEOUT --wait $@"
+HELM_COMMAND="$HELM --namespace $NAMESPACE install $RELEASE $CHART -f ${VALUES_FILE} ${DEFAULT_STORAGE_CLASS_PARAM} --timeout ${HELM_TIMEOUT}s --wait $@"
 
 echo "Running ${RELEASE} helm release 
 $HELM_COMMAND
 "
+
+# When creating a release in a namespace that does not exist, Helm 2 created the namespace. 
+# Helm 3 follows the behavior of other Kubernetes tooling and returns an error if the namespace does not exist.
+kubectl create ns $NAMESPACE
 
 eval $HELM_COMMAND &
 HELM_PID=$!
@@ -67,7 +66,7 @@ HELM_EXIT_STATUS=$?
 
 if [[ "${HELM_EXIT_STATUS}" == 0 ]]; then
   echo "Cleaning validator release"
-  helm delete $RELEASE --purge
+  helm --namespace $NAMESPACE delete $RELEASE
   echo "Validation Complete Successfully"
 else
   # kubectl --namespace $NAMESPACE get pods,pvc,pv,svc -l app=${RELEASE}

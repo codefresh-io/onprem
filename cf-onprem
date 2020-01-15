@@ -32,7 +32,6 @@ usage() {
   --debug            - run helm in debug mode
   --skip-validator   - skip validator running
   --dry-run          - dry-run mode - echo command instead of actual running
-  --tiller-namespace - custom namespace for tiller
   --private-registry - pull the images from a private docker registry
   "
 }
@@ -168,7 +167,7 @@ EOF
 
 }
 
-while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|helm-chart|tiller-namespace|skip-validator|dry-run|reg-user|reg-password|private-registry)) ]]
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|helm-chart|skip-validator|dry-run|reg-user|reg-password|private-registry)) ]]
 do
   key=$1
   value=$2
@@ -182,10 +181,6 @@ do
       ;;
     --set)
         SET_VALUES="$SET_VALUES --set $value"
-        shift
-      ;;
-    --tiller-namespace)
-        TILLER_NAMESPACE="$value"
         shift
       ;;
     --repo-channel)
@@ -227,10 +222,6 @@ do
   shift # past argument or value
 done
 
-if [[ -z "${TILLER_NAMESPACE}" ]]; then
-   TILLER_NAMESPACE="kube-system"
-fi
-
 msg "Starting on-prem Codefresh deployment"
 generateDockerConfig || err "Failed to generate docker credentials for image pulling"
 generateWebTlsValuesFile || err "Web Tls certificates error"
@@ -245,12 +236,6 @@ fi
 msg "Checking helm binary on your system"
 checkHelmInstalled "helm"
 
-msg "Checking if tiller is installed on kubernetes cluster"
-checkTillerInstalled $TILLER_NAMESPACE
-
-msg "Checking tiller status..."
-checkTillerStatus $TILLER_NAMESPACE
-
 if [[ -z "${HELM_CHART}" ]]; then
   msg "Adding Helm repo..."
   #addHelmCodefreshRepo
@@ -258,7 +243,7 @@ if [[ -z "${HELM_CHART}" ]]; then
   helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}" || err "Failed to add helm repo codefresh-onprem-${CHANNEL} ${CODEFRESH_REPOSITORY}"
   HELM_CHART=codefresh-onprem-${CHANNEL}/codefresh
 fi
-cf_status=$(helm --tiller-namespace $TILLER_NAMESPACE status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
+cf_status=$(helm -n $NAMESPACE status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 
 if [[ -z "${cf_status}" ]]; then
   SEEDJOBS="--set global.seedJobs=true"
@@ -266,7 +251,7 @@ if [[ -z "${cf_status}" ]]; then
 fi
 
 if [[ -z "${cf_status}" && -z "${SKIP_VALIDATOR}" && -z "${DRY_RUN}" ]]; then
-  IN_INSTALLER="true" TILLER_NAMESPACE=$TILLER_NAMESPACE ${DIR}/run-validator.sh
+  IN_INSTALLER="true" ${DIR}/run-validator.sh
   if [[ $? != 0 ]]; then
     echo "Validation failed"
     exit 1
@@ -282,7 +267,6 @@ if [[ -z "$DO_TEMPLATE" ]]; then
 HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
   --install \
   --namespace "${NAMESPACE}" \
-  --tiller-namespace "${TILLER_NAMESPACE}" \
   --values "${VALUES_FILE}" \
   --values "${DOCKER_CFG_YAML}" \
   --no-hooks \
