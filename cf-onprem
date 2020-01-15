@@ -193,6 +193,7 @@ do
         shift
       ;;
     --helm-chart)
+    
         HELM_CHART="$value"
         shift
       ;;
@@ -238,7 +239,7 @@ if [[ ! "$YES" == 'true' ]]; then
   approveContext
 else
   msg "Your kubectl is configured with the following context: "
-	kubectl config current-context
+	oc config current-context
 fi
 
 msg "Checking helm binary on your system"
@@ -277,6 +278,7 @@ fi
 HELM=${HELM:-helm}
 
 msg "Installing/Updating Codefresh..."
+if [[ -z "$DO_TEMPLATE" ]]; then
 HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
   --install \
   --namespace "${NAMESPACE}" \
@@ -292,6 +294,26 @@ HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
   ${SET_VERSION} \
   ${SET_PRIVATE_REGISTRY} \
   ${SET_DEBUG}"
+else
+TEMPLATE_OUTPUT_DIR=${DIR}/out
+mkdir -p ${TEMPLATE_OUTPUT_DIR}
+HELM_COMMAND="${HELM} template ${HELM_CHART} \
+  --name ${RELEASE} \
+  --output-dir $TEMPLATE_OUTPUT_DIR \
+  --namespace "${NAMESPACE}" \
+  --tiller-namespace "${TILLER_NAMESPACE}" \
+  --values "${VALUES_FILE}" \
+  --values "${DOCKER_CFG_YAML}" \
+  --no-hooks \
+  --set cfapi.redeploy=true \
+  ${SET_WEBTLS_VALUES} \
+  ${SEEDJOBS} \
+  ${CERTJOBS} \
+  ${SET_VALUES} \
+  ${SET_VERSION} \
+  ${SET_PRIVATE_REGISTRY} \
+  ${SET_DEBUG}"
+fi
 
 echo "Executing:
   $HELM_COMMAND"
