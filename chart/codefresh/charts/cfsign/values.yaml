@@ -1,0 +1,13 @@
+certVolumeSize: 3Gi
+dockerRegistry: gcr.io/codefresh-inc/
+env:
+  SERVICE_ROLE: all
+global:
+  istio:
+    enabled: false
+image: codefresh/cf-tls-sign
+imagePullPolicy: Always
+imageTag: 1.1.2
+port: 4999
+redeploy: false
+replicaCount: 1

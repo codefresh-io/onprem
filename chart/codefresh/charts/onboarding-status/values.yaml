@@ -1,0 +1,21 @@
+affinity: {}
+dockerconfigjson: {}
+env:
+  NODE_ENV: kubernetes
+  SERVICE_ROLE: all
+formatLogsToElk: true
+global:
+  istio:
+    enabled: false
+image: gcr.io/codefresh-inc/codefresh/onboarding-status
+imagePullPolicy: Always
+imageTag: 1.4.2
+newrelicLicenseKey: ""
+port: 80
+redeploy: false
+replicaCount: 1
+requiredInfraComponenets:
+  eventBus: true
+  mongo: true
+  postgres: true
+servicePort: 80

@@ -1,0 +1,38 @@
+Component: consul
+ConsulDnsPort: 8600
+DisableHostNodeId: false
+EncryptGossip: true
+HttpPort: 8500
+Image: consul
+ImagePullPolicy: Always
+ImageTag: 1.0.0
+Replicas: 3
+Resources: {}
+RpcPort: 8400
+SerflanPort: 8301
+SerflanUdpPort: 8301
+SerfwanPort: 8302
+SerfwanUdpPort: 8302
+ServerPort: 8300
+antiAffinity: hard
+maxUnavailable: 1
+nodeSelector: {}
+persistence:
+  enable: true
+securityContext:
+  fsGroup: 1000
+storageSize: 1Gi
+test:
+  image: lachlanevenson/k8s-kubectl
+  imageTag: v1.4.8-bash
+tolerations: []
+ui:
+  enabled: true
+uiIngress:
+  annotations: {}
+  enabled: false
+  hosts: []
+  tls: {}
+uiService:
+  enabled: true
+  type: ClusterIP

@@ -1,0 +1,36 @@
+affinity: {}
+dockerRegistry: gcr.io/codefresh-inc/
+dockerconfigjson: {}
+env:
+  ASSETS_OPTIMIZED: "true"
+  LOGGER_LEVEL: error
+  LOGGER_MORAN_ACTIVE: "false"
+  LOGS_PATH: /var/log/cf-ui.log
+  NEW_USER_REDIRECT: ""
+  NODE_ENV: kubernetes
+  SERVICE_ROLE: all
+global:
+  istio:
+    enableForSupportingStabeLatestEnvironments: false
+    enabled: false
+  stableVersion: latest
+image: codefresh/cf-ui
+imagePullPolicy: Always
+imageTag: 11.11.8
+ingress:
+  enabled: false
+istio:
+  enabled: false
+logglyToken: ""
+newrelicLicenseKey: ""
+port: 80
+redeploy: false
+replicaCount: 1
+rollbarAccessToken: ""
+segmentKey: ""
+servicePort: 80
+slackAppID: ""
+stripePublicKey: ""
+webTLS:
+  cert: ""
+  key: ""

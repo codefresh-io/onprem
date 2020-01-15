@@ -1,0 +1,14 @@
+env:
+  SERVICE_ROLE: all
+formatLogsToElk: true
+global:
+  istio:
+    enabled: false
+image: gcr.io/codefresh-inc/codefresh/payments
+imagePullPolicy: Always
+imageTag: 1.18.12
+mongoCreateDbJobScript: files/mongoCreateDbJobScript
+mongodbName: payments
+port: 9000
+redeploy: false
+targetPort: 9000

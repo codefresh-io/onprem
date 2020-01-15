@@ -1,0 +1,94 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name  | quote }}
+    heritage: {{ .Release.Service  | quote }}
+spec:
+  replicas: {{ default 1 .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}  
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+        release: {{ .Release.Name  | quote }}
+        heritage: {{ .Release.Service  | quote }}
+    spec:
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
+      {{- end }}
+      {{- if .Values.global.privateRegistry }}
+      imagePullSecrets:
+        - name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}-registry"
+      {{- end }}
+      {{- if .Values.serviceAccountName }}
+      serviceAccountName: .Values.serviceAccountName
+      {{- end }}
+      containers:
+      - name: {{ template "fullname" . }}
+        {{- if .Values.global.privateRegistry }} 
+        image: "{{ .Values.global.dockerRegistry }}{{ .Values.image }}:{{ .Values.imageTag }}"
+        {{- else }}
+        image: "{{ .Values.image }}:{{ .Values.imageTag }}"
+        {{- end }}
+        imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        env:
+        {{- if not .Values.registryConfig }}
+        - name: REGISTRY_HTTP_ADDR
+          value: ":{{ .Values.port }}"
+        - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
+          value: /var/lib/registry
+        {{- end }}
+        {{- if not .Values.global.exposeRegistry }}
+        - name: REGISTRY_HTTP_TLS_CERTIFICATE
+          value: /etc/ssl/cf/cert.pem
+        - name: REGISTRY_HTTP_TLS_KEY
+          value: /etc/ssl/cf/key.pem
+        {{- end }}
+        volumeMounts:
+        {{- if not .Values.registryConfig }}
+        - name: image-store
+          mountPath: /var/lib/registry
+        {{- end }}
+        - name: cf-certs
+          mountPath: /etc/ssl/cf
+          readOnly: true
+        {{- if .Values.registryConfig }}
+        - name: registry-config
+          mountPath: /etc/docker/registry/config.yml
+          readOnly: true
+          subPath: config.yml
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.port }}
+          name: registry
+          protocol: TCP
+      volumes:
+      {{- if not .Values.registryConfig }}
+      - name: image-store
+        persistentVolumeClaim:
+          claimName: {{ include "registry.pvcName" . }}
+      {{- end }}
+      - name: cf-certs
+        secret:
+          secretName: {{ .Release.Name }}-{{ .Values.mainChart }}-certs-client
+      {{- if .Values.registryConfig }}
+      - name: registry-config
+        configMap:
+          name: {{ template "fullname" . }}
+      {{- end }}
+          

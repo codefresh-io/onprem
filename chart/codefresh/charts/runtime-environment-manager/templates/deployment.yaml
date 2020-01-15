@@ -1,0 +1,16 @@
+{{ template "runtime-environment-manager.renderDeployment" (dict "imageTag" .Values.imageTag "Chart" .Chart "Release" .Release "Values" .Values) }}
+
+{{- if .Values.global.istio.enabled }}
+  {{- range $i, $value := .Values.global.istio.extraDeployments }}
+---
+    {{- range $host, $apps := $value }}
+      {{- range $name, $a := $apps }}
+        {{ $versionUnique := $host | replace "." "-" }}
+        {{- if (eq $name "runtime-environment-manager") }}
+{{ template "runtime-environment-manager.renderDeployment" (dict "version" $versionUnique "imageTag" $a.imageTag "appUrl" $host "Chart" $.Chart "Release" $.Release "Values" $.Values) }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+
+  {{- end }}
+{{- end }}

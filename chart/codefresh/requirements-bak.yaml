@@ -1,0 +1,191 @@
+dependencies:
+- name: consul
+  version: 1.1.2
+  repository: file://pv-charts/consul
+  condition: consul.enabled
+  tags:
+  - infra
+- name: mongodb
+  version: 0.4.12
+  repository: file://pv-charts/mongodb
+  condition: mongo.enabled,global.mongoDeploy
+  tags:
+  - infra
+- name: postgresql
+  version: 0.7.1
+  repository: file://pv-charts/postgresql
+  tags:
+  - infra
+- name: redis
+  version: 0.8.0
+  repository: file://pv-charts/redis
+  tags:
+  - infra
+- name: rabbitmq
+  version: 0.6.15
+  repository: file://pv-charts/rabbitmq
+  tags:
+  - infra
+- name: nats
+  version: 0.1.1
+  repository: file://../nats
+  condition: nats.enabled
+  tags:
+  - infra
+  - saas
+- name: builder
+  repository: file://local-charts/builder
+  condition: builder.enabled
+  version: 0.1.4
+  tags:
+  - infra
+- name: runner
+  repository: file://local-charts/runner
+  condition: runner.enabled
+  version: 0.1.4
+  tags:
+  - infra
+- name: registry
+  version: 0.1.2
+  repository: file://../registry
+  condition: registry.enabled
+  tags:
+  - infra
+- name: ingress
+  version: 0.1.8
+  repository: file://../ingress
+  condition: ingress.enabled
+- name: cluster-providers
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+- name: kube-integration
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+- name: accounts-referrals
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+  tags:
+  - saas
+- name: charts-manager
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+  tags:
+  - saas
+  - infra
+- name: mailer
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+  tags:
+  - saas
+- name: payments
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+  tags:
+  - saas
+- name: cfsign
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+  condition: cfsign.enabled
+  tags:
+  - saas
+  - infra
+- name: segment-reporter
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+  tags:
+  - saas
+- name: salesforce-reporter
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+  tags:
+  - saas
+- name: tasker-kubernetes
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+  tags:
+  - saas
+  - infra
+- name: context-manager
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+  tags:
+  - saas
+  - infra
+- name: pipeline-manager
+  version: ^3.0.0
+  repository: http://chartmuseum.codefresh.io
+  tags:
+  - saas
+  - infra
+- name: cfapi
+  version: ^6.0.0
+  repository: http://chartmuseum.codefresh.io
+  condition: cfapi.enabled
+  tags:
+  - saas
+  - infra
+- name: cfui
+  version: ^4.0.0
+  repository: http://chartmuseum.codefresh.io
+  condition: cfui.enabled
+  tags:
+  - saas
+  - infra
+- name: onboarding-status
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+  condition: onboarding-status.enabled
+  tags:
+  - saas
+  - infra
+- name: runtime-environment-manager
+  version: ^3.0.x
+  repository: http://chartmuseum.codefresh.io
+  condition: runtime-environment-manager.enabled
+  tags:
+  - saas
+  - infra
+- name: cf-broadcaster
+  version: ^1.0.x
+  repository: http://chartmuseum.codefresh.io
+  condition: cf-broadcaster.enabled
+  tags:
+  - saas
+  - infra
+- name: helm-repo-manager
+  version: ^0.3.0
+  repository: http://chartmuseum.codefresh.io
+  condition: helm-repo-manager.enabled
+  tags:
+  - helm
+  - chartmuseum
+- name: hermes
+  version: ^0.10.0
+  repository: http://chartmuseum.codefresh.io
+  condition: hermes.enabled
+  tags:
+  - trigger
+  - trigger-manager
+- name: nomios
+  version: ~0.6.0
+  repository: http://chartmuseum.codefresh.io
+  condition: hermes.enabled
+  tags:
+  - trigger
+  - event-provider
+  - registry
+  - dockerhub
+- name: cronus
+  version: ^0.3.0
+  repository: http://chartmuseum.codefresh.io
+  condition: hermes.enabled
+  tags:
+  - trigger
+  - event-provider
+  - cron
+- name: chartmuseum
+  version: ~1.3.1
+  repository: file://local-charts/chartmuseum
+  condition: chartmuseum.localHelmRepo
+  tags:
+  - infra

@@ -1,0 +1,16 @@
+{{ template "nomios.renderDeployment" (dict "stableVersion" .Values.global.stableVersion "imageTag" .Values.imageTag "Chart" .Chart "Release" .Release "Values" .Values "Template" .Template) }}
+
+{{- if .Values.global.istio.enabled }}
+  {{- range $i, $value := .Values.global.istio.extraDeployments }}
+---
+    {{- range $host, $apps := $value }}
+      {{- range $name, $a := $apps }}
+      {{ $versionUnique := $host | replace "." "-" }}
+        {{- if (eq $name "nomios") }}
+{{ template "nomios.renderDeployment" (dict "version" $versionUnique "imageTag" $a.imageTag "appUrl" $host "Chart" $.Chart "Release" $.Release "Values" $.Values "Template" $.Template) }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+
+  {{- end }}
+{{- end }}

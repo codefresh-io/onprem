@@ -1,0 +1,25 @@
+backup:
+  enabled: false
+  env: staging
+cronjob:
+  image: codefresh/cronus-backup
+  tag: 0.1.3
+event:
+  kind: codefresh
+  type: cron
+global:
+  codefresh: codefresh
+image:
+  dockerRegistry: r.cfcr.io/codefresh-inc/
+  name: codefresh/cronus
+  pullPolicy: Always
+imageTag: 0.3.1
+logJSON: false
+logLevel: debug
+service:
+  externalPort: 80
+  internalPort: 8080
+  name: cronus
+  type: ClusterIP
+store:
+  size: 1Gi

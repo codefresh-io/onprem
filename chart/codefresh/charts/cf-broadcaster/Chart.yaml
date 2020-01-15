@@ -1,0 +1,15 @@
+apiVersion: v1
+description: Codefresh boradcaster
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+keywords:
+- codefresh
+- kubernetes
+- cf-broadcaster
+maintainers:
+- email: oren@codefresh.io
+  name: Oren Gurfinkel
+name: cf-broadcaster
+sources:
+- https://github.com/codefresh-io/cf-broadcaster
+version: 1.2.1

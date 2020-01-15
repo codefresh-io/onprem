@@ -18,7 +18,8 @@ readonly SERVICE_ACCOUNT_FILE="${WORKING_DIR}/sa.json"
 readonly VALUES_FILE="${WORKING_DIR}/values.yaml"
 readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yaml"
 readonly WEBTLS_VALUES_FILE="${WORKING_DIR}/webtls.yaml"
-NAMESPACE=${NAMESPACE:-codefresh}
+NAMESPACE=${NAMESPACE:-codefresh-dev}
+SKIP_VALIDATOR="true"
 
 usage() {
   echo "Usage:

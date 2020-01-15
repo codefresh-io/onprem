@@ -1,0 +1,58 @@
+{{- if and (or .Values.global.seedJobs .Values.mongoDbCreate) (not .Values.global.mongoSkipUserCreation) }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "runtime-environment-manager.fullname" . }}
+  labels:
+    app: {{ template "runtime-environment-manager.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name  | quote }}
+    heritage: {{ .Release.Service  | quote }}
+spec:
+  template:
+    metadata:
+      name: {{ template "runtime-environment-manager.fullname" . }}
+      labels:
+        app: {{ template "runtime-environment-manager.fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+        release: {{ .Release.Name  | quote }}
+        heritage: {{ .Release.Service  | quote }}
+    spec:
+      restartPolicy: OnFailure
+      {{- if .Values.global.privateRegistry }}
+      imagePullSecrets:
+        - name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}-registry"
+      {{- end }}
+      containers:
+      - name: {{ template "runtime-environment-manager.fullname" . }}
+        {{- if .Values.global.privateRegistry }} 
+        image: "{{ .Values.global.dockerRegistry }}{{ .Values.global.mongodbImage }}"
+        {{- else }}
+        image: {{ .Values.global.mongodbImage }}
+        {{- end }}
+        imagePullPolicy: IfNotPresent
+        env:
+          {{- if .Values.global.env }}
+          {{- range $key, $value := .Values.global.env }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+          {{- end}}
+          {{- end}}
+          - name: MONGODB_ROOT_USER
+            value: {{ .Values.global.mongodbRootUser }}
+          - name: MONGODB_ROOT_PASSWORD
+            value: {{ .Values.global.mongodbRootPassword }}
+          - name: MONGODB_URI
+            value: {{ .Values.global.mongoURI }}
+          - name: MONGODB_DATABASE
+            value: {{ .Values.mongodbName }}
+          - name: MONGODB_USER
+            value: {{ .Values.global.mongodbUsername }}
+          - name: MONGODB_PASSWORD
+            value: {{ .Values.global.mongodbPassword }}
+        command:
+          - "/bin/bash"
+          - "-exc"
+          - |
+{{ .Files.Get (print .Values.mongoCreateDbJobScript ) | indent 12  }}
+{{- end }}

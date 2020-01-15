@@ -1,0 +1,13 @@
+image: bitnami/mongodb:3.6.13-r0
+nodeSelector: {}
+persistence:
+  accessMode: ReadWriteOnce
+  enabled: true
+  size: 8Gi
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+securityContext:
+  runAsUser: 0
+tolerations: []

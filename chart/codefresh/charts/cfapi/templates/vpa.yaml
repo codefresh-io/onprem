@@ -1,0 +1,13 @@
+{{- if .Values.VerticalPodAutoscaler }}
+apiVersion: autoscaling.k8s.io/v1beta2
+kind: VerticalPodAutoscaler
+metadata:
+  name:  {{ template "cfapi.fullname" . }}
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: {{ template "cfapi.fullname" . }}-{{ .version | default "base" }}
+  updatePolicy:
+    updateMode: {{ quote .Values.VerticalPodAutoscaler.updateMode }}
+{{- end }}

@@ -1,0 +1,15 @@
+apiVersion: v1
+appVersion: 0.9.4
+description: Open source, simple, high performance open source messaging system
+home: https://nats.io/
+icon: https://raw.githubusercontent.com/nats-io/nats-site/master/static/img/logo.png
+keywords:
+- nats
+- message queue
+maintainers:
+- email: admin@codefresh.io
+  name: Codefresh
+name: nats
+sources:
+- https://github.com/nats-io/nats-docker
+version: 0.1.1

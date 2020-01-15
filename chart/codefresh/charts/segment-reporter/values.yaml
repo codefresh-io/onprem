@@ -1,0 +1,15 @@
+blacklistUsers: ""
+env:
+  SERVICE_ROLE: all
+eventbusInterval: 5
+global:
+  istio:
+    enabled: false
+image: gcr.io/codefresh-inc/codefresh/segment-reporter
+imagePullPolicy: Always
+imageTag: 1.3.4
+port: 80
+program: index.js
+redeploy: false
+replicaCount: 1
+targetPort: 9000

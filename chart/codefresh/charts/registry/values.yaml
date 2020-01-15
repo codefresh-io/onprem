@@ -1,0 +1,14 @@
+image: registry
+imagePullPolicy: IfNotPresent
+imageTag: 2.6
+mainChart: codefresh
+nodeSelector: {}
+persistence:
+  enabled: true
+port: 5000
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+storageSize: 100Gi
+tolerations: []

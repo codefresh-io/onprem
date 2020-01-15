@@ -1,0 +1,29 @@
+{{- if .Values.global.istio.enabled }}
+{{ template "cfui.renderGlobalVirtualServiceByHost" (dict "version" "base" "cfuiVersion" "base" "cfapiVersion" "base" "nomiosVersion" "base" "appUrl" .Values.global.appUrl "Chart" .Chart "Release" .Release "Values" .Values) -}}
+
+
+
+  {{- range $key,$value := .Values.global.istio.extraDeployments }}
+    {{- range $host, $apps := $value }}
+      {{ $cfuiVersion := "base" }}
+      {{ $cfapiVersion := "base" }}
+      {{ $nomiosVersion := "base" }}
+
+      {{- range $name, $a := $apps }}
+
+        {{- if (eq $name "cfui") }}
+          {{ $cfuiVersion = $host }}
+        {{- end }}
+        {{- if (eq $name "cfapi") }}
+          {{ $cfapiVersion = $host }}
+        {{- end }}
+        {{- if (eq $name "nomios") }}
+          {{ $nomiosVersion = $host }}
+        {{- end }}
+
+      {{ end }}
+---
+{{ template "cfui.renderGlobalVirtualServiceByHost" (dict "version" $host "cfuiVersion" $cfuiVersion "cfapiVersion" $cfapiVersion "nomiosVersion" $nomiosVersion "appUrl" $host "Chart" $.Chart "Release" $.Release "Values" $.Values) }}
+    {{ end }}
+  {{ end }}
+{{- end }}

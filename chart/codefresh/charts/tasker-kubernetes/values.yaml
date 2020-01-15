@@ -1,0 +1,11 @@
+dockerRegistry: gcr.io/codefresh-inc/
+env:
+  SERVICE_ROLE: all
+global:
+  istio:
+    enabled: false
+image: codefresh/tasker-kubernetes
+imagePullPolicy: Always
+imageTag: 1.4.1
+redeploy: false
+replicaCount: 4

@@ -1,0 +1,15 @@
+apiVersion: v1
+description: Codefresh onboarding status widget
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+keywords:
+- codefresh
+- kubernetes
+- onboarding-status
+maintainers:
+- email: ziv@codefresh.io
+  name: Ziv Levi
+name: onboarding-status
+sources:
+- https://github.com/codefresh-io/onboarding-status
+version: 1.4.2

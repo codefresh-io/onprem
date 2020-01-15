@@ -1,0 +1,16 @@
+dockerRegistry: gcr.io/codefresh-inc/
+env:
+  SERVICE_ROLE: all
+formatLogsToElk: true
+global:
+  istio:
+    enabled: false
+image: codefresh/pipeline-manager
+imagePullPolicy: Always
+imageTag: 3.55.5
+mongoCreateDbJobScript: files/mongoCreateDbJobScript
+mongodbName: pipeline-manager
+port: 9000
+redeploy: false
+replicaCount: 1
+targetPort: 9000

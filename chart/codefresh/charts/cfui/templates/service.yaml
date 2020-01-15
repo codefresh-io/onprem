@@ -1,0 +1,19 @@
+# kind: scheduler-kubernetes
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "cfui.fullnameOverride" . }}
+  labels:
+    app: {{ template "cfui.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name  | quote }}
+    heritage: {{ .Release.Service  | quote }}    
+spec:
+  type: {{ default "ClusterIP" .Values.serviceType | quote }}
+  ports:
+  - name: "http"
+    port: {{ .Values.port }}
+    protocol: TCP
+    targetPort: {{ .Values.port }}
+  selector:
+    app: {{ template "cfui.fullname" . }}

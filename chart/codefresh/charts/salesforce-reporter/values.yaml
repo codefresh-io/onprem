@@ -1,0 +1,15 @@
+env:
+  LOGGER_LEVEL: error
+  SERVICE_ROLE: all
+formatLogsToElk: true
+global:
+  istio:
+    enabled: false
+image: gcr.io/codefresh-inc/codefresh/salesforce-reporter
+imagePullPolicy: Always
+imageTag: 1.2.5
+mongoURI: ""
+port: 9000
+redeploy: false
+replicaCount: 1
+targetPort: 9000

@@ -1,0 +1,3953 @@
+CONTAINER_LOGGER_IMAGE: codefresh/cf-container-logger:cf-onprem-v1.0.90
+DOCKER_BUILDER_IMAGE: codefresh/cf-docker-builder:cf-onprem-v1.0.90
+DOCKER_PULLER_IMAGE: codefresh/cf-docker-puller:cf-onprem-v1.0.90
+DOCKER_PUSHER_IMAGE: codefresh/cf-docker-pusher:cf-onprem-v1.0.90
+DOCKER_TAG_PUSHER_IMAGE: codefresh/cf-docker-tag-pusher:v2
+FS_OPS_IMAGE: codefresh/fs-ops:latest
+GIT_CLONE_IMAGE: codefresh/cf-git-cloner:cf-onprem-v1.0.90
+accounts-referrals:
+  env:
+    SERVICE_ROLE: all
+  formatLogsToElk: "true"
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: gcr.io/codefresh-inc/codefresh/accounts-referrals
+  imagePullPolicy: Always
+  imageTag: v16
+  mongoCreateDbJobScript: files/mongoCreateDbJobScript
+  mongoURI: ""
+  mongodbName: accounts-referrals
+  port: 9000
+  redeploy: false
+  replicaCount: 1
+  targetPort: 9000
+annotations:
+  kubernetes.io/ingress.class: nginx-codefresh
+  nginx.ingress.kubernetes.io/configuration-snippet: |
+    more_set_headers "X-Request-ID: $request_id";
+    proxy_set_header X-Request-ID $request_id;
+  nginx.ingress.kubernetes.io/service-upstream: "true"
+  nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  nginx.org/redirect-to-https: "false"
+builder:
+  containerPort: 1300
+  dockerCleanerCron: 23 3 * * *
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  imagePullPolicy: IfNotPresent
+  redeploy: false
+  replicaCount: 1
+  varLibDockerVolume:
+    accessMode: ReadWriteOnce
+    storageSize: 100Gi
+cf-broadcaster:
+  affinity: {}
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  dockerconfigjson: {}
+  env:
+    NODE_ENV: kubernetes
+    RUNTIME_MONGO_DB: codefresh
+    SERVICE_ROLE: all
+  formatLogsToElk: true
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: codefresh/cf-broadcaster
+  imagePullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  newrelicLicenseKey: ""
+  port: 9016
+  redeploy: false
+  redis:
+    db: 1
+    port: 6379
+  replicaCount: 1
+  servicePort: 80
+cfanalytic:
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  enabled: false
+  image: codefresh/cf-analytic
+cfapi:
+  auth0LoginHost: codefresh-login.auth0.com
+  deploymentTemplateImages: |
+    [
+      {
+        "image": "codefresh/remote-docker:latest",
+        "description": "Deploy image to Swarm",
+        "link": "https://docs.codefresh.io/docs/docker-swarm",
+        "code": " # Required Environment Variables:\n #\n # SSH_KEY - private SSH key, used to access Docker swarm master machine.\n #           need to replace 'newline' character with SPLIT_CHAR character.\n # SPLIT_CHAR - split character, you've used to replace newline in SSH key. Recommendation: use ',' (comma character).\n #\n # Swarm delpoy command arguments:\n #\n # RDOCKER_HOST - remote Docker swarm master machine, accessible over SSH (for example, ubuntu@ec2-public-ip)\n # STACK_NAME - is new Docker stack name\n #\n # Use command below to deploy compose application to a Swarm cluster\n # rdocker ${{RDOCKER_HOST}} docker stack deploy --compose-file docker-stack.yml ${{STACK_NAME}}\n #\n # read more here: https://docs.codefresh.io/docs/docker-swarm"
+      },
+      {
+        "image": "codefresh/cf-deploy-ecs:latest",
+        "description": "Deploy image to ECS",
+        "link": "https://docs.codefresh.io/docs/amazon-ecs",
+        "code": " # Required Environment Variables:\n #\n # AWS_ACCESS_KEY_ID - AWS access key\n # AWS_SECRET_ACCESS_KEY - AWS secret access key\n #\n # ECS deploy command arguments:\n #\n # AWS_REGION - target AWS region\n # CLUSTER_NAME - ECS cluster name\n # SERVICE_NAME - ECS service names\n #\n # Use command below to deploy application to AWS ECS\n \n # cfecs-update ${{AWS_REGION}} ${{CLUSTER_NAME}} ${{SERVICE_NAME}}\n #\n # read more here: https://docs.codefresh.io/docs/amazon-ecs"
+      },
+      {
+        "image": "codefresh/cf-deploy-kubernetes:latest",
+        "description": "Deploy image to Kubernetes",
+        "link": "https://docs.codefresh.io/docs/kubernetes",
+        "code": " # Required Environment Variables:\n #\n # KUBERNETES_USER - The user for the Kubernetes cluster.\n # KUBERNETES_PASSWORD - The password for the Kubernetes cluster.\n # KUBERNETES_SERVER - The server (HTTPS endpoint) of the Kubernetes cluster's API\n #\n # Use command below to deploy compose application to kubernetes\n #\n # /cf-deploy-kubernetes deployment.yml\n #\n # Make sure you change the path of 'deployment.yml' to the path in your repository\n #\n # read more about how to obtain the kubernetes credentials and using the codefresh deploy here: https://docs.codefresh.io/docs/kubernetes\n"
+      }
+    ]
+  deployments:
+  - imageTag: masterStable
+    version: stable
+  - imageTag: masterLatest
+    version: latest
+  dindClustersSecret: dind-automation-clusters
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  env:
+    ACTIVITY_LOG_URI: http://activity-log
+    APP_ENV: kubernetes
+    AUDIT_AUTO_CREATE_DB: true
+    DOCKER_NODE_CERT_PATH: /etc/ssl/cf
+    DOCKER_NODE_PUBLIC_DOMAIN: cf-cd.com
+    HELM_INSTALL_PIPELINE_REPO_USE_HTTP: "false"
+    LOGGER_LEVEL: debug
+    MAIL_ACTIVE: true
+    NODE_ENV: kubernetes
+    OAUTH_ROUTER_CALLBACK: ""
+    ON_PREMISE: true
+    PROGRESS_BUILDLOGS_BUCKETNAME: ""
+    PROVIDERS_JSON_PATH: /etc/admin/providers.json
+    RUNTIME_ENVS_JSON_PATH: /etc/admin/runtimeEnvironments.json
+    RUNTIME_MONGO_DB: codefresh
+    SERVICE_ROLE: all
+  expirationURL: https://codefresh.io/contact-sales
+  formatLogsToElk: true
+  github:
+    apiHost: api.github.com
+    apiPathPrefix: /api/v3
+    loginHost: github.com
+    protocol: https
+  gitlab:
+    loginHost: gitlab.com
+    protocol: https
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enableForSupportingStabeLatestEnvironments: false
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    stableVersion: latest
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: codefresh/cf-api
+  imagePullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  internalPort: 3000
+  istio:
+    enabled: false
+  kubectlHelmImage: codefresh/cfstep-helm
+  mongodbImage: bitnami/mongodb:3.4.5-r0
+  port: 80
+  providersData: |
+    {
+      "aws": {}
+    }
+  rbacEnable: true
+  rbacCreate: true
+  redeploy: false
+  segmentEnable: false
+  targetInternalPort: 40000
+  targetPort: 80
+cfapi-buildmanager:
+  replicaCount: 0
+cfapi-cacheevictmanager:
+  replicaCount: 0
+cfapi-downloadlogmanager:
+  replicaCount: 0
+cfapi-endpoints:
+  replicaCount: 0
+cfapi-eventsmanagersubscriptions:
+  replicaCount: 0
+cfapi-terminators:
+  replicaCount: 0
+cfsign:
+  certVolumeSize: 3Gi
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  env:
+    SERVICE_ROLE: all
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: codefresh/cf-tls-sign
+  imagePullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  port: 4999
+  redeploy: false
+  replicaCount: 1
+cfui:
+  affinity: {}
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  dockercfg: placeholder
+  dockerconfigjson: {}
+  env:
+    ASSETS_OPTIMIZED: "true"
+    LOGGER_LEVEL: error
+    LOGGER_MORAN_ACTIVE: "false"
+    LOGS_PATH: /var/log/cf-ui.log
+    NEW_USER_REDIRECT: ""
+    NODE_ENV: kubernetes
+    ON_PREMISE: true
+    SERVICE_ROLE: all
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enableForSupportingStabeLatestEnvironments: false
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    stableVersion: latest
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: codefresh/cf-ui
+  imagePullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  ingress:
+    enabled: false
+  istio:
+    enabled: false
+  logglyToken: invalid-token
+  newrelicLicenseKey: invalid-key
+  port: 80
+  redeploy: false
+  replicaCount: 1
+  rollbarAccessToken: ""
+  segmentKey: invalid-key
+  servicePort: 80
+  slackAppID: ""
+  stripePublicKey: ""
+  webTLS:
+    cert: ""
+    key: ""
+chartmuseum:
+  affinity: {}
+  deployment:
+    annotations: {}
+  env:
+    open:
+      ALLOW_OVERWRITE: "true"
+      AUTH_ANONYMOUS_GET: false
+      CHART_POST_FORM_FIELD_NAME: chart
+      CHART_URL: null
+      CONTEXT_PATH: null
+      DEBUG: "true"
+      DEPTH: 2
+      DISABLE_API: "false"
+      DISABLE_METRICS: "false"
+      INDEX_LIMIT: 2500
+      LOG_JSON: true
+      PROV_POST_FORM_FIELD_NAME: prov
+      STORAGE: local
+      STORAGE_ALIBABA_BUCKET: null
+      STORAGE_ALIBABA_ENDPOINT: null
+      STORAGE_ALIBABA_PREFIX: null
+      STORAGE_ALIBABA_SSE: null
+      STORAGE_AMAZON_BUCKET: null
+      STORAGE_AMAZON_ENDPOINT: null
+      STORAGE_AMAZON_PREFIX: null
+      STORAGE_AMAZON_REGION: null
+      STORAGE_AMAZON_SSE: null
+      STORAGE_GOOGLE_BUCKET: null
+      STORAGE_GOOGLE_PREFIX: null
+      STORAGE_MICROSOFT_CONTAINER: null
+      STORAGE_MICROSOFT_PREFIX: null
+    secret:
+      BASIC_AUTH_PASS: null
+      BASIC_AUTH_USER: null
+      GOOGLE_CREDENTIALS_JSON: null
+  gcp:
+    secret:
+      enabled: false
+      key: credentials.json
+      name: null
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image:
+    pullPolicy: IfNotPresent
+    repository: chartmuseum/chartmuseum
+    tag: v0.5.2
+  ingress:
+    annotations: null
+    enabled: false
+    hosts:
+    - chartmuseum.local
+  localHelmRepo: true
+  nodeSelector: {}
+  persistence:
+    accessMode: ReadWriteOnce
+    enabled: true
+    size: 8Gi
+  probes:
+    liveness:
+      failureThreshold: 3
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    readiness:
+      failureThreshold: 3
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+  publicHelmRepo: false
+  replica:
+    annotations: {}
+  replicaCount: 1
+  resources: {}
+  service:
+    annotations: {}
+    externalPort: 8080
+    nodePort: null
+    type: ClusterIP
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+    type: RollingUpdate
+  tolerations: []
+charts-manager:
+  disablePublicRepos: true
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  env:
+    SERVICE_ROLE: all
+  environment:
+    API_URI: cf-cfapi
+    CONTEXT_MANAGER_URI: cf-context-manager
+    EVENTBUS_URI: amqp://cf-rabbitmq
+    MONGO_URI: mongodb://mongodb:27017/charts-manager
+    POSTGRES_HOST: cf-postgresql
+  formatLogsToElk: true
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: codefresh/charts-manager
+  imagePullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  mongoCreateDbJobScript: files/mongoCreateDbJobScript
+  mongodbName: charts-manager
+  port: 9000
+  redeploy: false
+  replicaCount: 1
+  targetPort: 9000
+cluster-providers:
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  env:
+    SERVICE_ROLE: all
+  formatLogsToElk: "true"
+  gcAuthClientID: ""
+  gcAuthClientSecret: ""
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: codefresh/cluster-providers
+  imagePullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  mongoCreateDbJobScript: files/mongoCreateDbJobScript
+  mongoURI: ""
+  mongodbName: cluster-providers
+  port: 9000
+  redeploy: false
+  replicaCount: 1
+  safeSecret: ""
+  targetPort: 9000
+consul:
+  Component: consul
+  ConsulDnsPort: 8600
+  DatacenterName: codefresh-onprem
+  DisableHostNodeId: false
+  EncryptGossip: true
+  HttpPort: 8500
+  Image: consul
+  ImagePullPolicy: Always
+  ImageTag: 1.0.0
+  Memory: 64Mi
+  Replicas: 1
+  Resources: {}
+  RpcPort: 8400
+  SerflanPort: 8301
+  SerflanUdpPort: 8301
+  SerfwanPort: 8302
+  SerfwanUdpPort: 8302
+  ServerPort: 8300
+  antiAffinity: hard
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  maxUnavailable: 1
+  nodeSelector: {}
+  persistence:
+    enable: true
+  securityContext:
+    fsGroup: 1000
+  storageSize: 1Gi
+  test:
+    image: lachlanevenson/k8s-kubectl
+    imageTag: v1.4.8-bash
+  tolerations: []
+  ui:
+    enabled: true
+  uiIngress:
+    annotations: {}
+    enabled: false
+    hosts: []
+    tls: {}
+  uiService:
+    enabled: true
+    type: ClusterIP
+context-manager:
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  env:
+    SERVICE_ROLE: all
+  environment:
+    EVENTBUS_URI: amqp://cf-rabbitmq
+    MONGO_URI: mongodb://mongodb:27017/context-manager
+    POSTGRES_HOST: cf-postgresql
+  formatLogsToElk: true
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: codefresh/context-manager
+  imagePullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  mongoCreateDbJobScript: files/mongoCreateDbJobScript
+  mongodbName: context-manager
+  port: 9000
+  redeploy: false
+  replicaCount: 1
+  safeSecret: ""
+  targetPort: 9000
+cronus:
+  backup:
+    enabled: false
+    env: staging
+  cronjob:
+    image: codefresh/cronus-backup
+    tag: 0.1.3
+  event:
+    action: a
+    kind: codefresh
+    type: cron
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image:
+    dockerRegistry: gcr.io/codefresh-enterprise/
+    name: codefresh/cronus
+    pullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  logJSON: false
+  logLevel: debug
+  service:
+    externalPort: 80
+    internalPort: 8080
+    name: cronus
+    type: ClusterIP
+  store:
+    size: 1Gi
+dockercfg: placeholder
+engineImage: codefresh/engine:cf-onprem-v1.0.90
+firebaseSecret: placeholder
+firebaseUrl: https://codefresh-on-prem.firebaseio.com/on-prem
+getRuntimeEnvs: files/on-prem/runtimeEnvironments.json
+global:
+  CertsCa:
+    ca: ""
+    caKey: ""
+    caKeyPassword: EMPTYPASSTOREPLACE
+  accountsReferralsPort: 9000
+  accountsReferralsService: accounts-referrals
+  appProtocol: http
+  bitbucketClientID: invalid-id
+  bitbucketClientSecret: invalid-secret
+  broadcasterPort: 80
+  broadcasterService: cf-broadcaster
+  builderService: builder
+  cfapiInternalPort: 3000
+  cfapiService: cfapi
+  cfcrDomain: ""
+  chartsManagerPort: 9000
+  chartsManagerService: charts-manager
+  clusterProvidersPort: 9000
+  clusterProvidersService: cluster-providers
+  codefresh: codefresh
+  consulHttpPort: 8500
+  consulService: consul
+  contextManagerPort: 9000
+  contextManagerService: context-manager
+  curlImage: codefresh/curl
+  dindCPU: 100m
+  dindCPULimits: 1000m
+  dindImage: docker:18.09-dind
+  dindMemory: 256Mi
+  dindMemoryLimits: 4096Mi
+  dindProviderPort: 9000
+  dindProviderService: dind-provider
+  gceProject: ""
+  githubClientID: placeholder
+  githubClientSecret: placeholder
+  githubInternalToken: placeholder
+  gitlabClientID: placeholder
+  gitlabClientSecret: placeholder
+  helmRepoManagerService: helm-repo-manager
+  hermesService: hermes
+  internalServiceTolerations:
+  - effect: NoSchedule
+    key: nodeType
+    operator: Equal
+    value: internal
+  kubeIntegrationPort: 9000
+  kubeIntegrationService: kube-integration
+  mongoPort: 27017
+  mongoService: mongodb
+  mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+  mongodbDatabase: codefresh
+  mongodbImage: bitnami/mongodb:4.0.3
+  mongodbPassword: mTiXcU2wafr9
+  mongodbRootPassword: XT9nmM8dZD
+  mongodbRootUser: root
+  mongodbUsername: cfuser
+  natsPort: 4222
+  natsService: nats
+  onboardingStatusPort: 80
+  onboardingStatusService: onboarding-status
+  onprem: true
+  paymentsService: payments
+  paymentsServicePort: 9000
+  pipelineManagerPort: 9000
+  pipelineManagerService: pipeline-manager
+  postgresDatabase: codefresh
+  postgresPassword: eC9arYka4ZbH
+  postgresService: postgresql
+  postgresUser: postgres
+  rabbitService: rabbitmq
+  redisService: redis
+  registryPort: 5000
+  registryService: registry
+  runnerService: runner
+  runtimeEnvironmentManagerPort: 80
+  runtimeEnvironmentManagerService: runtime-environment-manager
+  runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+  runtimeRedisDb: "1"
+  runtimeRedisHost: cf-redis
+  runtimeRedisPassword: hoC9szf7NtrU
+  runtimeRedisPort: "6379"
+  tlsSignPort: 4999
+  tlsSignService: cfsign
+helm-repo-manager:
+  TestRepoUrlPrefix: cm://local.codefresh.io/api/helm/repos
+  chartmuseum:
+    affinity: {}
+    deployment:
+      annotations: {}
+    env:
+      open:
+        ALLOW_OVERWRITE: "true"
+        AUTH_ANONYMOUS_GET: false
+        CHART_POST_FORM_FIELD_NAME: chart
+        CHART_URL: null
+        CONTEXT_PATH: null
+        DEBUG: "true"
+        DEPTH: 2
+        DISABLE_API: "false"
+        DISABLE_METRICS: "false"
+        INDEX_LIMIT: 2500
+        LOG_JSON: true
+        PROV_POST_FORM_FIELD_NAME: prov
+        STORAGE: local
+        STORAGE_ALIBABA_BUCKET: null
+        STORAGE_ALIBABA_ENDPOINT: null
+        STORAGE_ALIBABA_PREFIX: null
+        STORAGE_ALIBABA_SSE: null
+        STORAGE_AMAZON_BUCKET: null
+        STORAGE_AMAZON_ENDPOINT: null
+        STORAGE_AMAZON_PREFIX: null
+        STORAGE_AMAZON_REGION: null
+        STORAGE_AMAZON_SSE: null
+        STORAGE_GOOGLE_BUCKET: null
+        STORAGE_GOOGLE_PREFIX: null
+        STORAGE_MICROSOFT_CONTAINER: null
+        STORAGE_MICROSOFT_PREFIX: null
+      secret:
+        BASIC_AUTH_PASS: null
+        BASIC_AUTH_USER: null
+        GOOGLE_CREDENTIALS_JSON: null
+    gcp:
+      secret:
+        enabled: false
+        key: credentials.json
+        name: null
+    global:
+      CertsCa:
+        ca: ""
+        caKey: ""
+        caKeyPassword: EMPTYPASSTOREPLACE
+      accountsReferralsPort: 9000
+      accountsReferralsService: accounts-referrals
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nodeType
+                operator: NotIn
+                values:
+                - internal
+                - worker
+      appProtocol: http
+      bitbucketClientID: invalid-id
+      bitbucketClientSecret: invalid-secret
+      broadcasterPort: 80
+      broadcasterService: cf-broadcaster
+      builderService: builder
+      cfapiInternalPort: 3000
+      cfapiService: cfapi
+      cfcrDomain: ""
+      chartsManagerPort: 9000
+      chartsManagerService: charts-manager
+      clusterProvidersPort: 9000
+      clusterProvidersService: cluster-providers
+      codefresh: codefresh
+      consulHttpPort: 8500
+      consulService: consul
+      contextManagerPort: 9000
+      contextManagerService: context-manager
+      curlImage: codefresh/curl
+      dindCPU: 100m
+      dindCPULimits: 1000m
+      dindImage: docker:18.09-dind
+      dindMemory: 256Mi
+      dindMemoryLimits: 4096Mi
+      dindProviderPort: 9000
+      dindProviderService: dind-provider
+      gceProject: ""
+      githubClientID: placeholder
+      githubClientSecret: placeholder
+      githubInternalToken: placeholder
+      gitlabClientID: placeholder
+      gitlabClientSecret: placeholder
+      helmRepoManagerService: helm-repo-manager
+      hermesService: hermes
+      internalServiceTolerations:
+      - effect: NoSchedule
+        key: nodeType
+        operator: Equal
+        value: internal
+      kubeIntegrationPort: 9000
+      kubeIntegrationService: kube-integration
+      mongoPort: 27017
+      mongoService: mongodb
+      mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+      mongodbDatabase: codefresh
+      mongodbImage: bitnami/mongodb:4.0.3
+      mongodbPassword: mTiXcU2wafr9
+      mongodbRootPassword: XT9nmM8dZD
+      mongodbRootUser: root
+      mongodbUsername: cfuser
+      natsPort: 4222
+      natsService: nats
+      onboardingStatusPort: 80
+      onboardingStatusService: onboarding-status
+      onprem: true
+      paymentsService: payments
+      paymentsServicePort: 9000
+      pipelineManagerPort: 9000
+      pipelineManagerService: pipeline-manager
+      postgresDatabase: codefresh
+      postgresPassword: eC9arYka4ZbH
+      postgresService: postgresql
+      postgresUser: postgres
+      rabbitService: rabbitmq
+      redisService: redis
+      registryPort: 5000
+      registryService: registry
+      runnerService: runner
+      runtimeEnvironmentManagerPort: 80
+      runtimeEnvironmentManagerService: runtime-environment-manager
+      runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+      runtimeRedisDb: "1"
+      runtimeRedisHost: cf-redis
+      runtimeRedisPassword: hoC9szf7NtrU
+      runtimeRedisPort: "6379"
+      tlsSignPort: 4999
+      tlsSignService: cfsign
+    image:
+      pullPolicy: IfNotPresent
+      repository: chartmuseum/chartmuseum
+      tag: v0.5.2
+    ingress:
+      annotations: null
+      enabled: false
+      hosts:
+      - chartmuseum.local
+    nodeSelector: {}
+    persistence:
+      accessMode: ReadWriteOnce
+      enabled: false
+      size: 8Gi
+    probes:
+      liveness:
+        failureThreshold: 3
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      readiness:
+        failureThreshold: 3
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+    publicHelmRepo: true
+    replica:
+      annotations: {}
+    replicaCount: 1
+    resources: {}
+    service:
+      annotations: {}
+      externalPort: 8080
+      nodePort: null
+      type: ClusterIP
+    strategy:
+      rollingUpdate:
+        maxUnavailable: 0
+      type: RollingUpdate
+    tolerations: []
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: nodeType
+              operator: NotIn
+              values:
+              - internal
+              - worker
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image:
+    dockerRegistry: gcr.io/codefresh-enterprise/
+    name: codefresh/helm-repo-manager
+    pullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  ingress:
+    annotations: null
+    enabled: false
+    hosts:
+    - helm-repo-manager.local
+  logJSON: false
+  logLevel: debug
+  postgres:
+    disableSSL: true
+    port: 5432
+  replicaCount: 1
+  service:
+    externalPort: 80
+    internalPort: 8080
+    name: helm-repo-manager
+    type: ClusterIP
+hermes:
+  backup:
+    env: staging
+    image: codefresh/hermes-store-backup
+    replicaCount: 1
+    tag: 0.1.2
+  cfapi:
+    port: 3000
+    protocol: http
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: nodeType
+              operator: NotIn
+              values:
+              - internal
+              - worker
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image:
+    dockerRegistry: gcr.io/codefresh-enterprise/
+    name: codefresh/hermes
+    pullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  ingress:
+    annotations: null
+    enabled: false
+    hosts:
+    - hermes.local
+  logJSON: false
+  logLevel: debug
+  redis:
+    global:
+      CertsCa:
+        ca: ""
+        caKey: ""
+        caKeyPassword: EMPTYPASSTOREPLACE
+      accountsReferralsPort: 9000
+      accountsReferralsService: accounts-referrals
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nodeType
+                operator: NotIn
+                values:
+                - internal
+                - worker
+      appProtocol: http
+      bitbucketClientID: invalid-id
+      bitbucketClientSecret: invalid-secret
+      broadcasterPort: 80
+      broadcasterService: cf-broadcaster
+      builderService: builder
+      cfapiInternalPort: 3000
+      cfapiService: cfapi
+      cfcrDomain: ""
+      chartsManagerPort: 9000
+      chartsManagerService: charts-manager
+      clusterProvidersPort: 9000
+      clusterProvidersService: cluster-providers
+      codefresh: codefresh
+      consulHttpPort: 8500
+      consulService: consul
+      contextManagerPort: 9000
+      contextManagerService: context-manager
+      curlImage: codefresh/curl
+      dindCPU: 100m
+      dindCPULimits: 1000m
+      dindImage: docker:18.09-dind
+      dindMemory: 256Mi
+      dindMemoryLimits: 4096Mi
+      dindProviderPort: 9000
+      dindProviderService: dind-provider
+      gceProject: ""
+      githubClientID: placeholder
+      githubClientSecret: placeholder
+      githubInternalToken: placeholder
+      gitlabClientID: placeholder
+      gitlabClientSecret: placeholder
+      helmRepoManagerService: helm-repo-manager
+      hermesService: hermes
+      internalServiceTolerations:
+      - effect: NoSchedule
+        key: nodeType
+        operator: Equal
+        value: internal
+      kubeIntegrationPort: 9000
+      kubeIntegrationService: kube-integration
+      mongoPort: 27017
+      mongoService: mongodb
+      mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+      mongodbDatabase: codefresh
+      mongodbImage: bitnami/mongodb:4.0.3
+      mongodbPassword: mTiXcU2wafr9
+      mongodbRootPassword: XT9nmM8dZD
+      mongodbRootUser: root
+      mongodbUsername: cfuser
+      natsPort: 4222
+      natsService: nats
+      onboardingStatusPort: 80
+      onboardingStatusService: onboarding-status
+      onprem: true
+      paymentsService: payments
+      paymentsServicePort: 9000
+      pipelineManagerPort: 9000
+      pipelineManagerService: pipeline-manager
+      postgresDatabase: codefresh
+      postgresPassword: eC9arYka4ZbH
+      postgresService: postgresql
+      postgresUser: postgres
+      rabbitService: rabbitmq
+      redisService: redis
+      registryPort: 5000
+      registryService: registry
+      runnerService: runner
+      runtimeEnvironmentManagerPort: 80
+      runtimeEnvironmentManagerService: runtime-environment-manager
+      runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+      runtimeRedisDb: "1"
+      runtimeRedisHost: cf-redis
+      runtimeRedisPassword: hoC9szf7NtrU
+      runtimeRedisPort: "6379"
+      tlsSignPort: 4999
+      tlsSignService: cfsign
+    image: bitnami/redis:4.0.9-r0
+    imagePullPolicy: IfNotPresent
+    metrics:
+      annotations:
+        prometheus.io/port: "9121"
+        prometheus.io/scrape: "true"
+      enabled: false
+      image: oliver006/redis_exporter
+      imagePullPolicy: IfNotPresent
+      imageTag: v0.11
+      resources: {}
+    nameOverride: store
+    networkPolicy:
+      allowExternal: true
+      enabled: false
+    nodeSelector: {}
+    persistence:
+      accessMode: ReadWriteOnce
+      enabled: true
+      path: /bitnami
+      size: 8Gi
+      subPath: ""
+    podAnnotations: {}
+    podLabels: {}
+    port: 6379
+    redisDisableCommands: FLUSHDB,FLUSHALL
+    redisExtraFlags: --appendonly no
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    securityContext:
+      enabled: true
+      fsGroup: 1001
+      runAsUser: 1001
+    service:
+      annotations: {}
+      loadBalancerIP: null
+    serviceType: ClusterIP
+    tolerations: []
+    usePassword: true
+  replicaCount: 1
+  service:
+    externalPort: 80
+    internalPort: 8080
+    name: hermes
+    type: ClusterIP
+imagePullPolicy: IfNotPresent
+ingress:
+  containerPort: 8080
+  controllerContainerPort: 80
+  controllerHostPost: 80
+  controllerImage: kubernetes-ingress-controller/nginx-ingress-controller
+  controllerImageTag: 0.24.1
+  controllerProbePort: 10254
+  controllerRegistry: quay.io/
+  controllerSecureContainerPort: 443
+  controllerSecureHostPort: 443
+  dockerRegistry: gcr.io/
+  enabled: true
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: google_containers/defaultbackend
+  imagePullPolicy: IfNotPresent
+  imageTag: 1.3
+  livenessPort: 8080
+  rbacEnable: true
+  servicePort: 80
+internal-status-page:
+  imageTag: v9
+k8s-monitor:
+  replicaCount: 0
+kube-integration:
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  env:
+    SERVICE_ROLE: all
+  formatLogsToElk: true
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: codefresh/kube-integration
+  imagePullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  port: 9000
+  redeploy: false
+  replicaCount: 1
+  targetPort: 9000
+kubectlImage: codefresh/generate-certs:latest
+logglyToken: invalid-token
+mailer:
+  active: ""
+  env:
+    SERVICE_ROLE: all
+  formatLogsToElk: true
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: gcr.io/codefresh-inc/codefresh/mailer
+  imagePullPolicy: Always
+  imageTag: v12
+  port: 80
+  redeploy: false
+  replicaCount: 1
+  sendgridKey: ""
+  targetPort: 9000
+mongoSeedJobScript: files/on-prem/mongoSeedJobScript
+mongodb:
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: bitnami/mongodb:3.6.13-r0
+  mongodbRootPassword: XT9nmM8dZD
+  nodeSelector: {}
+  persistence:
+    accessMode: ReadWriteOnce
+    enabled: true
+    size: 8Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+  securityContext:
+    runAsUser: 0
+  tolerations: []
+nats:
+  addr: 0.0.0.0
+  clientPort: 4222
+  clientTargetPort: 4222
+  clusterPort: 6222
+  clusterTargetPort: 6222
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  httpPort: 8222
+  httpTargetPort: 8222
+  image: nats
+  imagePullPolicy: IfNotPresent
+  imageTag: 0.9.4
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  restartPolicy: Always
+  service:
+    annotations:
+      pod.alpha.kubernetes.io/initialized: "true"
+  svcClusterIP: None
+  svcType: ClusterIP
+nomios:
+  env:
+    SERVICE_ROLE: all
+  event:
+    action: a
+    kind: dockerhub
+    type: registry
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enableForSupportingStabeLatestEnvironments: false
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    stableVersion: latest
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image:
+    dockerRegistry: gcr.io/codefresh-enterprise/
+    name: codefresh/nomios
+    pullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx-codefresh
+      nginx.ingress.kubernetes.io/service-upstream: "true"
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.org/redirect-to-https: "false"
+    enabled: true
+    path: /nomios/
+  istio:
+    enabled: false
+  logJSON: false
+  logLevel: debug
+  replicaCount: 1
+  service:
+    externalPort: 80
+    internalPort: 8080
+    name: nomios
+    type: ClusterIP
+onboarding-status:
+  affinity: {}
+  dockercfg: placeholder
+  dockerconfigjson: {}
+  enabled: false
+  env:
+    NODE_ENV: kubernetes
+    SERVICE_ROLE: all
+  formatLogsToElk: true
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: gcr.io/codefresh-enterprise/codefresh/onboarding-status
+  imagePullPolicy: Always
+  imageTag: 1.4.2
+  newrelicLicenseKey: invalid-key
+  port: 80
+  redeploy: false
+  replicaCount: 1
+  requiredInfraComponenets:
+    eventBus: true
+    mongo: true
+    postgres: true
+  servicePort: 80
+payments:
+  env:
+    SERVICE_ROLE: all
+  formatLogsToElk: true
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: gcr.io/codefresh-inc/codefresh/payments
+  imagePullPolicy: Always
+  imageTag: v34
+  mongoCreateDbJobScript: files/mongoCreateDbJobScript
+  mongodbName: payments
+  port: 9000
+  redeploy: false
+  targetPort: 9000
+pipeline-manager:
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  env:
+    SERVICE_ROLE: all
+  environment:
+    INTERNAL_API_URI: http://cf-cfapi:9007
+    MONGO_URI: mongodb://mongodb:27017/pipeline-manager
+  formatLogsToElk: true
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: codefresh/pipeline-manager
+  imagePullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  mongoCreateDbJobScript: files/mongoCreateDbJobScript
+  mongodbName: pipeline-manager
+  port: 9000
+  redeploy: false
+  replicaCount: 1
+  safeSecret: ""
+  stepsCatalogGithubToken: ""
+  targetPort: 9000
+postgresql:
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: postgres
+  imageTag: 9.6.2
+  metrics:
+    enabled: false
+    image: wrouesnel/postgres_exporter
+    imagePullPolicy: IfNotPresent
+    imageTag: v0.1.1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  nodeSelector: {}
+  persistence:
+    accessMode: ReadWriteOnce
+    enabled: true
+    size: 8Gi
+    subPath: postgresql-db
+  postgresDatabase: codefresh
+  postgresPassword: eC9arYka4ZbH
+  postgresUser: postgres
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  service:
+    externalIPs: []
+    port: 5432
+    type: ClusterIP
+  tolerations: []
+rabbitmq:
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: bitnami/rabbitmq:3.7.2-r1
+  nodeSelector: {}
+  persistence:
+    accessMode: ReadWriteOnce
+    enabled: true
+    size: 8Gi
+  rabbitmqDiskFreeLimit: '"6GiB"'
+  rabbitmqManagerPort: 15672
+  rabbitmqNodeName: rabbit
+  rabbitmqNodePort: 5672
+  rabbitmqNodeType: stats
+  rabbitmqPassword: cVz9ZdJKYm7u
+  rabbitmqUsername: user
+  rabbitmqVhost: /
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  serviceType: ClusterIP
+  tolerations: []
+rbacEnable: true
+rbacCreate: true
+redis:
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: bitnami/redis:3.2.9-r2
+  imagePullPolicy: IfNotPresent
+  metrics:
+    annotations:
+      prometheus.io/port: "9121"
+      prometheus.io/scrape: "true"
+    enabled: false
+    image: oliver006/redis_exporter
+    imagePullPolicy: IfNotPresent
+    imageTag: v0.11
+    resources: {}
+  nodeSelector: {}
+  persistence:
+    accessMode: ReadWriteOnce
+    enabled: true
+    size: 8Gi
+  redisPassword: hoC9szf7NtrU
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+  tolerations: []
+  usePassword: true
+registry:
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: registry
+  imagePullPolicy: IfNotPresent
+  imageTag: 2.6
+  mainChart: codefresh
+  nodeSelector: {}
+  persistence:
+    enabled: true
+  port: 5000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  storageSize: 100Gi
+  tolerations: []
+rollbarAccessToken: ""
+runner:
+  containerPort: 1300
+  dockerCleanerCron: 23 4 * * *
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  imagePullPolicy: IfNotPresent
+  redeploy: false
+  varLibDockerVolume:
+    accessMode: ReadWriteOnce
+    storageSize: 100Gi
+runtime-environment-manager:
+  affinity: {}
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  dockercfg: placeholder
+  dockerconfigjson: {}
+  enabled: true
+  env:
+    NODE_ENV: kubernetes
+    ON_PREMISE: true
+    RUNTIME_ENVS_JSON_PATH: /etc/admin/runtimeEnvironments.json
+    SERVICE_ROLE: all
+  formatLogsToElk: true
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: codefresh/runtime-environment-manager
+  imagePullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  mongoCreateDbJobScript: files/mongoCreateDbJobScript
+  mongodbName: runtime-environment-manager
+  newrelicLicenseKey: invalid-key
+  port: 80
+  redeploy: false
+  replicaCount: 1
+  requiredInfraComponenets:
+    mongo: true
+  servicePort: 80
+runtime_envs:
+- inCluster: true
+  name: codefresh-inc
+  namespace: dinds
+  selectorRuntimeEnv: codefresh-inc
+salesforce-reporter:
+  clientSecret: ""
+  env:
+    LOGGER_LEVEL: error
+    SERVICE_ROLE: all
+  formatLogsToElk: true
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: gcr.io/codefresh-inc/codefresh/salesforce-reporter
+  imagePullPolicy: Always
+  imageTag: v17
+  mongoURI: ""
+  port: 9000
+  redeploy: false
+  replicaCount: 1
+  safe-secret: ""
+  targetPort: 9000
+segment-reporter:
+  blacklistUsers: ""
+  env:
+    SERVICE_ROLE: all
+  eventbusInterval: 5
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: gcr.io/codefresh-inc/codefresh/segment-reporter
+  imagePullPolicy: Always
+  imageTag: v29
+  port: 80
+  program: index.js
+  redeploy: false
+  replicaCount: 1
+  targetPort: 9000
+servicePort: 80
+slackAppID: "4027524866.65820083427"
+slackAppSecret: placeholder
+stripePublicKey: ""
+stripeSecretKey: sk_test_8AnaAlccXXkcPXP7vrgKZQyy
+stripeWebhookSecret: ""
+tags:
+  infra: true
+  old-scheduler: false
+  saas: false
+tasker-kubernetes:
+  dockerRegistry: gcr.io/codefresh-enterprise/
+  env:
+    SERVICE_ROLE: all
+  global:
+    CertsCa:
+      ca: ""
+      caKey: ""
+      caKeyPassword: EMPTYPASSTOREPLACE
+    accountsReferralsPort: 9000
+    accountsReferralsService: accounts-referrals
+    appProtocol: http
+    bitbucketClientID: invalid-id
+    bitbucketClientSecret: invalid-secret
+    broadcasterPort: 80
+    broadcasterService: cf-broadcaster
+    builderService: builder
+    cfapiInternalPort: 3000
+    cfapiService: cfapi
+    cfcrDomain: ""
+    chartsManagerPort: 9000
+    chartsManagerService: charts-manager
+    clusterProvidersPort: 9000
+    clusterProvidersService: cluster-providers
+    codefresh: codefresh
+    consulHttpPort: 8500
+    consulService: consul
+    contextManagerPort: 9000
+    contextManagerService: context-manager
+    curlImage: codefresh/curl
+    dindCPU: 100m
+    dindCPULimits: 1000m
+    dindImage: docker:18.09-dind
+    dindMemory: 256Mi
+    dindMemoryLimits: 4096Mi
+    dindProviderPort: 9000
+    dindProviderService: dind-provider
+    gceProject: ""
+    githubClientID: placeholder
+    githubClientSecret: placeholder
+    githubInternalToken: placeholder
+    gitlabClientID: placeholder
+    gitlabClientSecret: placeholder
+    helmRepoManagerService: helm-repo-manager
+    hermesService: hermes
+    internalServiceTolerations:
+    - effect: NoSchedule
+      key: nodeType
+      operator: Equal
+      value: internal
+    istio:
+      enabled: false
+    kubeIntegrationPort: 9000
+    kubeIntegrationService: kube-integration
+    mongoPort: 27017
+    mongoService: mongodb
+    mongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017
+    mongodbDatabase: codefresh
+    mongodbImage: bitnami/mongodb:4.0.3
+    mongodbPassword: mTiXcU2wafr9
+    mongodbRootPassword: XT9nmM8dZD
+    mongodbRootUser: root
+    mongodbUsername: cfuser
+    natsPort: 4222
+    natsService: nats
+    onboardingStatusPort: 80
+    onboardingStatusService: onboarding-status
+    onprem: true
+    paymentsService: payments
+    paymentsServicePort: 9000
+    pipelineManagerPort: 9000
+    pipelineManagerService: pipeline-manager
+    postgresDatabase: codefresh
+    postgresPassword: eC9arYka4ZbH
+    postgresService: postgresql
+    postgresUser: postgres
+    rabbitService: rabbitmq
+    redisService: redis
+    registryPort: 5000
+    registryService: registry
+    runnerService: runner
+    runtimeEnvironmentManagerPort: 80
+    runtimeEnvironmentManagerService: runtime-environment-manager
+    runtimeMongoURI: mongodb://cfuser:mTiXcU2wafr9@mongodb:27017/codefresh
+    runtimeRedisDb: "1"
+    runtimeRedisHost: cf-redis
+    runtimeRedisPassword: hoC9szf7NtrU
+    runtimeRedisPort: "6379"
+    tlsSignPort: 4999
+    tlsSignService: cfsign
+  image: codefresh/tasker-kubernetes
+  imagePullPolicy: Always
+  imageTag: cf-onprem-v1.0.91
+  redeploy: false
+  replicaCount: 1
+workflow-baseline-invoker:
+  imageTag: v5

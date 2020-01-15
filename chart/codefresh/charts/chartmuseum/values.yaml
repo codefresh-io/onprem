@@ -1,0 +1,78 @@
+affinity: {}
+deployment:
+  annotations: {}
+env:
+  open:
+    ALLOW_OVERWRITE: false
+    AUTH_ANONYMOUS_GET: false
+    CHART_POST_FORM_FIELD_NAME: chart
+    CHART_URL: null
+    CONTEXT_PATH: null
+    DEBUG: false
+    DEPTH: 0
+    DISABLE_API: true
+    DISABLE_METRICS: true
+    INDEX_LIMIT: 0
+    LOG_JSON: true
+    PROV_POST_FORM_FIELD_NAME: prov
+    STORAGE: local
+    STORAGE_ALIBABA_BUCKET: null
+    STORAGE_ALIBABA_ENDPOINT: null
+    STORAGE_ALIBABA_PREFIX: null
+    STORAGE_ALIBABA_SSE: null
+    STORAGE_AMAZON_BUCKET: null
+    STORAGE_AMAZON_ENDPOINT: null
+    STORAGE_AMAZON_PREFIX: null
+    STORAGE_AMAZON_REGION: null
+    STORAGE_AMAZON_SSE: null
+    STORAGE_GOOGLE_BUCKET: null
+    STORAGE_GOOGLE_PREFIX: null
+    STORAGE_MICROSOFT_CONTAINER: null
+    STORAGE_MICROSOFT_PREFIX: null
+  secret:
+    BASIC_AUTH_PASS: null
+    BASIC_AUTH_USER: null
+    GOOGLE_CREDENTIALS_JSON: null
+gcp:
+  secret:
+    enabled: false
+    key: credentials.json
+    name: null
+image:
+  pullPolicy: IfNotPresent
+  repository: chartmuseum/chartmuseum
+  tag: v0.5.2
+ingress:
+  enabled: false
+nodeSelector: {}
+persistence:
+  accessMode: ReadWriteOnce
+  enabled: true
+  size: 8Gi
+probes:
+  liveness:
+    failureThreshold: 3
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 1
+  readiness:
+    failureThreshold: 3
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 1
+replica:
+  annotations: {}
+replicaCount: 1
+resources: {}
+service:
+  annotations: {}
+  externalPort: 8080
+  nodePort: null
+  type: ClusterIP
+strategy:
+  rollingUpdate:
+    maxUnavailable: 0
+  type: RollingUpdate
+tolerations: []

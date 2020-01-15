@@ -1,0 +1,14 @@
+apiVersion: v1
+description: Codefresh Pipeline Manager
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+keywords:
+- codefresh
+- pipeline-manager
+maintainers:
+- email: itai@codefresh.io
+  name: Itai Gendler
+name: pipeline-manager
+sources:
+- https://github.com/codefresh-io/pipeline-manager
+version: 3.55.5

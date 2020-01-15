@@ -1,0 +1,16 @@
+containerPort: 8080
+controllerContainerPort: 80
+controllerHostPost: 80
+controllerImage: kubernetes-ingress-controller/nginx-ingress-controller
+controllerImageTag: 0.24.1
+controllerProbePort: 10254
+controllerRegistry: quay.io/
+controllerSecureContainerPort: 443
+controllerSecureHostPort: 443
+dockerRegistry: gcr.io/
+enabled: true
+image: google_containers/defaultbackend
+imagePullPolicy: IfNotPresent
+imageTag: 1.3
+livenessPort: 8080
+servicePort: 80

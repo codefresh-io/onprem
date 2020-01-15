@@ -1,0 +1,22 @@
+{{- if .Values.HorizontalPodAutoscaler }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name:  {{ template "cfapi.fullname" . }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ template "cfapi.fullname" . }}-{{ .version | default "base" }}
+  minReplicas: {{ coalesce .Values.HorizontalPodAutoscaler.minReplicas .Values.replicaCount 1 }}
+  maxReplicas: {{ coalesce .Values.HorizontalPodAutoscaler.maxReplicas .Values.replicaCount 2 }}
+  metrics:
+{{- if .Values.HorizontalPodAutoscaler.metrics }}
+{{ toYaml .Values.HorizontalPodAutoscaler.metrics | indent 4 }}
+{{- else }}
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 60
+{{- end }}
+{{- end }}

@@ -1,0 +1,21 @@
+affinity: {}
+dockerRegistry: gcr.io/codefresh-inc/
+dockerconfigjson: {}
+env:
+  NODE_ENV: kubernetes
+  SERVICE_ROLE: all
+formatLogsToElk: true
+global:
+  istio:
+    enabled: false
+image: codefresh/cf-broadcaster
+imagePullPolicy: Always
+imageTag: 1.2.1
+newrelicLicenseKey: ""
+port: 9016
+redeploy: false
+redis:
+  db: 1
+  port: 6379
+replicaCount: 1
+servicePort: 80

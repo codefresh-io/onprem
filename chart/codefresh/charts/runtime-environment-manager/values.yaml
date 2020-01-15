@@ -1,0 +1,23 @@
+affinity: {}
+dockerRegistry: gcr.io/codefresh-inc/
+dockerconfigjson: {}
+env:
+  NODE_ENV: kubernetes
+  RUNTIME_ENVS_JSON_PATH: /etc/admin/runtimeEnvironments.json
+  SERVICE_ROLE: all
+formatLogsToElk: true
+global:
+  istio:
+    enabled: false
+image: codefresh/runtime-environment-manager
+imagePullPolicy: Always
+imageTag: 3.14.1
+mongoCreateDbJobScript: files/mongoCreateDbJobScript
+mongodbName: runtime-environment-manager
+newrelicLicenseKey: ""
+port: 80
+redeploy: false
+replicaCount: 1
+requiredInfraComponenets:
+  mongo: true
+servicePort: 80

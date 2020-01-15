@@ -1,0 +1,15 @@
+apiVersion: v1
+description: Codefresh tls sign
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+keywords:
+- codefresh
+- kubernetes
+- cf-tls-sign
+maintainers:
+- email: alexei@codefresh.io
+  name: Alexei Ledenev
+name: cfsign
+sources:
+- https://github.com/codefresh-io/cf-tls-sign
+version: 1.1.2

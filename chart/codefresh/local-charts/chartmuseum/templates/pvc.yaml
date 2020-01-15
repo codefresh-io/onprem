@@ -1,0 +1,24 @@
+{{- if not (include "chartmuseum.existingPvc" . ) -}}
+
+{{- $storageClass :=  ( include "chartmuseum.storageClass" . ) -}}
+{{- $storageSize :=  ( include "chartmuseum.storageSize" . ) -}}
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  accessModes:
+    - {{ .Values.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ $storageSize | quote }}
+  {{- if $storageClass }}
+  storageClassName: {{ $storageClass | quote }}
+  {{- end }}
+{{- end -}}

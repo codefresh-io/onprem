@@ -1,0 +1,37 @@
+{{- if $.Values.global.istio.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ template "cfui.fullname" $ }}
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - hosts:
+    - {{ $.Values.global.appUrl }}
+    {{- range $key,$value := .Values.global.istio.extraDeployments }}
+      {{- range $host, $apps := $value }}
+    - {{ $host }}
+      {{- end }}
+    {{- end }}
+    port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    tls:
+      httpsRedirect: true
+      mode: SIMPLE
+      privateKey: /etc/istio/ingressgateway-certs/tls.key
+      serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
+  - hosts:
+    - {{ $.Values.global.appUrl }}
+    {{- range $key,$value := .Values.global.istio.extraDeployments }}
+      {{- range $host, $apps := $value }}
+    - {{ $host }}
+      {{- end }}
+    {{- end }}
+    port:
+      name: http
+      number: 80
+      protocol: HTTP
+  {{- end }}

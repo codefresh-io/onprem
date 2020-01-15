@@ -1,0 +1,16 @@
+{{ template "cf-broadcaster.renderDeployment" (dict "imageTag" .Values.imageTag "Chart" .Chart "Release" .Release "Values" .Values "Files" .Files) }}
+
+{{- if .Values.global.istio.enabled }}
+  {{- range $i, $value := .Values.global.istio.extraDeployments }}
+---
+    {{- range $host, $apps := $value }}
+      {{- range $name, $a := $apps }}
+        {{ $versionUnique := $host | replace "." "-" }}
+        {{- if (eq $name "cf-broadcaster") }}
+{{ template "cf-broadcaster.renderDeployment" (dict "version" $versionUnique "imageTag" $a.imageTag "appUrl" $host "Chart" $.Chart "Release" $.Release "Values" $.Values "Files" $.Files) }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+
+  {{- end }}
+{{- end }}

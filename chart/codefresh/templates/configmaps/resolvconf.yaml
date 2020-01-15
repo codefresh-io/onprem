@@ -1,0 +1,15 @@
+{{- if .Values.global.addResolvConf }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-resolvconf
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service  | quote }}
+data:
+  resolv.conf: |
+      search codefresh.svc.cluster.local svc.cluster.local cluster.local {{ .Values.global.addResolvConf.search }}
+      nameserver 10.96.0.10
+{{- end }}

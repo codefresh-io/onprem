@@ -1,0 +1,16 @@
+env:
+  SERVICE_ROLE: all
+formatLogsToElk: "true"
+global:
+  istio:
+    enabled: false
+image: gcr.io/codefresh-inc/codefresh/accounts-referrals
+imagePullPolicy: Always
+imageTag: 1.4.3
+mongoCreateDbJobScript: files/mongoCreateDbJobScript
+mongoURI: ""
+mongodbName: accounts-referrals
+port: 9000
+redeploy: false
+replicaCount: 1
+targetPort: 9000

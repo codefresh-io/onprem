@@ -1,0 +1,16 @@
+active: ""
+env:
+  SERVICE_ROLE: all
+formatLogsToElk: true
+global:
+  codefresh: codefresh
+  istio:
+    enabled: false
+image: gcr.io/codefresh-inc/codefresh/mailer
+imagePullPolicy: Always
+imageTag: 1.13.4
+port: 80
+redeploy: false
+replicaCount: 1
+sendgridKey: ""
+targetPort: 9000

@@ -66,8 +66,8 @@ function regexMatch() {
 
 approveContext() {
 	echo "Your kubectl is configured with the following context: "
-	CURRENT_CONTEXT=$(kubectl config current-context)
-    kubectl config get-contexts ${CURRENT_CONTEXT}
+	CURRENT_CONTEXT=$(oc config current-context)
+    oc config get-contexts ${CURRENT_CONTEXT}
 	read -r -p "Are you sure you want to continue? [y/N] " response
 
 	if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
@@ -129,7 +129,7 @@ helmInstall() {
 checkTillerInstalled() {
   TILLER_NAMESPACE=${1:-"kube-system"}
   msg "TILLER_NAMESPACE = $TILLER_NAMESPACE"
-  status=$(kubectl -n${TILLER_NAMESPACE} get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
+  status=$(oc -n${TILLER_NAMESPACE} get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
   
   if [[ "$status" != "Running" && "${TILLER_NAMESPACE}" != "kube-system" ]]; then
     err "Tiller is not running on namespace ${TILLER_NAMESPACE} . Please install tiller on the namespace ${TILLER_NAMESPACE} and retry"

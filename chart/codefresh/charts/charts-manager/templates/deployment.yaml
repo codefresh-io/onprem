@@ -1,0 +1,16 @@
+{{ template "charts-manager.renderDeployment" (dict "imageTag" .Values.imageTag "Chart" .Chart "Release" .Release "Values" .Values "Files" .Files "Template" .Template) }}
+
+{{- if .Values.global.istio.enabled }}
+  {{- range $i, $value := .Values.global.istio.extraDeployments }}
+---
+    {{- range $host, $apps := $value }}
+      {{- range $name, $a := $apps }}
+        {{ $versionUnique := $host | replace "." "-" }}
+        {{- if (eq $name "charts-manager") }}
+{{ template "charts-manager.renderDeployment" (dict "version" $versionUnique "imageTag" $a.imageTag "appUrl" $host "Chart" $.Chart "Release" $.Release "Values" $.Values "Files" $.Files "Template" $.Template) }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+
+  {{- end }}
+{{- end }}

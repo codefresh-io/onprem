@@ -1,0 +1,20 @@
+addr: 0.0.0.0
+clientPort: 4222
+clientTargetPort: 4222
+clusterPort: 6222
+clusterTargetPort: 6222
+httpPort: 8222
+httpTargetPort: 8222
+image: nats
+imagePullPolicy: IfNotPresent
+imageTag: 0.9.4
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+restartPolicy: Always
+service:
+  annotations:
+    pod.alpha.kubernetes.io/initialized: "true"
+svcClusterIP: None
+svcType: ClusterIP

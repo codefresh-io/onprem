@@ -1,0 +1,72 @@
+auth0LoginHost: codefresh-login.auth0.com
+deploymentTemplateImages: |
+  [
+    {
+      "image": "codefresh/remote-docker:latest",
+      "description": "Deploy image to Swarm",
+      "link": "https://docs.codefresh.io/docs/docker-swarm",
+      "code": " # Required Environment Variables:\n #\n # SSH_KEY - private SSH key, used to access Docker swarm master machine.\n #           need to replace 'newline' character with SPLIT_CHAR character.\n # SPLIT_CHAR - split character, you've used to replace newline in SSH key. Recommendation: use ',' (comma character).\n #\n # Swarm delpoy command arguments:\n #\n # RDOCKER_HOST - remote Docker swarm master machine, accessible over SSH (for example, ubuntu@ec2-public-ip)\n # STACK_NAME - is new Docker stack name\n #\n # Use command below to deploy compose application to a Swarm cluster\n # rdocker ${{RDOCKER_HOST}} docker stack deploy --compose-file docker-stack.yml ${{STACK_NAME}}\n #\n # read more here: https://docs.codefresh.io/docs/docker-swarm"
+    },
+    {
+      "image": "codefresh/cf-deploy-ecs:latest",
+      "description": "Deploy image to ECS",
+      "link": "https://docs.codefresh.io/docs/amazon-ecs",
+      "code": " # Required Environment Variables:\n #\n # AWS_ACCESS_KEY_ID - AWS access key\n # AWS_SECRET_ACCESS_KEY - AWS secret access key\n #\n # ECS deploy command arguments:\n #\n # AWS_REGION - target AWS region\n # CLUSTER_NAME - ECS cluster name\n # SERVICE_NAME - ECS service names\n #\n # Use command below to deploy application to AWS ECS\n \n # cfecs-update ${{AWS_REGION}} ${{CLUSTER_NAME}} ${{SERVICE_NAME}}\n #\n # read more here: https://docs.codefresh.io/docs/amazon-ecs"
+    },
+    {
+      "image": "codefresh/cf-deploy-kubernetes:latest",
+      "description": "Deploy image to Kubernetes",
+      "link": "https://docs.codefresh.io/docs/kubernetes",
+      "code": " # Required Environment Variables:\n #\n # KUBERNETES_USER - The user for the Kubernetes cluster.\n # KUBERNETES_PASSWORD - The password for the Kubernetes cluster.\n # KUBERNETES_SERVER - The server (HTTPS endpoint) of the Kubernetes cluster's API\n #\n # Use command below to deploy compose application to kubernetes\n #\n # /cf-deploy-kubernetes deployment.yml\n #\n # Make sure you change the path of 'deployment.yml' to the path in your repository\n #\n # read more about how to obtain the kubernetes credentials and using the codefresh deploy here: https://docs.codefresh.io/docs/kubernetes\n"
+    }
+  ]
+deployments:
+- imageTag: masterStable
+  version: stable
+- imageTag: masterLatest
+  version: latest
+dindClustersSecret: dind-automation-clusters
+dockerRegistry: gcr.io/codefresh-inc/
+env:
+  ACTIVITY_LOG_URI: http://activity-log
+  APP_ENV: kubernetes
+  DOCKER_NODE_CERT_PATH: /etc/ssl/cf
+  DOCKER_NODE_PUBLIC_DOMAIN: cf-cd.com
+  HELM_INSTALL_PIPELINE_REPO_USE_HTTP: "false"
+  MAIL_ACTIVE: true
+  NODE_ENV: kubernetes
+  OAUTH_ROUTER_CALLBACK: ""
+  PROGRESS_BUILDLOGS_BUCKETNAME: ""
+  PROVIDERS_JSON_PATH: /etc/admin/providers.json
+  RUNTIME_ENVS_JSON_PATH: /etc/admin/runtimeEnvironments.json
+  SERVICE_ROLE: all
+formatLogsToElk: true
+github:
+  apiHost: api.github.com
+  loginHost: github.com
+  protocol: https
+gitlab:
+  loginHost: gitlab.com
+  protocol: https
+global:
+  istio:
+    enableForSupportingStabeLatestEnvironments: false
+    enabled: false
+  stableVersion: latest
+image: codefresh/cf-api
+imagePullPolicy: Always
+imageTag: 13.18.5
+internalPort: 3000
+istio:
+  enabled: false
+kubectlHelmImage: codefresh/cfstep-helm
+mongodbImage: bitnami/mongodb:3.4.5-r0
+port: 80
+providersData: |
+  {
+    "aws": {}
+  }
+redeploy: false
+segmentEnable: false
+targetInternalPort: 40000
+targetPort: 80

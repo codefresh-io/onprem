@@ -1,0 +1,16 @@
+apiVersion: v1
+appVersion: "2.6"
+description: The Registry is a stateless, highly scalable server side application
+  that stores and lets you distribute Docker images.
+home: https://docs.docker.com/registry/
+icon: https://www.docker.com/sites/default/files/oyster-registry-3.png
+keywords:
+- docker
+- registry
+maintainers:
+- email: admin@codefresh.io
+  name: Codefresh
+name: registry
+sources:
+- https://github.com/docker/distribution
+version: 0.1.2

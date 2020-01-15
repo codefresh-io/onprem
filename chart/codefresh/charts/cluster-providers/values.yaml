@@ -1,0 +1,17 @@
+dockerRegistry: gcr.io/codefresh-inc/
+env:
+  SERVICE_ROLE: all
+formatLogsToElk: "true"
+global:
+  istio:
+    enabled: false
+image: codefresh/cluster-providers
+imagePullPolicy: Always
+imageTag: 1.4.3
+mongoCreateDbJobScript: files/mongoCreateDbJobScript
+mongoURI: ""
+mongodbName: cluster-providers
+port: 9000
+redeploy: false
+replicaCount: 1
+targetPort: 9000

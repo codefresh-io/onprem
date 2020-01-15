@@ -1,0 +1,7 @@
+containerPort: 1300
+dockerCleanerCron: 23 3 * * *
+imagePullPolicy: IfNotPresent
+redeploy: false
+varLibDockerVolume:
+  accessMode: ReadWriteOnce
+  storageSize: 100Gi

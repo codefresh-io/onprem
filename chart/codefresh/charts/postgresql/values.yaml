@@ -1,0 +1,26 @@
+image: postgres
+imageTag: 9.6.2
+metrics:
+  enabled: false
+  image: wrouesnel/postgres_exporter
+  imagePullPolicy: IfNotPresent
+  imageTag: v0.1.1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+nodeSelector: {}
+persistence:
+  accessMode: ReadWriteOnce
+  enabled: true
+  size: 8Gi
+  subPath: postgresql-db
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+service:
+  externalIPs: []
+  port: 5432
+  type: ClusterIP
+tolerations: []
