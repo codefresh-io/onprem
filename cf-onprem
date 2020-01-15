@@ -20,7 +20,6 @@ readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yaml"
 readonly WEBTLS_VALUES_FILE="${WORKING_DIR}/webtls.yaml"
 NAMESPACE=${NAMESPACE:-codefresh-dev}
 SKIP_VALIDATOR="true"
-
 usage() {
   echo "Usage:
   $0 [ options ]
@@ -189,8 +188,8 @@ do
         shift
       ;;
     --helm-chart)
-    
         HELM_CHART="$value"
+        echo "HELM_CHART=$HELM_CHART"
         shift
       ;;
     --version)
