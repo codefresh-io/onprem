@@ -74,6 +74,7 @@ charts-manager:
 
 cluster-providers:
   port: 8080
+  targetPort: 8080
 
 kube-integration:
   targetPort: 8080
