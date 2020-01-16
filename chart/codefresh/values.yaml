@@ -303,7 +303,7 @@ cf-broadcaster:
     tlsSignService: cfsign
   image: codefresh/cf-broadcaster
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.92
   newrelicLicenseKey: ""
   port: 9016
   redeploy: false
@@ -463,7 +463,7 @@ cfapi:
     tlsSignService: cfsign
   image: codefresh/cf-api
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.92
   internalPort: 3000
   istio:
     enabled: false
@@ -693,7 +693,7 @@ cfui:
     tlsSignService: cfsign
   image: codefresh/cf-ui
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.92
   ingress:
     enabled: false
   istio:
@@ -979,7 +979,7 @@ charts-manager:
     tlsSignService: cfsign
   image: codefresh/charts-manager
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.92
   mongoCreateDbJobScript: files/mongoCreateDbJobScript
   mongodbName: charts-manager
   port: 9000
@@ -1081,7 +1081,7 @@ cluster-providers:
     tlsSignService: cfsign
   image: codefresh/cluster-providers
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.92
   mongoCreateDbJobScript: files/mongoCreateDbJobScript
   mongoURI: ""
   mongodbName: cluster-providers
@@ -1312,7 +1312,7 @@ context-manager:
     tlsSignService: cfsign
   image: codefresh/context-manager
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.92 
   mongoCreateDbJobScript: files/mongoCreateDbJobScript
   mongodbName: context-manager
   port: 9000
@@ -2269,7 +2269,7 @@ kube-integration:
     tlsSignService: cfsign
   image: codefresh/kube-integration
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.92
   port: 9000
   redeploy: false
   replicaCount: 1
@@ -2999,7 +2999,7 @@ pipeline-manager:
     tlsSignService: cfsign
   image: codefresh/pipeline-manager
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.92
   mongoCreateDbJobScript: files/mongoCreateDbJobScript
   mongodbName: pipeline-manager
   port: 9000
@@ -3629,7 +3629,7 @@ runtime-environment-manager:
     tlsSignService: cfsign
   image: codefresh/runtime-environment-manager
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.92
   mongoCreateDbJobScript: files/mongoCreateDbJobScript
   mongodbName: runtime-environment-manager
   newrelicLicenseKey: invalid-key
@@ -3946,7 +3946,7 @@ tasker-kubernetes:
     tlsSignService: cfsign
   image: codefresh/tasker-kubernetes
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.92
   redeploy: false
   replicaCount: 1
 workflow-baseline-invoker:

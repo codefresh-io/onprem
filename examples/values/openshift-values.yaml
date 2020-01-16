@@ -10,10 +10,17 @@ global:
   #mongoURI: mongodb://someuser:mTiqweAsdw@my-mongo-cluster-shard-00-00-vziq1.mongodb.net:27017/?ssl=true
   #mongoSkipUserCreation: true
   #mongoDeploy: false   # disables deployment of internal mongo service
+  postgresUser: codefresh
 
   appProtocol: https
 ### Codefresh App domain name
+  # appUrl: codefresh-dev.v12.np01.ocp.six-group.net
   appUrl: g.apps-os-t2.cf-cd.com
+
+  chartsManagerPort: 8080
+  clusterProvidersPort: 8080
+  kubeIntegrationPort: 8080
+  runtimeEnvironmentManagerPort: 8080
 
 # Storage class for all persistent services (only in case your storage class supports automatic volume provisioning). By default Codefresh will use the default storage class configured in your cluster, if the storage class you want to use isn't set as default in your k8s cluster please use this variable to describe it
 #  storageClass: my-storage-class
@@ -35,7 +42,7 @@ global:
 #   no_proxy: "127.0.0.1,localhost,kubernetes.default.svc,.codefresh.svc,100.64.0.1,169.254.169.254,cf-builder,cf-cfapi,cf-cfui,cf-chartmuseum,cf-charts-manager,cf-cluster-providers,cf-consul,cf-consul-ui,cf-context-manager,cf-cronus,cf-helm-repo-manager,cf-hermes,cf-ingress-controller,cf-ingress-http-backend,cf-kube-integration,cf-mongodb,cf-nats,cf-nomios,cf-pipeline-manager,cf-postgresql,cf-rabbitmq,cf-redis,cf-registry,cf-runner,cf-runtime-environment-manager,cf-store,cf-tasker-kubernetes"
 
 ### Firebase secret
-firebaseSecret: 
+firebaseSecret: none
 
 tls:
   selfSigned: true
@@ -47,6 +54,32 @@ ingress:
 nomios:
   ingress:
     enabled: false
+helm-repo-manager:
+  chartmuseum: 
+    publicHelmRepo: false
+# rbacCreate: false
+# cfapi:
+#   rbacCreate: false
+cfapi: 
+  targetPort: 8080
+
+cf-broadcaster:
+  port: 8080
+
+cfui:
+  port: 8080
+
+charts-manager:
+  port: 8080
+
+cluster-providers:
+  port: 8080
+
+kube-integration:
+  targetPort: 8080
+  
+runtime-environment-manager:
+  port: 8080
 
 ## Custom annotations for Codefresh ingress resource that override defaults
 #annotations:
@@ -68,130 +101,58 @@ nomios:
 #   existingPvc: cf-postgress-lv
 #   nodeSelector:
 #     kubernetes.io/hostname: storage-host-01
+builder:
+  enabled: false
+runner:
+  enabled: false
+registry:
+  enabled: false
 
-mongodb:
-  serviceAccountName: admin
-  storageSize: 8Gi
-  storageClass:
-  existingPvc: cf-mongodb
-  nodeSelector:
-    kubernetes.io/hostname: ip-172-31-128-201.us-east-2.compute.internal
-
-postgresql:
-  serviceAccountName: admin
-  storageSize: 8Gi
-  storageClass:
-  existingPvc: cf-postgresql
-  nodeSelector:
-    kubernetes.io/hostname: ip-172-31-128-201.us-east-2.compute.internal
-
-consul:
-  serviceAccountName: admin
-  storageSize: 1Gi
-  storageClass:
-  existingPvc: cf-consul-0
-  nodeSelector:
-    kubernetes.io/hostname: ip-172-31-128-201.us-east-2.compute.internal
-
-redis:
-  serviceAccountName: admin
-  storageSize: 8Gi
-  storageClass:
-  existingPvc: cf-redis
-  nodeSelector:
-    kubernetes.io/hostname: ip-172-31-128-201.us-east-2.compute.internal
-
+mongo:
+  enabled: false
 rabbitmq:
-  ##image: bitnami/rabbitmq:3.8.1-r5
-  serviceAccountName: admin
-  storageSize: 8Gi
-  storageClass:
-  existingPvc: cf-rabbitmq
-  nodeSelector:
-    kubernetes.io/hostname: ip-172-31-128-201.us-east-2.compute.internal
+  enabled: false
+redis:
+  enabled: false
+postgresql:
+  enabled: false
 
-cronus:
-  serviceAccountName: admin
-  storageSize: 1Gi
-  storageClass:
-  existingPvc: cf-cronus
-  nodeSelector:
-    kubernetes.io/hostname: ip-172-31-128-201.us-east-2.compute.internal
+helm-repo-manager:
+  enabled: false
 
 hermes:
-  redis:
-## Set hermes store password. It is mandatory
-    serviceAccountName: admin
-    securityContext:
-      fsGroup: 0
-      runAsUser: 0
-    redisPassword: verysecurepassword
-    storageSize: 8Gi
-    storageClass:
-    existingPvc: cf-store
-    nodeSelector:
-      kubernetes.io/hostname: ip-172-31-128-201.us-east-2.compute.internal
-
-registry:
-  storageSize: 100Gi
-  storageClass:
-  existingPvc: cf-registry
-  nodeSelector:
-    kubernetes.io/hostname: ip-172-31-128-201.us-east-2.compute.internal
-
-# Insert custom registry configuration (https://docs.docker.com/registry/configuration/)
-#   registryConfig:
-#     version: 0.1
-#     log:
-#       level: debug
-#       fields:
-#         service: registry
-#     storage:
-#       cache:
-#         blobdescriptor: inmemory
-#       s3:
-#          region: YOUR_REGION
-#          bucket: YOUR_BUCKET_NAME
-#          accesskey: AWS_ACCESS_KEY
-#          secretkey: AWS_SECRET_KEY
-#     http:
-#       addr: :5000
-#       headers:
-#         X-Content-Type-Options: [nosniff]
-#     health:
-#       storagedriver:
-#         enabled: true
-#         interval: 10s
-#         threshold: 3
-
-builder:
-  serviceAccountName: admin
-  nodeSelector:
-    kubernetes.io/hostname: ip-172-31-128-201.us-east-2.compute.internal
-## Set time to run docker cleaner
-  dockerCleanerCron: 0 0 * * *
-## Override builder PV initial size
-  storageSize: 100Gi
-  storageClass:
-  existingPvc: cf-builder-0
-
-runner:
-  serviceAccountName: admin
-  nodeSelector: 
-    kubernetes.io/hostname: ip-172-31-128-201.us-east-2.compute.internal
-## Set time to run docker cleaner
-  dockerCleanerCron: 0 0 * * *
-## Override runner PV initial size
-  storageSize: 100Gi
-  storageClass:
-  existingPvc: cf-runner-0
+  enabled: false
 
 chartmuseum:
-  nodeSelector: 
-    kubernetes.io/hostname: ip-172-31-128-201.us-east-2.compute.internal
-  storageSize: 8Gi
+  localHelmRepo: false
+
+consul:
+  ImageTag: "1.0.1"
+  storageSize: 1Gi
   storageClass:
-  existingPvc: cf-chartmuseum
+  #existingPvc: cf-consul-0
+  #nodeSelector:oc get 
+#   storageClass:
+#   #existingPvc: cf-cronus
+#   #nodeSelector:
+#   #  kubernetes.io/hostname: storage-host-01
+
+# chartmuseum:
+#   storageSize: 8Gi
+#   storageClass:
+#   #existingPvc: cf-chartmuseum
+#   #nodeSelector:
+#   #  kubernetes.io/hostname: storage-host-01
+
+# hermes:
+#   redis:
+# ## Set hermes store password. It is mandatory
+#     redisPassword: verysecurepassword
+#     storageSize: 8Gi
+#     storageClass:
+#     #existingPvc: cf-store
+#     #nodeSelector:
+#     #  kubernetes.io/hostname: storage-host-01
 
 # backups:
 #   #enabled: true

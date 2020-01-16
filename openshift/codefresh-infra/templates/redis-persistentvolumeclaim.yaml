@@ -1,0 +1,13 @@
+{{- if $.Values.persistence }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis
+spec:
+  storageClassName: nfs-six-backup-none
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $.Values.redis.persistentVolumeClaimSize }}
+{{- end }}

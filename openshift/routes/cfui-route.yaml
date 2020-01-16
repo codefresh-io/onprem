@@ -2,12 +2,12 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: cf-cfui
-  namespace: codefresh
+  namespace: codefresh-dev
 spec:
   host: g.apps-os-t1.cf-cd.com
   # path: /
   port:
-    targetPort: 80
+    targetPort: 8080
   tls:
     termination: edge
   to:
