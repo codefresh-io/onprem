@@ -43,8 +43,10 @@ spec:
         heritage: {{ $.Release.Service  | quote }}
         version: {{ .version | default "base" | quote  }}
         stable-version: {{ .stableVersion | default "false" | quote  }}
-    spec:
-      {{- if $.Values.rbacEnable }}
+    spec:  
+      {{- if .Values.serviceAccountName }}
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      {{- else if $.Values.rbacEnable }}
       serviceAccountName: {{ template "cfapi.fullname" $ }}
       {{- end }}
       {{- with (default $.Values.global.appServiceTolerations $.Values.tolerations ) }}

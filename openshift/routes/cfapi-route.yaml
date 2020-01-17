@@ -4,7 +4,7 @@ metadata:
   name: cf-cfapi
   namespace: codefresh-dev
 spec:
-  host: g.apps-os-t1.cf-cd.com
+  host: codefresh-dev.v12.np01.ocp.six-group.net
   path: /api
   port:
     targetPort: 8080

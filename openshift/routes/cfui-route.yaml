@@ -4,7 +4,7 @@ metadata:
   name: cf-cfui
   namespace: codefresh-dev
 spec:
-  host: g.apps-os-t1.cf-cd.com
+  host: codefresh-dev.v12.np01.ocp.six-group.net
   # path: /
   port:
     targetPort: 8080

@@ -4,7 +4,7 @@ assets
 
 tmp/
 # values.yaml
-/values.yaml
+#/values.yaml
 /webtls.yaml
 #/private.key
 #/ssl.crt

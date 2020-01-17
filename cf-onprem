@@ -98,7 +98,8 @@ EOF
 }
 
 generateWebTlsValuesFile() {
-  
+  unset SET_WEBTLS_VALUES
+  return 0
   eval "$(parse_yaml "${VALUES_FILE}" | grep tls_)"
   echo "generateWebTlsValuesFile: tls_cert=$tls_cert tls_key=$tls_key tls_selfSigned=$tls_selfSigned "
   if [[ "${tls_selfSigned}" == "true" ]]; then
@@ -141,11 +142,11 @@ generateWebTlsValuesFile() {
      return 1
   fi
 
-  WEBTLSCERT=$(cat ${tls_cert_realpath} | sed 's/^/    /')
-  WEBTLSKEY=$(cat ${tls_key_realpath} | sed 's/^/    /')
+  WEBTLSCERT=$(cat ${tls_cert_realpath} | /usr/bin/sed 's/^/    /')
+  WEBTLSKEY=$(cat ${tls_key_realpath} | /usr/bin/sed 's/^/    /')
 
-  WEBTLSCERT_CFUI=$(cat ${tls_cert_realpath} | sed 's/^/      /')
-  WEBTLSKEY_CFUI=$(cat ${tls_key_realpath} | sed 's/^/      /')
+  WEBTLSCERT_CFUI=$(cat ${tls_cert_realpath} | /usr/bin/sed 's/^/      /')
+  WEBTLSKEY_CFUI=$(cat ${tls_key_realpath} | /usr/bin/sed 's/^/      /')
 
   cat <<-EOF >${WEBTLS_VALUES_FILE}
 ---
@@ -248,7 +249,7 @@ if [[ -z "${HELM_CHART}" ]]; then
   helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}" || err "Failed to add helm repo codefresh-onprem-${CHANNEL} ${CODEFRESH_REPOSITORY}"
   HELM_CHART=codefresh-onprem-${CHANNEL}/codefresh
 fi
-cf_status=$(helm -n $NAMESPACE status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
+cf_status=$(helm -n $NAMESPACE status $RELEASE 2>/dev/null | /usr/bin/awk -F': ' '$1 == "STATUS" {print $2}')
 
 if [[ -z "${cf_status}" ]]; then
   SEEDJOBS="--set global.seedJobs=true"

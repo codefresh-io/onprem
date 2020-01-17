@@ -4,10 +4,10 @@ metadata:
   name: cf-ws
   namespace: codefresh
 spec:
-  host: g.apps-os-t1.cf-cd.com
+  host: codefresh-dev.v12.np01.ocp.six-group.net
   path: /ws
   port:
-    targetPort: 80
+    targetPort: 8080
   tls:
     termination: edge
   to:

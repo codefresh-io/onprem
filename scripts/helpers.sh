@@ -13,6 +13,9 @@ case "$(uname -s)" in
   Linux)
     os=linux
   ;;
+  CYGWIN_NT-6.1)
+    os=linux
+  ;;
   Darwin)
     os=darwin
   ;;
@@ -38,10 +41,10 @@ exists() {
 function parse_yaml {
    local prefix=$2
    local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
-   sed -ne "s|^\($s\):|\1|" \
+   /usr/bin/sed -ne "s|^\($s\):|\1|" \
         -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
         -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
-   awk -F$fs '{
+   /usr/bin/awk -F$fs '{
       indent = length($1)/2;
       vname[indent] = $2;
       for (i in vname) {if (i > indent) {delete vname[i]}}
@@ -81,8 +84,9 @@ approveContext() {
 
 HELM_VERSION="${CF_HELM_VERSION:-2.12.0}"
 checkHelmInstalled() {
+  return 0
   if command -v $1 >/dev/null 2>&1; then
-    helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//' | sed 's/v//' )
+    helm_version=$(helm version --short | /usr/bin/sed 's/.*\: v//' | /usr/bin/sed 's/+.*//' | /usr/bin/sed 's/v//' )
     msg "helm is already installed and has version v$helm_version"
     [ $(ver $helm_version) -lt $(ver $HELM_VERSION) ] && \
     err "You have older helm version than required. Please upgrade to v$HELM_VERSION or newer !"

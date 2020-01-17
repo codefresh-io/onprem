@@ -1,6 +1,6 @@
-persistence: true
+#persistence: true
 rabbitmq:
-  repository: artifactory.six-group.net/rabbitmq
+  repository: rabbitmq
   tag: 3.7.16-management
   name: rabbitmq
   pullPolicy: IfNotPresent
@@ -17,7 +17,7 @@ rabbitmq:
       memory: 512Mi
   
 postgresql:
-  repository: artifactory.six-group.net/centos/postgresql-95-centos7
+  repository: kosta709/postgresql-95-centos7
   tag: 0.2
   name: postgresql
   pullPolicy: IfNotPresent
@@ -32,7 +32,7 @@ postgresql:
 
 
 mongodb:
-  repository: artifactory.six-group.net/bitnami/mongodb
+  repository: bitnami/mongodb
   tag: 4.0.10
   name: mongodb
   pullPolicy: IfNotPresent
@@ -45,7 +45,7 @@ mongodb:
 # see for config: https://github.com/bitnami/bitnami-docker-mongodb/tree/4.0.10-ol-7-r64
 
 redis:
-  repository: artifactory.six-group.net/bitnami/redis
+  repository: bitnami/redis
   tag: 4.0-centos-7
   name: redis
   pullPolicy: IfNotPresent

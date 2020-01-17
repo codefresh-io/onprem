@@ -20,7 +20,7 @@ spec:
             set -e
             NODE_NAME=test-node
             SUBDOMAIN=test
-            NODE_ADDRESS=52.44.198.132
+            NODE_ADDRESS=mdzhlbmac07.standard.six-group.net
             CONSUL="http://cf-consul.codefresh-dev.svc:8500"
             ACCOUNT=test-non-tls
             ROLE=builder
@@ -43,7 +43,7 @@ spec:
                     "type_builder"
                 ],
                 "Address": "'${NODE_ADDRESS}'",
-                "Port": 2376
+                "Port": 4243
                 },
                 "Check": {
                 "Node": "",

@@ -18,7 +18,9 @@ spec:
         release: {{ .Release.Name | quote }}
         heritage: {{ .Release.Service  | quote }}
     spec:
-      {{- if .Values.rbacEnable }}
+      {{- if .Values.jobServiceAccountName }}
+      serviceAccountName: {{ .Values.jobServiceAccountName }}
+      {{- else if .Values.rbacEnable }}
       serviceAccountName: cf-codefresh-gencerts
       {{- end }}
       {{- if .Values.global.privateRegistry }}
