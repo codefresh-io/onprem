@@ -1,0 +1,7 @@
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  annotations:
+    openshift.io/description: Codefresh Services
+    openshift.io/display-name: Codefresh
+  name: codefresh-dev

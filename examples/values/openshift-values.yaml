@@ -22,6 +22,12 @@ global:
   kubeIntegrationPort: 8080
   runtimeEnvironmentManagerPort: 8080
 
+  runtimeRedisHost: 52.44.198.132
+  runtimeRedisPassword: hoC9szf7NtrU
+  runtimeRedisDb: 1
+  runtimeRedisPort: "6379"
+  runtimeMongoURI: "mongodb://cfuser:mTiXcU2wafr9@52.44.198.132:27017/codefresh"
+
 # Storage class for all persistent services (only in case your storage class supports automatic volume provisioning). By default Codefresh will use the default storage class configured in your cluster, if the storage class you want to use isn't set as default in your k8s cluster please use this variable to describe it
 #  storageClass: my-storage-class
 
@@ -65,7 +71,7 @@ cfapi:
 
 cf-broadcaster:
   port: 8080
-
+    
 cfui:
   port: 8080
 
