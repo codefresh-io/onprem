@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: register-consul
+spec:
+  backoffLimit: 10
+  activeDeadlineSeconds: 200
+  ttlSecondsAfterFinished: 200
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: reg
+        image: codefresh/curl:latest
+        command:
+          - sh
+          - -c
+          - |
+            #!/bin/sh​
+            set -e
+            NODE_NAME=test-node
+            SUBDOMAIN=test
+            NODE_ADDRESS=52.44.198.132
+            CONSUL="http://cf-consul.codefresh-dev.svc:8500"
+            ACCOUNT=test-non-tls
+            ROLE=builder
+            PROVIDER='
+            { 
+                "name": "remote", 
+                "type": "customer" 
+            }'
+            SYSTEM_DATA='{"os_name": "dind"}'
+            NODE_SERVICE='
+            {
+                "Node": "'${NODE_NAME}'",
+                "Address": "'${NODE_ADDRESS}'",
+                "Service": {
+                "Service": "docker-node",
+                "Tags": [
+                    "dind",
+                    "noagent",
+                    "account_codefresh",
+                    "type_builder"
+                ],
+                "Address": "'${NODE_ADDRESS}'",
+                "Port": 2376
+                },
+                "Check": {
+                "Node": "",
+                "CheckID": "service:docker-node",
+                "Name": "Remote Node Check",
+                "Notes": "Check builder is up and running",
+                "Output": "Builder alive and reachable",
+                "Status": "passing",
+                "ServiceID": "docker-node"
+                }
+            }'
+            echo "Registering dind node ($NODE_NAME) in consul. Configuration: ${NODE_SERVICE}"
+            curl -X PUT -d "${NODE_SERVICE}" ${CONSUL}/v1/catalog/register
+            curl -X PUT -d "${NODE_ADDRESS}" ${CONSUL}/v1/kv/services/docker-node/${NODE_NAME}/publicAddress
+            curl -X PUT -d "${ACCOUNT}" ${CONSUL}/v1/kv/services/docker-node/${NODE_NAME}/account
+            curl -X PUT -d "${ROLE}" ${CONSUL}/v1/kv/services/docker-node/${NODE_NAME}/role
+            curl -X PUT -d "${PROVIDER}" ${CONSUL}/v1/kv/services/docker-node/${NODE_NAME}/systemData
+            curl -X PUT -d "${SYSTEM_DATA}" ${CONSUL}/v1/kv/services/docker-node/${NODE_NAME}/provider

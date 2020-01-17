@@ -1,2 +1,7 @@
-export CF_HELM_CHANNEL=prod
-export CF_HELM_VERSION=
+
+DIR=$(dirname $0)
+
+export HELM_CHART=${DIR}/chart/codefresh
+export PRIVATE_REGISTRY=docker-local.jfrog1.cf-cd.com
+export NAMESPACE=codefresh-dev
+export SKIP_VALIDATOR="true"

@@ -53,9 +53,12 @@ Otherwise if ssl.selfSigned=true it generates selfsigned certificates with CN=<g
 
 
 4. run Intaller:
+
  ```
  ./cf-onprem [parameters]
  ```
+You can also use `env-vars` file to set parameters for your installation
+
 
  Example 1 - from dev repo channel specific version :
  ```

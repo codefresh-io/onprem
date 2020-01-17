@@ -33,15 +33,21 @@ usage() {
   --skip-validator   - skip validator running
   --dry-run          - dry-run mode - echo command instead of actual running
   --private-registry - pull the images from a private docker registry
+  --reg-user         - username for private registry
+  --reg-password     - password for provate registry
   "
 }
 
 generateDockerConfig(){
 if [[ -n "${PRIVATE_REGISTRY}" ]]; then
   echo "Using custom registry to pull cf images from..."
-  if [[ -z ${REG_USER} ]] || [[ -z ${REG_PASSWORD} ]]; then err "Custom docker registry login and/or password are not set"; fi
+  if [[ -z ${REG_USER} ]] || [[ -z ${REG_PASSWORD} ]]; then 
+     err "Custom docker registry login and/or password are not set. 
+     Specify --reg-user and --reg-password for registry ${PRIVATE_REGISTRY}"; 
+  fi
   DOCKER_CFG_VAR=$(echo -n "${REG_USER}:${REG_PASSWORD}" | $BASE64)
   REGISTRY=$(echo $PRIVATE_REGISTRY | cut -d '/' -f1)
+  SET_PRIVATE_REGISTRY="--set global.privateRegistry=true --set global.dockerRegistry=${REGISTRY}/"
 else
   REGISTRY='gcr.io'
   echo "generateDockerConfig: SERVICE_ACCOUNT_FILE=$SERVICE_ACCOUNT_FILE "
@@ -215,7 +221,6 @@ do
       ;;
     --private-registry)
         PRIVATE_REGISTRY=${value}
-        SET_PRIVATE_REGISTRY="--set global.privateRegistry=true --set global.dockerRegistry=${value}"
         shift
       ;;
   esac
