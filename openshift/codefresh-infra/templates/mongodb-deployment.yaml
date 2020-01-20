@@ -30,7 +30,7 @@ spec:
           protocol: TCP
       {{- if $.Values.persistence }}
         volumeMounts:
-            - mountPath: /bitnami/mongodb/data/db
+            - mountPath: /bitnami/mongodb
               name: data
       volumes:
         - name: data

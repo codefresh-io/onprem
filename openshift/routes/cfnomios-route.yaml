@@ -7,7 +7,7 @@ spec:
   host: codefresh-dev.v12.np01.ocp.six-group.net
   path: /nomios
   port:
-    targetPort: 80
+    targetPort: 8080
   to:
     kind: Service
     name: cf-nomios

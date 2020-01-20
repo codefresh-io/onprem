@@ -17,17 +17,11 @@ global:
   # appUrl: codefresh-dev.v12.np01.ocp.six-group.net
   appUrl: codefresh-dev.v12.np01.ocp.six-group.net
 
+
   chartsManagerPort: 8080
   clusterProvidersPort: 8080
   kubeIntegrationPort: 8080
   runtimeEnvironmentManagerPort: 8080
-
-  runtimeRedisHost: cf-redis-codefresh-dev.v12.np01.ocp.six-group.net:20005
-  runtimeRedisPassword: hoC9szf7NtrU
-  runtimeRedisDb: "1"
-  runtimeRedisPort: "6379"
-  runtimeMongoURI: "mongodb://cfuser:mTiXcU2wafr9@mongodb-codefresh-dev.v12.np01.ocp.six-group.net:20006/codefresh"
-
 
 # Storage class for all persistent services (only in case your storage class supports automatic volume provisioning). By default Codefresh will use the default storage class configured in your cluster, if the storage class you want to use isn't set as default in your k8s cluster please use this variable to describe it
 #  storageClass: my-storage-class
@@ -55,8 +49,6 @@ jobServiceAccountName: codefresh-app
 rbacCreate: false
 tls:
   selfSigned: true
-  cert: certs/ssl.crt
-  key: certs/privkey.pem
 
 ingress:
   enabled: false
@@ -64,15 +56,17 @@ nomios:
   ingress:
     enabled: false
 helm-repo-manager:
-  chartmuseum: 
+  chartmuseum:
     publicHelmRepo: false
-# rbacCreate: false
-# cfapi:
-#   
-cfapi: 
+
+cfapi:
   targetPort: 8080
   rbacCreate: false
   serviceAccountName: codefresh-app
+  env:
+    EXTERNAL_URL: http://cf-cfapi
+    EVENT_REPORTING_URL: http://cf-cfapi/api/workflow/
+
   resources:
     limits:
       cpu: 1000m
@@ -80,6 +74,7 @@ cfapi:
     requests:
       cpu: 100m
       memory: 128Mi
+
 
 cf-broadcaster:
   port: 8080
@@ -90,7 +85,7 @@ cf-broadcaster:
     requests:
       cpu: 100m
       memory: 128Mi
-      
+
 cfui:
   port: 8080
 
@@ -103,7 +98,7 @@ cluster-providers:
 
 kube-integration:
   targetPort: 8080
-  
+
 runtime-environment-manager:
   port: 8080
 
@@ -116,6 +111,7 @@ runtime-environment-manager:
 # existingPvc should exist before launching the intallation and takes precedence over storageClass
 #
 # Specify node selector if
+
 # Example 1, mongodb with storageClass for dynamic volume provisoning:
 # mongodb:
 #   storageClass: ceph-pool-1
@@ -127,6 +123,7 @@ runtime-environment-manager:
 #   existingPvc: cf-postgress-lv
 #   nodeSelector:
 #     kubernetes.io/hostname: storage-host-01
+
 builder:
   enabled: false
 runner:
@@ -158,7 +155,7 @@ consul:
   storageSize: 1Gi
   storageClass:
   #existingPvc: cf-consul-0
-  #nodeSelector:oc get 
+  #nodeSelector:oc get
 #   storageClass:
 #   #existingPvc: cf-cronus
 #   #nodeSelector:
