@@ -14,8 +14,8 @@ global:
 
   appProtocol: https
 ### Codefresh App domain name
-  # appUrl: codefresh-dev.v12.np01.ocp.six-group.net
-  appUrl: codefresh-dev.v12.np01.ocp.six-group.net
+  appUrl: g.apps-os-t2.cf-cd.com
+  #appUrl: codefresh-dev.v12.np01.ocp.six-group.net
 
 
   chartsManagerPort: 8080
@@ -144,7 +144,7 @@ helm-repo-manager:
   enabled: false
 
 hermes:
-  enabled: false
+  enabled: true
 
 chartmuseum:
   localHelmRepo: false

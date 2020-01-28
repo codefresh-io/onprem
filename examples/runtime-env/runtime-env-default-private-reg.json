@@ -11,8 +11,11 @@ runtimeScheduler:
   cluster:
     inCluster: true
     namespace: codefresh-dev
-  image: 'docker-local.jfrog1.cf-cd.com/engine:cf-onprem-v1.0.90-http'
+  image: 'docker-local.jfrog1.cf-cd.com/engine:cf-onprem-v1.0.93-http'
   envVars:
+    LOGGER_ALTERNATE_CONFIG_OPTS: >-
+    {"type":"composition","description":"config that should be used as default for in-house logging","progressType":"build",
+    "loggersDefs":[{"opts":{"type":"mongo","mongo":{"mongoURI":"mongodb://cfuser:mTiXcU2wafr9@os-t2-mongo-1047964049.us-east-2.elb.amazonaws.com:27017/codefresh","mongoDBName":"codefresh"}}},{"opts":{"type":"redis","redis":{"host":"os-t2-redis-1867839371.us-east-2.elb.amazonaws.com","password":"hoC9szf7NtrU","db":1,"port":6379}}}]}
     LOGGER_LEVEL: debug
     NODE_ENV: kubernetes
     DOCKER_PUSHER_IMAGE: 'docker-local.jfrog1.cf-cd.com/codefresh/cf-docker-pusher:cf-onprem-v1.0.90'

@@ -29,10 +29,12 @@ spec:
         kind: {{ .Values.event.kind }}
         action: {{ .Values.event.action }}
     spec:
+      {{- if .Values.persistence }}
       volumes:
         - name: boltdb-store
           persistentVolumeClaim:
             claimName: {{ include "cronus.pvcName" . }}
+      {{- end }}
       imagePullSecrets:
         - name: "{{ .Release.Name }}-{{ .Values.global.codefresh }}-registry"
       containers:
@@ -64,9 +66,11 @@ spec:
               value: {{ .Values.service.internalPort | quote }}
             - name: STORE_FILE
               value: "/var/boltdb/events.db"
+          {{- if .Values.persistence }}
           volumeMounts:
             - mountPath: "/var/boltdb"
               name: boltdb-store
+          {{- end }}
           livenessProbe:
             httpGet:
               path: /health

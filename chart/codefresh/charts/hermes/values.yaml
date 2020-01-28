@@ -31,6 +31,7 @@ ingress:
 logJSON: false
 logLevel: debug
 redis:
+  enabled: false
   global:
     CertsCa:
       ca: ""

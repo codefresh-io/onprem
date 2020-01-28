@@ -1,3 +1,4 @@
+{{- if .Values.persistence }}
 {{- if not (include "cronus.existingPvc" . ) -}}
 
 {{- $storageClass :=  ( include "cronus.storageClass" . ) -}}
@@ -22,4 +23,5 @@ spec:
   resources:
     requests:
       storage: {{ $storageSize }}
-{{- end }}      
+{{- end }}
+{{- end }}

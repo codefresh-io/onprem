@@ -23,3 +23,4 @@ service:
   type: ClusterIP
 store:
   size: 1Gi
+persistence: true
