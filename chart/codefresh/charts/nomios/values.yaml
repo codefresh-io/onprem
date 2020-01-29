@@ -29,7 +29,7 @@ logJSON: false
 logLevel: debug
 replicaCount: 1
 service:
-  externalPort: 8080
+  externalPort: 80
   internalPort: 8080
   name: nomios
   type: ClusterIP
