@@ -18,11 +18,11 @@ spec:
           - |
             #!/bin/sh​
             set -e
-            NODE_NAME=test-node
+            NODE_NAME=test-node-1
             SUBDOMAIN=test
             NODE_ADDRESS=mdzhlbmac07.standard.six-group.net
             CONSUL="http://cf-consul.codefresh-dev.svc:8500"
-            ACCOUNT=test-non-tls
+            ACCOUNT=test-node-1
             ROLE=builder
             PROVIDER='
             { 
