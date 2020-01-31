@@ -150,6 +150,8 @@ chartmuseum:
 consul:
   Image: codefresh/consul
   ImageTag: "1.0.0"
+  persistence:
+    enable: false
   storageSize: 1Gi
   storageClass:
   #existingPvc: cf-consul-0
