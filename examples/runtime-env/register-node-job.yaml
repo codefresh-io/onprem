@@ -20,7 +20,7 @@ spec:
             set -e
             NODE_NAME=test-node-1
             SUBDOMAIN=test
-            NODE_ADDRESS=52.44.198.132
+            NODE_ADDRESS=jfrog1.cf-cd.com
             CONSUL="http://cf-consul.codefresh-dev.svc:8500"
             ACCOUNT=test-node-1
             ROLE=builder
@@ -43,7 +43,7 @@ spec:
                     "type_builder"
                 ],
                 "Address": "'${NODE_ADDRESS}'",
-                "Port": 2376
+                "Port": 4243
                 },
                 "Check": {
                 "Node": "",

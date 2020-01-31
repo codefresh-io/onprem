@@ -17,7 +17,6 @@ global:
   #appUrl: g.apps-os-t2.cf-cd.com
   appUrl: codefresh-dev.v12.np01.ocp.six-group.net
 
-
   chartsManagerPort: 8080
   clusterProvidersPort: 8080
   kubeIntegrationPort: 8080
@@ -64,7 +63,6 @@ cfapi:
   rbacCreate: false
   serviceAccountName: codefresh-app
   env:
-    EXTERNAL_URL: http://cf-cfapi
     EVENT_REPORTING_URL: http://cf-cfapi/api/workflow/
 
   resources:
