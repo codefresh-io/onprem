@@ -65,14 +65,7 @@ You can also use `env-vars` file to set parameters for your installation
  ./cf-onprem --namespace codefresh --repo-channel dev --version 1.0.90
  ```
 
-Example 2 - from downloaded helm chart with private registry and downloaded helm 
-```
-helm repo add codefresh-onprem-dev http://charts.codefresh.io/dev
-helm fetch codefresh-onprem-dev/codefresh
-./cf-onprem --helm-chart codefresh-1.0.90.tgz  --reg-user admin --reg-password <password> --private-registry docker-local.jfrog1.cf-cd.com/
-```
-
-Example 3: - rerun jobs
+Example 2: - rerun jobs
 
 ./cf-onprem --set global.seedJobs=true --set global.certsJobs=true
 
@@ -84,4 +77,22 @@ Example 3: - rerun jobs
 
    the validator can be run separately by `./run-validator.sh`
 
-  
+Example 3 - from downloaded helm chart with private registry and downloaded helm 
+```
+helm repo add codefresh-onprem-dev http://charts.codefresh.io/dev
+helm fetch codefresh-onprem-dev/codefresh
+./cf-onprem --helm-chart codefresh-1.0.90.tgz  --reg-user admin --reg-password <password> --private-registry docker-local.jfrog1.cf-cd.com/
+```
+
+Example 4 - from chart saved in chart/codefresh
+
+```
+./cf-onprem --helm-chart chart/codefresh --private-registry artifactory.six-group.net/ --reg-user xxxxxx --reg-password xxxxxxxx
+```
+
+5. Register docker node
+```
+oc create -f runtime-environment/register-node-job.yaml
+```
+Note: if it shows error that job already exists, just `oc delete  register-consul-test-node-<num>` or change job name in the yaml
+

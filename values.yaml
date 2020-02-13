@@ -151,7 +151,7 @@ consul:
   Image: codefresh/consul
   ImageTag: "1.0.0"
   persistence:
-    enable: false
+    enable: true
   storageSize: 1Gi
   storageClass:
   #existingPvc: cf-consul-0
