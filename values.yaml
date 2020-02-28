@@ -17,7 +17,6 @@ global:
   #appUrl: g.apps-os-t2.cf-cd.com
   appUrl: codefresh-dev.v12.np01.ocp.six-group.net
 
-  chartsManagerPort: 8080
   clusterProvidersPort: 8080
   kubeIntegrationPort: 8080
   runtimeEnvironmentManagerPort: 8080
@@ -85,9 +84,6 @@ cf-broadcaster:
       memory: 128Mi
 
 cfui:
-  port: 8080
-
-charts-manager:
   port: 8080
 
 cluster-providers:
