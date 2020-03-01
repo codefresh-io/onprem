@@ -18,7 +18,7 @@ runtimeScheduler:
       "loggersDefs":[{"opts":{"type":"mongo","mongo":{"mongoURI":"mongodb://cfuser:mTiXcU2wafr9@mongodb-codefresh-dev.v12.np01.ocp.six-group.net:20006/codefresh","mongoDBName":"codefresh"}}},{"opts":{"type":"redis","redis":{"host":"cf-redis-codefresh-dev.v12.np01.ocp.six-group.net","password":"hoC9szf7NtrU","db":1,"port":20005}}}]}
     LOGGER_LEVEL: debug
     NODE_ENV: kubernetes
-    DOCKER_PUSHER_IMAGE: 'artifactory.six-group.net/codefresh/cf-docker-pusher:cf-onprem-v1.0.90'
+    DOCKER_PUSHER_IMAGE: 'artifactory.six-group.net/codefresh/cf-docker-pusher:cf-onprem-v1.0.92'
     DOCKER_PULLER_IMAGE: 'artifactory.six-group.net/codefresh/cf-docker-puller:cf-onprem-v1.0.90'
     DOCKER_BUILDER_IMAGE: 'artifactory.six-group.net/codefresh/cf-docker-builder:cf-onprem-v1.0.90'
     CONTAINER_LOGGER_IMAGE: 'artifactory.six-group.net/codefresh/cf-container-logger:cf-onprem-v1.0.90'

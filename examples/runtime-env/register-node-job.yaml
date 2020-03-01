@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: register-consul
+  name: register-consul-1
 spec:
   backoffLimit: 10
   activeDeadlineSeconds: 200
@@ -20,7 +20,8 @@ spec:
             set -e
             NODE_NAME=test-node-1
             SUBDOMAIN=test
-            NODE_ADDRESS=jfrog1.cf-cd.com
+            # NODE_ADDRESS=jfrog1.cf-cd.com
+            NODE_ADDRESS=172.31.128.95
             CONSUL="http://cf-consul.codefresh-dev.svc:8500"
             ACCOUNT=test-node-1
             ROLE=builder

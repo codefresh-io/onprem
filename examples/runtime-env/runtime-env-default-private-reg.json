@@ -1,7 +1,7 @@
 metadata:
   name: system/default-node
   agent: false
-description: System default template for plan
+description: null
 extends: []
 runtimeScheduler:
   type: KubernetesPod
@@ -11,25 +11,26 @@ runtimeScheduler:
   cluster:
     inCluster: true
     namespace: codefresh-dev
-  image: 'docker-local.jfrog1.cf-cd.com/engine:cf-onprem-v1.0.93-http'
+  image: 'docker-local.jfrog1.cf-cd.com/codefresh/engine:cf-onprem-v1.0.93-http'
   envVars:
     LOGGER_ALTERNATE_CONFIG_OPTS: >-
-    {"type":"composition","description":"config that should be used as default for in-house logging","progressType":"build",
-    "loggersDefs":[{"opts":{"type":"mongo","mongo":{"mongoURI":"mongodb://cfuser:mTiXcU2wafr9@os-t2-mongo-1047964049.us-east-2.elb.amazonaws.com:27017/codefresh","mongoDBName":"codefresh"}}},{"opts":{"type":"redis","redis":{"host":"os-t2-redis-1867839371.us-east-2.elb.amazonaws.com","password":"hoC9szf7NtrU","db":1,"port":6379}}}]}
+      {"type":"composition","description":"config that should be used as default
+      for in-house logging","progressType":"build",
+      "loggersDefs":[{"opts":{"type":"mongo","mongo":{"mongoURI":"mongodb://cfuser:mTiXcU2wafr9@internal-os-t2-mongo-internal-979585198.us-east-2.elb.amazonaws.com:27017/codefresh","mongoDBName":"codefresh"}}},{"opts":{"type":"redis","redis":{"host":"internal-os-t2-redis-internal-1173266950.us-east-2.elb.amazonaws.com","password":"hoC9szf7NtrU","db":1,"port":6379}}}]}
     LOGGER_LEVEL: debug
     NODE_ENV: kubernetes
-    DOCKER_PUSHER_IMAGE: 'docker-local.jfrog1.cf-cd.com/codefresh/cf-docker-pusher:cf-onprem-v1.0.90'
+    DOCKER_PUSHER_IMAGE: 'docker-local.jfrog1.cf-cd.com/codefresh/cf-docker-pusher:cf-onprem-v1.0.92'
     DOCKER_PULLER_IMAGE: 'docker-local.jfrog1.cf-cd.com/codefresh/cf-docker-puller:cf-onprem-v1.0.90'
     DOCKER_BUILDER_IMAGE: >-
       docker-local.jfrog1.cf-cd.com/codefresh/cf-docker-builder:cf-onprem-v1.0.90
     CONTAINER_LOGGER_IMAGE: >-
       docker-local.jfrog1.cf-cd.com/codefresh/cf-container-logger:cf-onprem-v1.0.90
-    GIT_CLONE_IMAGE: 'docker-local.jfrog1.cf-cd.com/cf-git-cloner:cf-onprem-v1.0.90'
+    GIT_CLONE_IMAGE: 'docker-local.jfrog1.cf-cd.com/codefresh/cf-git-cloner:cf-onprem-v1.0.90'
     DOCKER_TAG_PUSHER_IMAGE: docker-local.jfrog1.cf-cd.com/codefresh/cf-docker-tag-pusher
     FS_OPS_IMAGE: 'docker-local.jfrog1.cf-cd.com/codefresh/fs-ops:latest'
     COMPOSE_IMAGE: 'docker-local.jfrog1.cf-cd.com/codefresh/compose:1.25.0-sp'
     KUBE_DEPLOY: 'docker-local.jfrog1.cf-cd.com/codefresh/cf-deploy-kubernetes:sp-1'
-    TEMPLATE_ENGINE: docker-local.jfrog1.cf-cd.com/codefresh/pikolo:latest
+    TEMPLATE_ENGINE: 'docker-local.jfrog1.cf-cd.com/codefresh/pikolo:latest'
     NO_EXT_MONITOR: 'true'
     DISABLE_WORKSPACE_CACHE: 'true'
   volumeMounts:
@@ -44,11 +45,6 @@ runtimeScheduler:
         secretName: cf-codefresh-certs-client
 dockerDaemonScheduler:
   type: ConsulNodes
-  cluster:
-    name: test-non-tls
-    type: builder
-    returnRunnerIfNoBuilder: true
-  notCheckServerCa: true
-  clientCertPath: /etc/ssl/cf/
 isPublic: true
+nonComplete: false
 environmentCertPath: /etc/ssl/cf/

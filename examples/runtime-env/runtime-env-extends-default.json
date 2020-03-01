@@ -1,7 +1,12 @@
 metadata:
-  name: system/test-1
+  name: system/rhel-node
   agent: false
 description: null
 extends:
-  - system/default
+  - system/default-node
 nonComplete: false
+dockerDaemonScheduler:
+  type: ConsulNodes
+  cluster:
+    name: test-node-1
+    type: builder
