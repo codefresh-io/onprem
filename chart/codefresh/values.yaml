@@ -388,6 +388,7 @@ cfapi:
     builderService: builder
     cfapiInternalPort: 3000
     cfapiService: cfapi
+    cfk8smonitorService: k8s-monitor
     cfcrDomain: ""
     chartsManagerPort: 9000
     chartsManagerService: charts-manager
