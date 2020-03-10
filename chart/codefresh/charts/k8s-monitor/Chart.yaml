@@ -1,0 +1,7 @@
+apiVersion: v1
+description: Kubernetes monitor tool
+keywords:
+- kubernetes
+- monitor
+name: k8s-monitor
+version: 4.5.0
