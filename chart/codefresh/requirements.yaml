@@ -134,13 +134,13 @@ dependencies:
   tags:
   - saas
   - infra
-# - name: k8s-monitor
-#   version: ^4.0.0
-#   repository: http://chartmuseum.codefresh.io
-#   condition: cfui.enabled
-#   tags:
-#     - saas
-#     - infra
+- name: k8s-monitor
+  version: ^4.0.0
+  repository: http://chartmuseum.codefresh.io
+  condition: cfui.enabled
+  tags:
+    - saas
+    - infra
 - name: onboarding-status
   version: ^1.0.x
   repository: http://chartmuseum.codefresh.io

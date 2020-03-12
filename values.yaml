@@ -18,9 +18,7 @@ global:
   appUrl: codefresh-dev.v12.np01.ocp.six-group.net
 
   clusterProvidersPort: 8080
-  kubeIntegrationPort: 8080
   runtimeEnvironmentManagerPort: 8080
-
 # Storage class for all persistent services (only in case your storage class supports automatic volume provisioning). By default Codefresh will use the default storage class configured in your cluster, if the storage class you want to use isn't set as default in your k8s cluster please use this variable to describe it
 #  storageClass: my-storage-class
 
@@ -89,10 +87,6 @@ cfui:
 cluster-providers:
   port: 8080
   targetPort: 8080
-
-kube-integration:
-  targetPort: 8080
-
 runtime-environment-manager:
   port: 8080
 
