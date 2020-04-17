@@ -2,7 +2,7 @@ global:
   istio:
     enabled: false
 image: codefresh/cf-k8s-monitor
-imageTag: 4.5.0
+imageTag: 4.6.3
 dockerRegistry: gcr.io/codefresh-inc/
 port: 9016
 targetPort: 9016
