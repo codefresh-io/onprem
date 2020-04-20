@@ -41,6 +41,13 @@ spec:
         heritage: {{ .Release.Service  | quote }}
         version: {{ .version | default "base" | quote  }}
     spec:
+      {{- if not .Values.global.devEnvironment }}
+      {{- $podSecurityContext := (kindIs "invalid" .Values.global.podSecurityContextOverride) | ternary .Values.podSecurityContext .Values.global.podSecurityContextOverride }}
+      {{- with $podSecurityContext }}
+      securityContext:
+{{ toYaml . | indent 8}}
+      {{- end }}
+      {{- end }}
       # In production Kubernetes clusters we have multiple tiers of worker nodes.
       # The following setting makes sure that your applicaiton will run on
       # service nodes which don't run internal pods like monitoring.
@@ -152,11 +159,11 @@ spec:
           value: "{{ .Release.Name }}-{{ .Values.global.runtimeEnvironmentManagerService }}"
         - name: RUNTIME_ENVIRONMENT_MANAGER_PORT
           value: {{ .Values.global.runtimeEnvironmentManagerPort | quote }}
-
+        - name: STEPS_CATALOG_ON_PREMISE
+          value: {{ .Values.global.stepsCatalogOnPremise | quote }}
         ports:
         - containerPort: {{ .Values.targetPort }}
           protocol: TCP
-
         readinessProbe:
           httpGet:
             path: /api/ready

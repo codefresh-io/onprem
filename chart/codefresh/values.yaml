@@ -303,7 +303,7 @@ cf-broadcaster:
     tlsSignService: cfsign
   image: codefresh/cf-broadcaster
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.92
+  imageTag: cf-onprem-v1.0.98
   newrelicLicenseKey: ""
   port: 9016
   redeploy: false
@@ -464,7 +464,7 @@ cfapi:
     tlsSignService: cfsign
   image: codefresh/cf-api
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.92
+  imageTag: cf-onprem-v1.0.98
   internalPort: 3000
   istio:
     enabled: false
@@ -586,7 +586,7 @@ cfsign:
     tlsSignService: cfsign
   image: codefresh/cf-tls-sign
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.98
   port: 4999
   redeploy: false
   replicaCount: 1
@@ -694,7 +694,7 @@ cfui:
     tlsSignService: cfsign
   image: codefresh/cf-ui
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.92
+  imageTag: cf-onprem-v1.0.98
   ingress:
     enabled: false
   istio:
@@ -980,7 +980,7 @@ charts-manager:
     tlsSignService: cfsign
   image: codefresh/charts-manager
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.92
+  imageTag: cf-onprem-v1.0.98
   mongoCreateDbJobScript: files/mongoCreateDbJobScript
   mongodbName: charts-manager
   port: 9000
@@ -1082,7 +1082,7 @@ cluster-providers:
     tlsSignService: cfsign
   image: codefresh/cluster-providers
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.92
+  imageTag: cf-onprem-v1.0.98
   mongoCreateDbJobScript: files/mongoCreateDbJobScript
   mongoURI: ""
   mongodbName: cluster-providers
@@ -1313,7 +1313,7 @@ context-manager:
     tlsSignService: cfsign
   image: codefresh/context-manager
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.92 
+  imageTag: cf-onprem-v1.0.98
   mongoCreateDbJobScript: files/mongoCreateDbJobScript
   mongodbName: context-manager
   port: 9000
@@ -1420,7 +1420,7 @@ cronus:
     dockerRegistry: gcr.io/codefresh-enterprise/
     name: codefresh/cronus
     pullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.98
   logJSON: false
   logLevel: debug
   service:
@@ -1796,7 +1796,7 @@ helm-repo-manager:
     dockerRegistry: gcr.io/codefresh-enterprise/
     name: codefresh/helm-repo-manager
     pullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.98
   ingress:
     annotations: null
     enabled: false
@@ -1920,7 +1920,7 @@ hermes:
     dockerRegistry: gcr.io/codefresh-enterprise/
     name: codefresh/hermes
     pullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.98
   ingress:
     annotations: null
     enabled: false
@@ -2270,7 +2270,7 @@ kube-integration:
     tlsSignService: cfsign
   image: codefresh/kube-integration
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.92
+  imageTag: cf-onprem-v1.0.98
   port: 9000
   redeploy: false
   replicaCount: 1
@@ -2680,7 +2680,7 @@ nomios:
     dockerRegistry: gcr.io/codefresh-enterprise/
     name: codefresh/nomios
     pullPolicy: Always
-  imageTag: cf-onprem-v1.0.91
+  imageTag: cf-onprem-v1.0.98
   ingress:
     annotations:
       kubernetes.io/ingress.class: nginx-codefresh
@@ -3000,7 +3000,7 @@ pipeline-manager:
     tlsSignService: cfsign
   image: codefresh/pipeline-manager
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.92
+  imageTag: cf-onprem-v1.0.98
   mongoCreateDbJobScript: files/mongoCreateDbJobScript
   mongodbName: pipeline-manager
   port: 9000
@@ -3630,7 +3630,7 @@ runtime-environment-manager:
     tlsSignService: cfsign
   image: codefresh/runtime-environment-manager
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.92
+  imageTag: cf-onprem-v1.0.98
   mongoCreateDbJobScript: files/mongoCreateDbJobScript
   mongodbName: runtime-environment-manager
   newrelicLicenseKey: invalid-key
@@ -3947,7 +3947,7 @@ tasker-kubernetes:
     tlsSignService: cfsign
   image: codefresh/tasker-kubernetes
   imagePullPolicy: Always
-  imageTag: cf-onprem-v1.0.92
+  imageTag: cf-onprem-v1.0.98
   redeploy: false
   replicaCount: 1
 workflow-baseline-invoker:

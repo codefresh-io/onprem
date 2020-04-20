@@ -1,5 +1,5 @@
 global:
-
+  stepsCatalogOnPremise: true
 ### expose codefresh internal registry from ingress
   #registryPort: 443
   #exposeRegistry: true
