@@ -245,7 +245,7 @@ if [[ -z "${HELM_CHART}" ]]; then
   HELM_CHART=codefresh-onprem-${CHANNEL}/codefresh
 fi
 if [[ -n "${IS_HELM2}" ]]; then
-  cf_status=$($HELM status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
+  cf_status=$($HELM $TILLER_NAMESPACE_PARAM status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 else
   cf_status=$($HELM -n $NAMESPACE status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
 fi
