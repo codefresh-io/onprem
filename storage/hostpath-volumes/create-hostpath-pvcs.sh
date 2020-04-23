@@ -13,15 +13,6 @@ source ${DIR}/../../scripts/helpers.sh
 
 if [[ -z "${IN_INSTALLER}" ]]; then
   approveContext
-
-  # msg "Checking helm binary on your system"
-  # checkHelmInstalled "helm"
-
-  # msg "Checking if tiller is installed on kubernetes cluster"
-  # checkTillerInstalled
-
-  # msg "Checking tiller status..."
-  # checkTillerStatus
 fi
 
 #HELM_OPTS="--tiller-namespace $TILLER_NAMESPACE"

@@ -64,11 +64,9 @@ function regexMatch() {
    fi
 }
 
-approveContext() {
-	echo "Your kubectl is configured with the following context: "
-	CURRENT_CONTEXT=$(kubectl config current-context)
-    kubectl config get-contexts ${CURRENT_CONTEXT}
-	read -r -p "Are you sure you want to continue? [y/N] " response
+areYouSure() {
+  local MSG=${1:-"Are you sure you want to continue? [y/N] "}
+	read -r -p "${MSG}" response
 
 	if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
 	then
@@ -78,14 +76,39 @@ approveContext() {
 			exit 0
 	fi
 }
+approveContext() {
+	echo "Your kubectl is configured with the following context: "
+	CURRENT_CONTEXT=$(kubectl config current-context)
+    kubectl config get-contexts ${CURRENT_CONTEXT}
+  
+  areYouSure
+}
 
-HELM_VERSION="${CF_HELM_VERSION:-2.12.0}"
+HELM2_MIN_VERSION=2.13.1
+HELM3_MIN_VERSION="${CF_HELM_VERSION:-3.1.2}"
+HELM_MIN_VERSION=${HELM3_MIN_VERSION}
+
 checkHelmInstalled() {
+  HELM=${1:-helm}
   if command -v $1 >/dev/null 2>&1; then
-    helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//' | sed 's/v//' )
+    helm_version=$($HELM version --client --short | sed 's/.*\: v//' | sed 's/+.*//' | sed 's/v//' )
     msg "helm is already installed and has version v$helm_version"
-    [ $(ver $helm_version) -lt $(ver $HELM_VERSION) ] && \
-    err "You have older helm version than required. Please upgrade to v$HELM_VERSION or newer !"
+    if [[ "v$helm_version" =~ v2 ]]; then
+      warning "helm 2 is deprecated, consider to update helm v3"
+      areYouSure "Continue with helm2? [y/N]"
+
+      export IS_HELM2="true"
+      HELM_MIN_VERSION=${HELM2_MIN_VERSION}
+    elif [[ "v$helm_version" =~ v3 ]]; then
+      export IS_HELM3="true"
+    else
+      err "Unsupported helm version $helm_version"
+    fi
+    
+    if [ $(ver $helm_version) -lt $(ver $HELM_MIN_VERSION) ]; then
+      err "You have older helm version than required. Please upgrade to v$HELM_MIN_VERSION or newer !"
+    fi
+
   else
     warning "helm is not installed"
     if [[ ! "$YES" == 'true' ]]; then
@@ -95,8 +118,8 @@ checkHelmInstalled() {
           helmInstall
       ;;
         *)
-          err "Need helm to deploy Codefresh app ! Exiting..."
-          #exit 1
+          err "Need $HELM to deploy Codefresh app ! Exiting..."
+          exit 1
       ;;
       esac
     else
@@ -106,6 +129,7 @@ checkHelmInstalled() {
 }
 
 helmInstall() {
+  HELM_VERSION=${CF_HELM_VERSION:-$HELM3_MIN_VERSION}
   msg "Downloading and installing helm..."
   case "$(uname -s)" in
     Linux)
@@ -124,70 +148,4 @@ helmInstall() {
   echo sudo mv /tmp/${os}-amd64/helm /usr/local/bin/
   sudo mv /tmp/${os}-amd64/helm /usr/local/bin/
   rm -rf /tmp/helm-v${HELM_VERSION}-${os}-amd64 /tmp/helm-v${HELM_VERSION}-${os}-amd64.tar.gz
-}
-
-checkTillerInstalled() {
-  TILLER_NAMESPACE=${1:-"kube-system"}
-  msg "TILLER_NAMESPACE = $TILLER_NAMESPACE"
-  status=$(kubectl -n${TILLER_NAMESPACE} get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
-  
-  if [[ "$status" != "Running" && "${TILLER_NAMESPACE}" != "kube-system" ]]; then
-    err "Tiller is not running on namespace ${TILLER_NAMESPACE} . Please install tiller on the namespace ${TILLER_NAMESPACE} and retry"
-  fi
-  SCRIPTS_DIR=$(dirname "${BASH_SOURCE}")
-  if [ "$status" == "Running" ]; then
-    msg "Tiller is installed and running"
-    helm init -c
-    helm_version=$(helm version --client --short | sed 's/.*\: v//' | sed 's/+.*//')
-    tiller_version=$(helm version --server --tiller-namespace ${TILLER_NAMESPACE} --short | sed 's/.*\: v//' | sed 's/+.*//')
-    if [[ ! "$YES" == 'true' ]] && [ $(ver $tiller_version) -lt $(ver $helm_version) ]; then
-      warning "You're running helm v$helm_version but tiller has v$tiller_version."
-      read -p  " Do you want to upgrade tiller to v$helm_version ? [y/n] " yn
-      case ${yn} in
-        y|Y)
-          kubectl create -f "${SCRIPTS_DIR}"/../tiller-rbac-config.yaml > /dev/null 2>&1
-          helm init --upgrade --service-account tiller --wait
-      ;;
-        *)
-          err "You need to upgrade tiller ! Exiting..."
-      ;;
-      esac
-    fi
-    if [[ "$YES" == 'true' ]] && [ $(ver $tiller_version) -lt $(ver $helm_version) ]; then
-      err "You're running helm v$helm_version but tiller has v$tiller_version . You need to upgrade tiller ! Exiting..."
-    fi
-  else
-    warning "Unable to determine tiller at its default location."
-    if [[ ! "$YES" == 'true' ]]; then
-      read -p  " Do you want to deploy tiller ? [y/n] " yn
-      case ${yn} in
-        y|Y)
-          kubectl create -f "${SCRIPTS_DIR}"/../tiller-rbac-config.yaml
-          helm init --service-account tiller --wait
-      ;;
-        *)
-          err "Need to deploy tiller ! Exiting..."
-          exit 1
-      ;;
-      esac
-    else
-      kubectl create -f "${SCRIPTS_DIR}"/../tiller-rbac-config.yaml
-      helm init --service-account tiller --wait
-    fi
-  fi
-
-}
-
-checkTillerStatus() {
-  TILLER_NAMESPACE=${1:-"kube-system"}
-	while true; do
-    status=$(kubectl -n${TILLER_NAMESPACE} get pod -l app=helm -l name=tiller -o=go-template --template='{{  range $i, $v := .items }}{{ if eq $v.status.phase "Running" }}{{ $v.status.phase }}{{ end }}{{ end }}')
-
-	  msg "Tiller status = $status"
-	  [ "$status" == "Running" ] && break
-
-	  msg "Sleeping 5 seconds ..."
-	  sleep 5
-
-	done
 }

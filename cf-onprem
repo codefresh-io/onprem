@@ -8,9 +8,14 @@ if [ -f "${DIR}/env-vars" ]; then
 . ${DIR}/env-vars
 fi
 
+HELM=${HELM:-helm}
+
 CHANNEL="${CF_HELM_CHANNEL:-dev}"
 source ${DIR}/scripts/helpers.sh
 
+
+msg "Checking helm binary on your system"
+checkHelmInstalled $HELM
 readonly RELEASE=cf
 
 readonly WORKING_DIR="$(dirname "$0")"
@@ -167,7 +172,7 @@ EOF
 
 }
 
-while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|helm-chart|skip-validator|dry-run|reg-user|reg-password|private-registry)) ]]
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|helm-chart|tiller-namespace|skip-validator|dry-run|reg-user|reg-password|private-registry)) ]]
 do
   key=$1
   value=$2
@@ -181,6 +186,10 @@ do
       ;;
     --set)
         SET_VALUES="$SET_VALUES --set $value"
+        shift
+      ;;
+    --tiller-namespace)
+        TILLER_NAMESPACE="$value"
         shift
       ;;
     --repo-channel)
@@ -221,28 +230,25 @@ do
   shift # past argument or value
 done
 
+if [[ -n "${TILLER_NAMESPACE}" && -n "${IS_HELM2}" ]]; then
+   TILLER_NAMESPACE_PARAM="--tiller-namespace=${TILLER_NAMESPACE}"
+fi
 msg "Starting on-prem Codefresh deployment"
 generateDockerConfig || err "Failed to generate docker credentials for image pulling"
 generateWebTlsValuesFile || err "Web Tls certificates error"
-
-if [[ ! "$YES" == 'true' ]]; then
-  approveContext
-else
-  msg "Your kubectl is configured with the following context: "
-	kubectl config current-context
-fi
-
-msg "Checking helm binary on your system"
-checkHelmInstalled "helm"
 
 if [[ -z "${HELM_CHART}" ]]; then
   msg "Adding Helm repo..."
   #addHelmCodefreshRepo
   readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
-  helm repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}" || err "Failed to add helm repo codefresh-onprem-${CHANNEL} ${CODEFRESH_REPOSITORY}"
+  $HELM repo add codefresh-onprem-${CHANNEL} "${CODEFRESH_REPOSITORY}" || err "Failed to add helm repo codefresh-onprem-${CHANNEL} ${CODEFRESH_REPOSITORY}"
   HELM_CHART=codefresh-onprem-${CHANNEL}/codefresh
 fi
-cf_status=$(helm -n $NAMESPACE status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
+if [[ -n "${IS_HELM2}" ]]; then
+  cf_status=$($HELM status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
+else
+  cf_status=$($HELM -n $NAMESPACE status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
+fi
 
 if [[ -z "${cf_status}" ]]; then
   SEEDJOBS="--set global.seedJobs=true"
@@ -259,8 +265,6 @@ else
   echo "Skipping validator because of cf_status=$cf_status or SKIP_VALIDATOR=$SKIP_VALIDATOR or DRY_RUN=$DRY_RUN"
 fi
 
-HELM=${HELM:-helm}
-
 msg "Installing/Updating Codefresh..."
 HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
   --install \
@@ -275,11 +279,18 @@ HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
   ${SET_VALUES} \
   ${SET_VERSION} \
   ${SET_PRIVATE_REGISTRY} \
+  ${TILLER_NAMESPACE_PARAM} \
   ${SET_DEBUG}"
 
 echo "Executing:
   $HELM_COMMAND"
-approveContext
+
+if [[ ! "$YES" == 'true' ]]; then
+  approveContext
+else
+  msg "Your kubectl is configured with the following context: "
+	kubectl config current-context
+fi
 
 if [[ -n ${DRY_RUN} ]]; then
    echo "Dry run mode, do not execute"
