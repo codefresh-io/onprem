@@ -15,11 +15,6 @@ if [[ -z "${IN_INSTALLER}" ]]; then
   msg "Checking helm binary on your system"
   checkHelmInstalled "helm"
 
-  msg "Checking if tiller is installed on kubernetes cluster"
-  checkTillerInstalled
-
-  msg "Checking tiller status..."
-  checkTillerStatus
 fi
 
 RELEASE_STATUS=$(helm status $RELEASE 2>/dev/null | awk -F': ' '$1 == "STATUS" {print $2}')
