@@ -1,5 +1,9 @@
 global:
 
+### use internal docker registry for typed steps
+  stepsCatalogOnPremise: true
+  stepsCatalogOnPremiseRegistry: docker-local.jfrog1.cf-cd.com
+
 ### expose codefresh internal registry from ingress
   #registryPort: 443
   #exposeRegistry: true
