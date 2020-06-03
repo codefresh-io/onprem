@@ -177,4 +177,7 @@ runner:
 #   awsAccessKey: 
 #   awsSecretAccessKey: 
 #   s3Url: s3://<some-bucket>
-    
+
+# Set github token in order to enable public marketplace steps
+# pipeline-manager:
+#   stepsCatalogGithubToken: <GITHUB-TOKEN>
