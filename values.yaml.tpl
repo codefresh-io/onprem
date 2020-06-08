@@ -180,4 +180,5 @@ runner:
 
 # Set github token in order to enable public marketplace steps
 # pipeline-manager:
+#   stepsCatalogEnabled: true
 #   stepsCatalogGithubToken: <GITHUB-TOKEN>
