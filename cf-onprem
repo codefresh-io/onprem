@@ -265,6 +265,11 @@ else
   echo "Skipping validator because of cf_status=$cf_status or SKIP_VALIDATOR=$SKIP_VALIDATOR or DRY_RUN=$DRY_RUN"
 fi
 
+if [[ -n ${DRY_RUN} ]]; then
+   echo "Dry run mode, do not execute"
+   SET_DRY_RUN=" --dry-run "
+fi
+
 msg "Installing/Updating Codefresh..."
 HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
   --install \
@@ -280,7 +285,7 @@ HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
   ${SET_VERSION} \
   ${SET_PRIVATE_REGISTRY} \
   ${TILLER_NAMESPACE_PARAM} \
-  ${SET_DEBUG}"
+  ${SET_DEBUG} ${SET_DRY_RUN}"
 
 echo "Executing:
   $HELM_COMMAND"
@@ -292,10 +297,7 @@ else
 	kubectl config current-context
 fi
 
-if [[ -n ${DRY_RUN} ]]; then
-   echo "Dry run mode, do not execute"
-   exit 0
-fi
+
 $HELM_COMMAND
 
 
