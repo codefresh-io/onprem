@@ -69,8 +69,20 @@ helm fetch codefresh-onprem-dev/codefresh
 ./cf-onprem --tiller-namespace codefresh --helm-chart codefresh-1.0.90.tgz  --reg-user admin --reg-password <password> --private-registry docker-local.jfrog1.cf-cd.com/
 ```
 
+Example 3: - rerun jobs
+```
+./cf-onprem --set global.seedJobs=true --set global.certsJobs=true
+```
 
+### Run helm template
+Download the chart using `helm fetch` and then run cf-onprem with --do-template and --helm-chart  
+```
+helm fetch --repo http://charts.codefresh.io/test codefresh --version 1.0.104-k16.tgz
+./cf-onprem --do-template --helm-chart /Users/user/devel/cf-helm/codefresh-1.0.104-k16.tgz
+```
+Find producted output in `out/` directory  
 
+### Validator
     On first run the installers invokes Validator chart which validates:
     - values.yaml
     - ability to launch persistent services on specified storage classes

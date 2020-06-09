@@ -24,14 +24,14 @@ Run: helm status cf-local-volumes; to check the status of the release
 Or run: helm del --purge cf-local-volumes; to delete it   
 
    "
-   exit 1
+   #exit 1
 fi
 
 VALUES_FILE=${DIR}/values.yaml
 
 HELM=${HELM:-helm}
 
-HELM_COMMAND="$HELM --namespace $NAMESPACE install -n $RELEASE $CHART $@"
+HELM_COMMAND="$HELM --namespace $NAMESPACE upgrade -i $RELEASE $CHART $@"
 
 echo "Running ${RELEASE} helm release 
 $HELM_COMMAND

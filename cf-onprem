@@ -37,6 +37,7 @@ usage() {
   --debug            - run helm in debug mode
   --skip-validator   - skip validator running
   --dry-run          - dry-run mode - echo command instead of actual running
+  --do-template      - runs helm template and outputs into out/ directory
   --private-registry - pull the images from a private docker registry
   "
 }
@@ -172,7 +173,7 @@ EOF
 
 }
 
-while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|helm-chart|tiller-namespace|skip-validator|dry-run|reg-user|reg-password|private-registry)) ]]
+while [[ $1 =~ ^(-(y|h)|--(help|yes|set|debug|version|repo-channel|helm-chart|tiller-namespace|skip-validator|dry-run|do-template|reg-user|reg-password|private-registry)) ]]
 do
   key=$1
   value=$2
@@ -212,6 +213,9 @@ do
       ;;
     --dry-run)
         DRY_RUN="true"
+      ;;
+    --do-template)
+        DO_TEMPLATE="true"
       ;;
     --reg-user)
         REG_USER=$value
@@ -266,11 +270,28 @@ else
 fi
 
 if [[ -n ${DRY_RUN} ]]; then
-   echo "Dry run mode, do not execute"
+   echo "Dry run mode"
    SET_DRY_RUN=" --dry-run "
 fi
 
 msg "Installing/Updating Codefresh..."
+# HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
+#   --install \
+#   --namespace "${NAMESPACE}" \
+#   --values "${VALUES_FILE}" \
+#   --values "${DOCKER_CFG_YAML}" \
+#   --no-hooks \
+#   --set cfapi.redeploy=true \
+#   ${SET_WEBTLS_VALUES} \
+#   ${SEEDJOBS} \
+#   ${CERTJOBS} \
+#   ${SET_VALUES} \
+#   ${SET_VERSION} \
+#   ${SET_PRIVATE_REGISTRY} \
+#   ${TILLER_NAMESPACE_PARAM} \
+#   ${SET_DEBUG} ${SET_DRY_RUN}"
+
+if [[ -z "$DO_TEMPLATE" ]]; then
 HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
   --install \
   --namespace "${NAMESPACE}" \
@@ -286,6 +307,27 @@ HELM_COMMAND="${HELM} upgrade ${RELEASE} ${HELM_CHART} \
   ${SET_PRIVATE_REGISTRY} \
   ${TILLER_NAMESPACE_PARAM} \
   ${SET_DEBUG} ${SET_DRY_RUN}"
+else
+TEMPLATE_OUTPUT_DIR=${DIR}/out
+if [[ -e ${TEMPLATE_OUTPUT_DIR} ]]; then
+  rm -rf ${TEMPLATE_OUTPUT_DIR}
+fi
+mkdir -p ${TEMPLATE_OUTPUT_DIR}
+
+HELM_COMMAND="${HELM} template ${HELM_CHART} \
+  --name ${RELEASE} \
+  --output-dir $TEMPLATE_OUTPUT_DIR \
+  --namespace "${NAMESPACE}" \
+  --values "${VALUES_FILE}" \
+  --values "${DOCKER_CFG_YAML}" \
+  --set cfapi.redeploy=true \
+  ${SET_WEBTLS_VALUES} \
+  ${SEEDJOBS} \
+  ${CERTJOBS} \
+  ${SET_VALUES} \
+  ${SET_PRIVATE_REGISTRY} \
+  ${SET_DEBUG}"
+fi
 
 echo "Executing:
   $HELM_COMMAND"
@@ -296,7 +338,6 @@ else
   msg "Your kubectl is configured with the following context: "
 	kubectl config current-context
 fi
-
 
 $HELM_COMMAND
 
