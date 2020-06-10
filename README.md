@@ -1,5 +1,8 @@
 ## Codefresh On-premise installation repository
 
+**DEPRICATED** - use https://github.com/codefresh-io/kcfi for installing Codefresh on Kubernetes  
+
+--------
 `cf-onprem` - script that deploys Codefresh application on any kubernetes cluster 
 
 ### How it works
